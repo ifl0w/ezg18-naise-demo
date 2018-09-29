@@ -1,0 +1,12 @@
+[submodule "glbinding"]
+	path = engine/external/glbinding
+	url = git@github.com:cginternals/glbinding.git
+[submodule "bullet3"]
+	path = engine/external/bullet3
+	url = git@github.com:bulletphysics/bullet3.git
+[submodule "glm"]
+	path = engine/external/glm
+	url = git@github.com:g-truc/glm.git
+[submodule "spdlog"]
+	path = engine/external/spdlog
+	url = git@github.com:gabime/spdlog.git
