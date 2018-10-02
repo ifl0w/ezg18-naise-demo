@@ -2,7 +2,6 @@
 
 #include "Entity.hpp"
 #include "filter/Filter.hpp"
-#include "systems/System.hpp"
 
 #include <vector>
 #include <memory>
@@ -15,6 +14,11 @@ namespace Engine {
 
 class EntityManager {
 public:
+
+	~EntityManager() {
+		entities.clear();
+	}
+
 	/**
 	 * Add the entity to the EntityManager.
 	 * The EntityManager takes ownership of the given entity.

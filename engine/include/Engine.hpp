@@ -7,6 +7,8 @@
 #include <memory>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <systems/System.hpp>
+#include <systems/input/InputSystem.hpp>
 
 using namespace std;
 
@@ -21,17 +23,21 @@ public:
 
 	EntityManager entityManager;
 
+	shared_ptr<InputSystem> inputSystem;
+
 	/**
 	 * @param system
 	 */
 	void addSystem(shared_ptr<System> system);
 
 private:
-	Window mainWindow; // TODO: window will be deleted before the smart pointers to e.g. meshes => segfault
-
-	void pollEvents(Window& window);
+	shared_ptr<Window> mainWindow; // TODO: window will be deleted before the smart pointers to e.g. meshes => segfault
 
 	vector<shared_ptr<System>> systems;
+
+	microseconds _deltaTime;
+	steady_clock::time_point _lastFrame;
+	uint32_t _fps;
 };
 
 }

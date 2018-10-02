@@ -37,10 +37,10 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
-void RenderEngine::initFrame(const CameraComponent& cameraComponent) {
+void RenderEngine::initFrame(const CameraComponent& cameraComponent, const TransformComponent& transform) {
 	deferredTarget->use();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	setProjectionData(cameraComponent);
+	setProjectionData(cameraComponent, transform);
 }
 
 void RenderEngine::render(const shared_ptr<Scene>& scene) {
@@ -177,19 +177,19 @@ void RenderEngine::setScreenData() {
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void RenderEngine::setProjectionData(const CameraComponent& camera) {
+void RenderEngine::setProjectionData(const CameraComponent& camera, const TransformComponent& transform) {
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboProjectionData);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionData);
 
 	projectionMatrix = camera.getProjectionMatrix();
-	viewMatrix = camera.getViewMatrix();
+	viewMatrix = glm::inverse(transform.calculateModelMatrix());
 	glm::mat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
 
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, value_ptr(viewProjectionMatrix));
 
 	auto camPos = camera.getCameraPosition();
-	glBufferSubData(GL_UNIFORM_BUFFER, 64, 16, value_ptr(camPos));
+	glBufferSubData(GL_UNIFORM_BUFFER, 64, 16, value_ptr(transform.position));
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }

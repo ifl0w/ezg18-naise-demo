@@ -1,13 +1,17 @@
 #pragma once
 
+#include <scene/EntityManager.hpp>
+
+#include <chrono>
+
+using namespace std::chrono;
+
 namespace NAISE {
 namespace Engine {
 
-class EntityManager;
-
 class System {
 public:
-	virtual void process(const EntityManager& em) = 0;
+	virtual void process(const EntityManager& em, microseconds deltaTime) = 0;
 };
 
 }

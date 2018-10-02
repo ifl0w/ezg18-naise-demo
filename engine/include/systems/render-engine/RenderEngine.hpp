@@ -50,7 +50,7 @@ public:
 	RenderEngine();
 	RenderEngine(int viewportWidth, int viewportHeight);
 
-	void initFrame(const CameraComponent& cameraComponent);
+	void initFrame(const CameraComponent& cameraComponent, const TransformComponent& transform);
 	void render(const std::shared_ptr<Scene>& scene);
 
 	void setResolution(int width, int height, int sampling = 1);
@@ -88,7 +88,7 @@ private:
 	void setScreenData();
 
 	GLuint uboProjectionData;
-	void setProjectionData(const CameraComponent& camera);
+	void setProjectionData(const CameraComponent& camera, const TransformComponent& transform);
 	void setShadowProjectionData(const CameraComponent& camera, const LightComponent& light);
 
 	GLuint ssboLightData;

@@ -16,8 +16,8 @@ file(GLOB_RECURSE SRC_FILES
         src/systems/render-engine/Resources.cpp
         src/systems/render-engine/DeferredRenderTarget.cpp
         src/systems/render-engine/RenderEngine.cpp
-#        src/systems/render-engine/PingPongTarget.cpp
-#        src/systems/render-engine/PostProcessingTarget.cpp
+        #        src/systems/render-engine/PingPongTarget.cpp
+        #        src/systems/render-engine/PostProcessingTarget.cpp
         src/systems/render-engine/RenderTarget.cpp
         src/systems/render-engine/lights/LightComponent.cpp
         src/systems/render-engine/materials/*.cpp
@@ -36,8 +36,8 @@ file(GLOB_RECURSE SRC_FILES
         include/systems/render-engine/Resources.hpp
         include/systems/render-engine/DeferredRenderTarget.hpp
         include/systems/render-engine/RenderEngine.hpp
-#        include/systems/render-engine/PingPongTarget.hpp
-#        include/systems/render-engine/PostProcessingTarget.hpp
+        #        include/systems/render-engine/PingPongTarget.hpp
+        #        include/systems/render-engine/PostProcessingTarget.hpp
         include/systems/render-engine/RenderTarget.hpp
         include/systems/render-engine/lights/LightComponent.hpp
         include/systems/render-engine/materials/*.hpp
@@ -94,7 +94,7 @@ add_custom_target(
 
 #Set_property(TARGET engine APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${engine_SOURCE_DIR}/external/actor-engine/libcaf_core)
 #link_directories(${engine_SOURCE_DIR}/external/actor-engine/libcaf_core)
-add_library(engine STATIC ${SRC_FILES})
+add_library(engine STATIC ${SRC_FILES} src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp src/components/InputComponent.cpp include/components/InputComponent.hpp include/systems/input/InputMapper.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include
@@ -116,8 +116,8 @@ file(GLOB_RECURSE shader_files
 
 # This will contain full paths to files in binary directory.
 set(binary_files_list)
-foreach(file ${shader_files})
+foreach (file ${shader_files})
     set(source_file ${CMAKE_CURRENT_SOURCE_DIR}/assets/${file})
     set(binary_file ${CMAKE_CURRENT_BINARY_DIR}/${file})
     configure_file(${source_file} ${binary_file} COPYONLY)
-endforeach()
+endforeach ()

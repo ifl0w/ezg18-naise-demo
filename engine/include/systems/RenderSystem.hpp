@@ -28,9 +28,9 @@ public:
 		lightFilter.requirement<LightComponent>();
 	}
 
-	void process(const EntityManager& em) override {
+	void process(const EntityManager& em, microseconds deltaTime) override {
 		em.filter(cameraFilter, [=](Entity& entity) {
-		  renderEngine.initFrame(entity.component<CameraComponent>());
+		  renderEngine.initFrame(entity.component<CameraComponent>(), entity.component<TransformComponent>());
 		});
 
 //		renderEngine.wireframe = true;

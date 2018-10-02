@@ -1,7 +1,8 @@
 #pragma once
 
-class Game {
+#include "GameInputMapper.hpp"
 
+class Game {
 };
 
 

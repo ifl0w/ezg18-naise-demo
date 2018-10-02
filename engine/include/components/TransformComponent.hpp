@@ -14,7 +14,7 @@ class TransformComponent: public Component {
 public:
 	vec3 position;
 	vec3 scale = vec3(1);
-	quat rotation;
+	quat rotation = angleAxis(radians<float>(0), vec3(0,1,0));
 
 	mat4 transform;
 

@@ -64,7 +64,6 @@ void Window::handleEvent(SDL_Event& event) {
 			break;
 		}
 	}
-
 }
 
 ProcAddress NAISE::Engine::getProcAddress(const char* name) {

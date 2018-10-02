@@ -62,6 +62,7 @@ T& Entity::component() {
 	} catch (std::out_of_range& e) {
 		throw std::invalid_argument("Entity does not contain the requested component.");
 	}
+
 	auto tmp = static_cast<T*>(components.at(type_index(typeid(T))).get());
 	return *tmp;
 }

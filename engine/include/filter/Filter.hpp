@@ -19,8 +19,6 @@ private:
 
 template<typename T>
 void Filter::requirement() {
-	auto x = type_index(typeid(T));
-	spdlog::get("console")->debug(x.name());
 	_required.push_back(type_index(typeid(T)));
 }
 
