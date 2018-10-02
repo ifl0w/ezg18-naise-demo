@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Entity.hpp"
+#include "filter/Filter.hpp"
 #include "systems/System.hpp"
 
 #include <vector>
@@ -22,13 +23,9 @@ public:
 	 */
 	void addEntity(shared_ptr<Entity> entity);
 
-	/**
-	 * @param system
-	 */
-	void addSystem(shared_ptr<System> system);
+	void filter(Filter filter, function<void (Entity&)> filterCallback) const;
 private:
-	vector<shared_ptr<System>> systems;
-	map<uint64_t, shared_ptr<Entity>> entities;
+	vector<shared_ptr<Entity>> entities;
 };
 
 }

@@ -1,6 +1,7 @@
 #include <meshes/MeshFactory.hpp>
 #include <memory>
 #include <meshes/Box.hpp>
+#include <meshes/Sphere.hpp>
 
 using namespace NAISE::Engine;
 
@@ -70,6 +71,22 @@ shared_ptr<MeshComponent> MeshFactory::createBox(float width, float height, floa
 	auto boxMesh = std::make_shared<MeshComponent>();
 
 	Box::generateGeometry(*boxMesh.get(), width, height, depth);
+	MeshFactory::fillBuffers(*boxMesh.get());
+
+	return boxMesh;
+}
+
+shared_ptr<MeshComponent> MeshFactory::createSphere(float radius, uint32_t segments, uint32_t rings) {
+	auto boxMesh = std::make_shared<MeshComponent>();
+
+	unsigned int vertexCount = (rings + 1) * (segments + 1);
+	boxMesh->vertices.resize(vertexCount);
+	boxMesh->normals.resize(vertexCount);
+	boxMesh->uv_coords.resize(vertexCount);
+
+	Sphere::generateGeometry(*boxMesh.get(), radius, segments, rings);
+	Sphere::generateIndices(*boxMesh.get(), boxMesh->indices, segments, rings, boxMesh->indices);
+
 	MeshFactory::fillBuffers(*boxMesh.get());
 
 	return boxMesh;

@@ -4,7 +4,4 @@
 
 using namespace NAISE::Engine;
 
-bool Entity::match(shared_ptr<Aspect>& aspect) {
-	return false;
-}
-
+EntityID Entity::_lastID = 0;

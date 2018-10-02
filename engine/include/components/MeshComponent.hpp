@@ -8,6 +8,7 @@
 
 using namespace glm;
 using namespace gl;
+using namespace std;
 
 namespace NAISE {
 namespace Engine {
@@ -17,12 +18,12 @@ public:
 	MeshComponent();
 	~MeshComponent();
 
-	std::vector<vec3> convexHullData;
-	std::vector<vec3> vertices;
-	std::vector<GLuint> indices;
-	std::vector<vec3> normals;
-	std::vector<vec2> uv_coords;
-	std::vector<vec3> tangents;
+	vector<vec3> convexHullData;
+	vector<vec3> vertices;
+	vector<GLuint> indices;
+	vector<vec3> normals;
+	vector<vec2> uv_coords;
+	vector<vec3> tangents;
 
 	GLuint vao; // each mesh contains one VAO
 
@@ -37,7 +38,7 @@ public:
 	 */
 	GLuint instanceModelMatrix_vbo; // each mesh contains one instanceModelMatrix_vbo
 
-	std::vector<vec3> getConvexHullData();
+	vector<vec3> getConvexHullData();
 
 	virtual void writeToObj(std::string filename);
 

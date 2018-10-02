@@ -1,0 +1,39 @@
+#pragma once
+
+#include <vector>
+#include <map>
+#include <memory>
+#include <systems/render-engine/lights/LightComponent.hpp>
+
+#include "ShaderUtils.hpp"
+
+namespace NAISE {
+namespace Engine {
+
+class LightComponent; // forward declaration to break cyclic dependency
+class CameraComponent; // forward declaration to break cyclic dependency
+
+class Shader {
+public:
+	Shader(std::string vertexShaderFile, std::string fragmentShaderFile);
+
+	~Shader();
+
+	const GLint shaderID;
+
+	virtual void useShader();
+
+	void setModelMatrix(glm::tmat4x4<float> modelMatrix);
+
+	/* Static variables */
+	static float brightness;
+	static CameraComponent& activeCamera;
+	static int64_t activeShader;
+//	static DirectionalLight& activeSun;
+	static std::vector<std::shared_ptr<LightData>> activeLights;
+private:
+	GLint modelMatrixLocation = -1;
+};
+
+}
+}

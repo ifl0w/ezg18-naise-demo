@@ -3,9 +3,11 @@
 namespace NAISE {
 namespace Engine {
 
+class EntityManager;
+
 class System {
 public:
-	virtual void process() = 0;
+	virtual void process(const EntityManager& em) = 0;
 };
 
 }

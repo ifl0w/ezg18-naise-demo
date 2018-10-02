@@ -13,9 +13,24 @@ namespace Engine {
 class TransformComponent: public Component {
 public:
 	vec3 position;
+	vec3 scale = vec3(1);
 	quat rotation;
 
 	mat4 transform;
+
+	mat4 calculateModelMatrix() const {
+		glm::mat4 model = glm::dmat4(1);
+
+		// reversed because glm operations do: "original * modifier"
+		model = glm::translate(model, glm::vec3(position));
+
+		mat4 rotationMatrix = mat4_cast(rotation);
+		model = model * rotationMatrix;
+
+		model = glm::scale(model, glm::vec3(scale));
+
+		return model;
+	}
 };
 
 }

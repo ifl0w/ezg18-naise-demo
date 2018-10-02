@@ -4,21 +4,22 @@
 #include <spdlog/spdlog.h>
 
 #include <glbinding/glbinding.h>
+#include <glbinding/Binding.h>
 #include <glbinding-aux/debug.h>
 
 using namespace NAISE::Engine;
 using namespace std;
 
 Window::Window() {
-	SDL_Init(SDL_INIT_VIDEO);              // Initialize SDL2
+	SDL_Init(SDL_INIT_VIDEO);              	// Initialize SDL2
 
 	// Create an application window with the following settings:
 	window = SDL_CreateWindow(
 			"An SDL2 window",                  // window title
 			SDL_WINDOWPOS_UNDEFINED,           // initial x position
 			SDL_WINDOWPOS_UNDEFINED,           // initial y position
-			640,                               // width, in pixels
-			480,                               // height, in pixels
+			1024,                               // width, in pixels
+			768,                               // height, in pixels
 			SDL_WINDOW_OPENGL                  // flags - see below
 	);
 
@@ -28,6 +29,11 @@ Window::Window() {
 		throw runtime_error(string("Could not create window: %s\n", SDL_GetError()));
 	}
 
+	int setAttributeRet = SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	setAttributeRet = SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	setAttributeRet = SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+	setAttributeRet = SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
 	context = SDL_GL_CreateContext(window);
 	// Check that the window was successfully created
 	if (window == nullptr) {
@@ -35,9 +41,8 @@ Window::Window() {
 		throw runtime_error(string("Could not create OpenGL context: %s\n", SDL_GetError()));
 	}
 
-	// TODO: init glbinding
-	//glbinding::initialize(SDL_GL_GetProcAddress);
-	//glbinding::aux::enableGetErrorCallback();
+	glbinding::initialize(getProcAddress, false);
+	glbinding::aux::enableGetErrorCallback();
 }
 
 Window::~Window() {
@@ -62,3 +67,6 @@ void Window::handleEvent(SDL_Event& event) {
 
 }
 
+ProcAddress NAISE::Engine::getProcAddress(const char* name) {
+	return (ProcAddress) SDL_GL_GetProcAddress(name);
+}

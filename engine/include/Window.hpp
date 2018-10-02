@@ -1,9 +1,13 @@
 #pragma once
 
 #include <SDL2/SDL.h>
+#include <glbinding/ProcAddress.h>
 
 namespace NAISE {
 namespace Engine {
+
+using ProcAddress = void(*)();
+ProcAddress getProcAddress(const char *);
 
 class Window {
 public:
@@ -16,7 +20,6 @@ public:
 	bool running = true;
 
 	void handleEvent(SDL_Event& event);
-
 };
 
 }

@@ -1,0 +1,252 @@
+{
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5123,
+            "count" : 45600,
+            "max" : [
+                8732
+            ],
+            "min" : [
+                0
+            ],
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 8733,
+            "max" : [
+                1.6151137351989746,
+                0.15187260508537292,
+                1.0000029802322388
+            ],
+            "min" : [
+                -1.6151137351989746,
+                -0.15187260508537292,
+                -0.8021156787872314
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 8733,
+            "max" : [
+                0.9963377714157104,
+                1.0,
+                1.0
+            ],
+            "min" : [
+                -0.9963377714157104,
+                -1.0,
+                -1.0
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5126,
+            "count" : 8733,
+            "max" : [
+                0.8039158582687378,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "min" : [
+                -0.8039130568504333,
+                -1.0,
+                -0.9963030815124512,
+                1.0
+            ],
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 4,
+            "componentType" : 5126,
+            "count" : 8733,
+            "max" : [
+                1.0,
+                1.0
+            ],
+            "min" : [
+                0.0,
+                0.0
+            ],
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 5,
+            "componentType" : 5123,
+            "count" : 8733,
+            "max" : [
+                0,
+                0,
+                0,
+                0
+            ],
+            "min" : [
+                0,
+                0,
+                0,
+                0
+            ],
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 6,
+            "componentType" : 5126,
+            "count" : 8733,
+            "max" : [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "min" : [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "type" : "VEC4"
+        }
+    ],
+    "asset" : {
+        "generator" : "Khronos Blender glTF 2.0 exporter",
+        "version" : "2.0"
+    },
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 91200,
+            "byteOffset" : 0,
+            "target" : 34963
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 104796,
+            "byteOffset" : 91200,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 104796,
+            "byteOffset" : 195996,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 139728,
+            "byteOffset" : 300792,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 69864,
+            "byteOffset" : 440520,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 69864,
+            "byteOffset" : 510384,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 139728,
+            "byteOffset" : 580248,
+            "target" : 34962
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 719976,
+            "uri" : "spaceship.bin"
+        }
+    ],
+    "images" : [
+        {
+            "name" : "SpaceShipDiffuse",
+            "uri" : "SpaceShipDiffuse.jpg"
+        },
+        {
+            "name" : "SpaceShipEmission1",
+            "uri" : "SpaceShipEmission1.jpg"
+        },
+        {
+            "name" : "SpaceShipNormals",
+            "uri" : "SpaceShipNormals.jpg"
+        }
+    ],
+    "materials" : [
+        {
+            "emissiveTexture" : {
+                "index" : 1
+            },
+            "name" : "Material",
+            "normalTexture" : {
+                "index" : 2
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 0
+                },
+                "metallicFactor" : 0.0
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Cube",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "JOINTS_0" : 5,
+                        "NORMAL" : 2,
+                        "POSITION" : 1,
+                        "TANGENT" : 3,
+                        "TEXCOORD_0" : 4,
+                        "WEIGHTS_0" : 6
+                    },
+                    "indices" : 0,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "SpaceShip"
+        }
+    ],
+    "samplers" : [
+        {}
+    ],
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "textures" : [
+        {
+            "sampler" : 0,
+            "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 1
+        },
+        {
+            "sampler" : 0,
+            "source" : 2
+        }
+    ]
+}

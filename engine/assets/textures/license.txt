@@ -1,0 +1,10 @@
+All images converted and resized with http://www.aconvert.com/image/
+
+sun.dds (https://www.solarsystemscope.com/Textures)
+earth.dds (https://www.solarsystemscope.com/Textures)
+moon.dds (https://www.solarsystemscope.com/Textures)
+wood_texture.dds cropped (http://www.commentnation.com/backgrounds/pages/wood_page1.htm)
+bricks_diffuse.dds
+bricks_specular.dds generated with GIMP plugin InsaneBump from bricks_diffuse.dds (http://registry.gimp.org/node/28638)
+metal_texture.dds converted (http://www.publicdomainpictures.net/view-image.php?image=60465&picture=&jazyk=DE)
+skybox Yokohama converted (http://www.humus.name/index.php?page=Textures&start=0)

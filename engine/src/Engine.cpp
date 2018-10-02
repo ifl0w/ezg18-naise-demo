@@ -1,5 +1,6 @@
 #include <Engine.hpp>
 #include <scene/Entity.hpp>
+#include <systems/RenderSystem.hpp>
 
 using namespace NAISE::Engine;
 using namespace std;
@@ -11,12 +12,18 @@ Engine::Engine() {
 	auto console = spdlog::stdout_color_mt("console");
 	console->set_level(spdlog::level::debug);
 
-
+	addSystem(make_shared<RenderSystem>());
 }
 
 void Engine::run() {
 	while (mainWindow.running) {
 		pollEvents(mainWindow);
+
+		for (auto& system: systems) {
+			system->process(entityManager);
+		}
+
+		SDL_GL_SwapWindow(mainWindow.window);
 	}
 }
 
@@ -28,3 +35,6 @@ void Engine::pollEvents(Window& window) {
 	}
 }
 
+void Engine::addSystem(shared_ptr<System> system) {
+	systems.push_back(system);
+}
