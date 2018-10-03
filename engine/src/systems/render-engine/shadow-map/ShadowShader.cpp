@@ -1,9 +1,9 @@
 #include <sstream>
 #include <utility>
 
-#include "ShadowShader.hpp"
+#include <systems/render-engine/shadow-map/ShadowShader.hpp>
 
-#include "../../lights/Light.h"
+using namespace NAISE::Engine;
 
 ShadowShader::ShadowShader()
 		: Shader("engine/shaders/shadows/shadow-map.vert",

@@ -1,4 +1,7 @@
-#include "ShadowMap.hpp"
+#include <systems/render-engine/shadow-map/ShadowMap.hpp>
+#include <spdlog/spdlog.h>
+
+using namespace NAISE::Engine;
 
 ShadowMap::ShadowMap(int width, int height): width(width), height(height) {
 	glGenTextures(1, &shadowMap);
@@ -21,7 +24,7 @@ ShadowMap::ShadowMap(int width, int height): width(width), height(height) {
 
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE) {
-		spdlog::get("logger")->error("NAISE::ENGINE::ShadowMap >> Shadow map creation failed! (Status {})", status);
+		spdlog::get("logger")->error("NAISE::ENGINE::ShadowMap >> Shadow map creation failed! (Status {})", (int) status);
 	}
 }
 

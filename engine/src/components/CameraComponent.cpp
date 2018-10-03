@@ -21,7 +21,7 @@ CameraComponent::CameraComponent() {
 	far = 1000.0f;
 
 	projectionMatrix = perspectiveFov<double>(glm::radians(getFovY()), viewportWidth, viewportHeight, near, far);
-//	frustum = Frustum(fov, getFovY(), near, far);
+	frustum = Frustum(fov, getFovY(), near, far);
 	positionMatrix = mat4(1);
 }
 
@@ -33,7 +33,7 @@ CameraComponent::CameraComponent(double fov, double near, double far, int viewpo
 		  viewportHeight(viewportHeight),
 		  positionMatrix(glm::mat4(0)) {
 	projectionMatrix = perspectiveFov<double>(glm::radians(getFovY()), viewportWidth, viewportHeight, near, far);
-//	frustum = Frustum(fov, getFovY(), near, far);
+	frustum = Frustum(fov, getFovY(), near, far);
 	positionMatrix = mat4(1);
 }
 

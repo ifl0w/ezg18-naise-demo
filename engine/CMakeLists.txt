@@ -19,10 +19,13 @@ file(GLOB_RECURSE SRC_FILES
         #        src/systems/render-engine/PingPongTarget.cpp
         #        src/systems/render-engine/PostProcessingTarget.cpp
         src/systems/render-engine/RenderTarget.cpp
+        src/systems/render-engine/lights/DirectionalLight.cpp
         src/systems/render-engine/lights/LightComponent.cpp
         src/systems/render-engine/materials/*.cpp
         src/systems/render-engine/shaders/*.cpp
         src/systems/render-engine/meshes/*.cpp
+        src/systems/render-engine/frustum-culling/*.cpp
+        src/systems/render-engine/shadow-map/*.cpp
         include/Engine.hpp
         include/Window.hpp
         include/components/*.hpp
@@ -39,10 +42,13 @@ file(GLOB_RECURSE SRC_FILES
         #        include/systems/render-engine/PingPongTarget.hpp
         #        include/systems/render-engine/PostProcessingTarget.hpp
         include/systems/render-engine/RenderTarget.hpp
+        include/systems/render-engine/lights/DirectionalLight.hpp
         include/systems/render-engine/lights/LightComponent.hpp
         include/systems/render-engine/materials/*.hpp
         include/systems/render-engine/shaders/*.hpp
         include/systems/render-engine/meshes/*.hpp
+        include/systems/render-engine/frustum-culling/*.hpp
+        include/systems/render-engine/shadow-map/*.hpp
         )
 
 set("OpenGL_GL_PREFERENCE" "GLVND")

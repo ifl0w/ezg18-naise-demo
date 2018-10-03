@@ -85,7 +85,7 @@ vec3 processLight(Light light, vec3 pos, vec3 norm, vec3 diffuse, float specular
 	diff *= attenuation;
 	spec *= attenuation;
 
-	float shadowFactor = 1;//calculateShadowFactor(pos, norm, lightDir);
+	float shadowFactor = calculateShadowFactor(pos, norm, lightDir);
 	return (diff + spec) * shadowFactor;
 }
 

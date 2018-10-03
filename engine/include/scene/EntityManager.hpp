@@ -28,6 +28,8 @@ public:
 	void addEntity(shared_ptr<Entity> entity);
 
 	void filter(Filter filter, function<void (Entity&)> filterCallback) const;
+	void filter(Filter filter, function<void (Entity*)> filterCallback) const;
+	void filter(Filter filter, function<void (vector<Entity*>)> filterCallback) const;
 private:
 	vector<shared_ptr<Entity>> entities;
 };

@@ -5,7 +5,7 @@
 #include "../utilities/Utils.h"
 #include "../InputHandler.h"
 #include "../scene/Entity.h"
-#include "../frustum-culling/Frustum.h"
+#include "systems/render-engine/frustum-culling/Frustum.hpp"
 
 // Because f*** y** windows.h
 #undef far

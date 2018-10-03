@@ -1,10 +1,11 @@
 #pragma once
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <systems/render-engine/frustum-culling/Frustum.hpp>
 
 #include "Component.hpp"
 
-// Because f*** y** windows.h
+// cuz windows.h
 #undef far
 #undef near
 
@@ -22,7 +23,7 @@ public:
 
 	glm::vec3 getCameraPosition() const;
 
-//	Frustum frustum;
+	Frustum frustum;
 
 protected:
 	double fov;
@@ -44,7 +45,7 @@ protected:
 	 */
 	double getFovY() const;
 
-	//AABB calculateViewFrustrum();
+//	AABB calculateViewFrustrum();
 };
 
 }

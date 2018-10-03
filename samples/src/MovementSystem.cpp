@@ -3,6 +3,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp>
+#include <components/CameraComponent.hpp>
 
 void MovementSystem::process(const NAISE::Engine::EntityManager& em, microseconds deltaTime) {
 	em.filter(movementFilter, [=](Entity& entity) {
@@ -77,6 +78,10 @@ void MovementSystem::process(const NAISE::Engine::EntityManager& em, microsecond
 			  transform.rotation = yawQuat * transform.rotation * pitchQuat;
 		  }
 	  }
+
+	  // TODO: Move to camera system
+	  auto positionMatrix = glm::mat4(transform.calculateModelMatrix());
+	  entity.component<CameraComponent>().frustum.recalculate(positionMatrix);
 
 	});
 }

@@ -3,6 +3,7 @@
 #include <components/MeshComponent.hpp>
 #include <components/CameraComponent.hpp>
 #include <systems/render-engine/lights/LightComponent.hpp>
+#include <systems/render-engine/lights/DirectionalLight.hpp>
 #include <systems/render-engine/materials/PhongMaterialComponent.hpp>
 #include <meshes/MeshFactory.hpp>
 #include <components/InputComponent.hpp>
@@ -39,9 +40,9 @@ int main(int argc, char** argv) {
 
 	auto light = make_shared<NAISE::Engine::Entity>();
 	light->add<TransformComponent>();
-	light->add<LightComponent>();
-	light->component<LightComponent>().data.directional = static_cast<uint32_t>(true);
-	light->component<LightComponent>().data.direction = vec4(0, -1, -1, 1);
+	light->add<DirectionalLight>();
+	light->component<DirectionalLight>();
+	light->component<DirectionalLight>().data.direction = vec4(-1, -1, -1, 1);
 
 	engine.entityManager.addEntity(light);
 	engine.entityManager.addEntity(camera);

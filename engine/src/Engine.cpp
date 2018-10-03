@@ -17,6 +17,9 @@ Engine::Engine()
 	auto console = spdlog::stdout_color_mt("console");
 	console->set_level(spdlog::level::debug);
 
+	auto logger = spdlog::stdout_color_mt("logger");
+	logger->set_level(spdlog::level::warn);
+
 	inputSystem->setWindow(mainWindow);
 
 	addSystem(inputSystem);

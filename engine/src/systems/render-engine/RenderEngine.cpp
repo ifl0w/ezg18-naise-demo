@@ -1,6 +1,7 @@
 #include <systems/render-engine/RenderEngine.hpp>
 #include <systems/render-engine/lights/LightComponent.hpp>
 #include <spdlog/spdlog.h>
+#include <systems/render-engine/lights/DirectionalLight.hpp>
 
 using namespace NAISE::Engine;
 using namespace std;
@@ -13,7 +14,7 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	, viewportHeight(viewportHeight) {
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
 //	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
-//	shadowMap = make_unique<ShadowMap>(1024 * 4, 1024 * 4);
+	shadowMap = make_unique<ShadowMap>(1024 * 4, 1024 * 4);
 
 	// enable back face culling
 	glEnable(GL_CULL_FACE);
@@ -40,7 +41,7 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 void RenderEngine::initFrame(const CameraComponent& cameraComponent, const TransformComponent& transform) {
 	deferredTarget->use();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	setProjectionData(cameraComponent, transform);
+	setProjectionData(cameraComponent.getProjectionMatrix(), glm::inverse(transform.calculateModelMatrix()), transform.position);
 }
 
 void RenderEngine::render(const shared_ptr<Scene>& scene) {
@@ -132,7 +133,7 @@ void RenderEngine::prepareLightPass() {
 }
 
 void RenderEngine::lightPass(const LightComponent& light) {
-	renderLights(light);
+//	renderLights(light);
 }
 
 
@@ -175,37 +176,33 @@ void RenderEngine::setScreenData() {
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void RenderEngine::setProjectionData(const CameraComponent& camera, const TransformComponent& transform) {
+void RenderEngine::setProjectionData(const mat4 projectionMatrix, const mat4 viewMatrix, const vec3 cameraPosition) {
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboProjectionData);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionData);
 
-	projectionMatrix = camera.getProjectionMatrix();
-	viewMatrix = glm::inverse(transform.calculateModelMatrix());
 	glm::mat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
 
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, value_ptr(viewProjectionMatrix));
 
-	auto camPos = camera.getCameraPosition();
-	glBufferSubData(GL_UNIFORM_BUFFER, 64, 16, value_ptr(transform.position));
+	glBufferSubData(GL_UNIFORM_BUFFER, 64, 16, value_ptr(cameraPosition));
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-//void RenderEngine::setShadowProjectionData(const CameraComponent& camera, const LightComponent& light) {
-//	glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboProjectionData);
-//
-//	glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionData);
-//
-//	mat4 viewProjectionMatrix = light.getProjectionMatrix() * light.getShadowMatrix();
-//
-//	glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, value_ptr(viewProjectionMatrix));
-//
-//	auto camPos = vec3(glm::mat4(light.getOriginTransformation() * light.getModelMatrix()) * vec4(1));
-//	glBufferSubData(GL_UNIFORM_BUFFER, 64, 16, value_ptr(camPos));
-//
-//	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-//}
+void RenderEngine::setShadowProjectionData(const mat4 projectionMatrix, const mat4 viewMatrix, const vec3 lightPosition) {
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboProjectionData);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionData);
+
+	mat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
+
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, value_ptr(viewProjectionMatrix));
+
+	glBufferSubData(GL_UNIFORM_BUFFER, 64, 16, value_ptr(lightPosition));
+
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
 
 //void RenderEngine::setLightData() {
 //	std::vector<std::shared_ptr<Light>> lights = Shader::activeLights;
@@ -307,7 +304,7 @@ void RenderEngine::setBrightness(float brightness) {
 	setScreenData();
 }
 
-void RenderEngine::renderLights(const LightComponent& light) {
+void RenderEngine::renderLights(const LightComponent& light, const Entity& camera) {
 
 	// stencil test for light volumes
 	glEnable(GL_STENCIL_TEST);
@@ -361,10 +358,11 @@ void RenderEngine::renderLights(const LightComponent& light) {
 			glStencilFunc(GL_ALWAYS, 0, 0);
 
 			deferredTarget->setTextureUnits(dlShader);
-//			shadowMap->setTextureUnits(dlShader);
+			shadowMap->setTextureUnits(dlShader);
 
 			dlShader.setLightProperties(light);
-			dlShader.setShadowMapViewProjection(light.getProjectionMatrix() * light.getShadowMatrix());
+			auto& c = camera.component<CameraComponent>();
+			dlShader.setShadowMapViewProjection(light.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(30))) * light.getShadowMatrix());
 			quad.draw();
 
 			glEnable(GL_DEPTH_TEST);
@@ -374,21 +372,40 @@ void RenderEngine::renderLights(const LightComponent& light) {
 	glDisable(GL_STENCIL_TEST);
 }
 
-//void RenderEngine::shadowPass(const Scene& scene) {
-//	shadowMap->use();
-//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//	shadowShader.useShader();
-//
-//	setShadowProjectionData(*Shader::activeCamera.get(), *Shader::activeSun.get());
-//
-//	glViewport(0, 0, shadowMap->width, shadowMap->height);
-//	for (auto const& object: scene.retrieveShadowRenderObjects()) {
-//		if (object->material->renderShadowMode()) {
-//			object->render();
-//		}
-//	}
-//	glViewport(0, 0, viewportWidth, viewportHeight);
-//}
+void RenderEngine::shadowPass(const Entity& light, const Entity& camera, const vector<Entity*> entities) {
+	shadowMap->use();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	shadowShader.useShader();
+
+	auto& l = light.component<DirectionalLight>();
+	auto& t = camera.component<TransformComponent>();
+	auto& c = camera.component<CameraComponent>();
+
+	setShadowProjectionData(l.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(30))), l.getShadowMatrix(), t.position);
+
+	glViewport(0, 0, shadowMap->width, shadowMap->height);
+	for (auto const& e: entities) {
+		auto& mesh = e->component<MeshComponent>();
+		auto& material = e->component<PhongMaterialComponent>();
+		auto& transform = e->component<TransformComponent>();
+
+		// material-shader
+		if (material.shader->shaderID != Shader::activeShader) {
+			material.shader->useShader();
+		}
+		material.shader->setModelMatrix(transform.calculateModelMatrix());
+		material.useMaterial();
+
+		//Bind VAO
+		glBindVertexArray(mesh.vao);
+
+		glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);
+
+		//Unbind VAO
+//		glBindVertexArray(0);
+	}
+	glViewport(0, 0, viewportWidth, viewportHeight);
+}
 //
 //void RenderEngine::glowPass(const std::shared_ptr<Scene>& scene) {
 //

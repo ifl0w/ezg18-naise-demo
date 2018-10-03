@@ -8,6 +8,7 @@
 #include <components/CameraComponent.hpp>
 #include <systems/render-engine/materials/PhongMaterialComponent.hpp>
 #include <components/TransformComponent.hpp>
+#include <scene/Entity.hpp>
 
 //#include "../meshes/Mesh.h"
 
@@ -19,8 +20,8 @@
 #include "meshes/Plane.hpp"
 #include "meshes/Sphere.hpp"
 
-//#include "shadow-map/ShadowMap.hpp"
-//#include "shadow-map/ShadowShader.hpp"
+#include "shadow-map/ShadowMap.hpp"
+#include "shadow-map/ShadowShader.hpp"
 //#include "shaders/glow_shader/GlowShader.hpp"
 //#include "PostProcessingTarget.hpp"
 //#include "../text/Text.h"
@@ -68,10 +69,10 @@ public:
 private:
 	std::unique_ptr<DeferredRenderTarget> deferredTarget;
 //	std::unique_ptr<PostProcessingTarget> postProcessingTarget;
-//	std::unique_ptr<ShadowMap> shadowMap;
+	std::unique_ptr<ShadowMap> shadowMap;
 
 //	PointLightShader plShader;
-//	ShadowShader shadowShader;
+	ShadowShader shadowShader;
 	DirectionalLightShader dlShader;
 	NullShader nullShader;
 	TextureDebugShader textureDebugShader;
@@ -88,8 +89,8 @@ private:
 	void setScreenData();
 
 	GLuint uboProjectionData;
-	void setProjectionData(const CameraComponent& camera, const TransformComponent& transform);
-	void setShadowProjectionData(const CameraComponent& camera, const LightComponent& light);
+	void setProjectionData(mat4 projectionMatrix, mat4 viewMatrix, vec3 cameraPosition);
+	void setShadowProjectionData(mat4 projectionMatrix, mat4 viewMatrix, vec3 lightPosition);
 
 	GLuint ssboLightData;
 //	void setLightData();
@@ -99,13 +100,13 @@ private:
 	bool lightVolumeDebugging = false;
 
 	void geometryPass(const MeshComponent& mesh, const TransformComponent& transform, const PhongMaterialComponent& materialComponent);
-//	void shadowPass(const Scene& scene);
+	void shadowPass(const Entity& light, const Entity& camera, vector<Entity*> entities);
 
 	void prepareLightPass();
 	void lightPass(const LightComponent& light);
 	void cleanupLightPass();
 
-	void renderLights(const LightComponent& light);
+	void renderLights(const LightComponent& light, const Entity& camera);
 //	void forwardPass(const std::shared_ptr<Scene>& scene);
 //	void glowPass(const std::shared_ptr<Scene>& scene);
 //	void textPass(const std::shared_ptr<Scene>& scene);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <components/Component.hpp>
+#include <systems/render-engine/frustum-culling/AABB.hpp>
 
 #include <glm/glm.hpp>
 
@@ -49,6 +50,7 @@ public:
 
 	virtual mat4 getShadowMatrix() const { return mat4(1); };
 	virtual mat4 getProjectionMatrix() const { return mat4(1); };
+	virtual mat4 getProjectionMatrix(AABB aabb) const { return mat4(1); };
 
 	bool isShadowCaster = false;
 

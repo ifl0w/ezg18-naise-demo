@@ -33,7 +33,7 @@ public:
 	void add(Args&& ... args);
 
 	template <class T>
-	T& component();
+	T& component() const;
 
 	template <class T>
 	void removeComponent();
@@ -56,7 +56,7 @@ void Entity::add(Args&& ... args) {
 }
 
 template<class T>
-T& Entity::component() {
+T& Entity::component() const {
 	try {
 		auto tmp = components.at(type_index(typeid(T)));
 	} catch (std::out_of_range& e) {
