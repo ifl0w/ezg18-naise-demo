@@ -48,8 +48,6 @@ void RenderEngine::render(const shared_ptr<Scene>& scene) {
 	// uses its own projection data
 //	shadowPass(*scene.get());
 
-
-
 	/* Geometry Pass */
 //	geometryPass(scene);
 

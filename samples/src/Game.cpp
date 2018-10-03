@@ -20,6 +20,13 @@ int main(int argc, char** argv) {
 	sphere->add(MeshFactory::createSphere());
 	sphere->add<PhongMaterialComponent>(vec3(1,0,0));
 
+	auto box = make_shared<NAISE::Engine::Entity>();
+	box->add<TransformComponent>();
+	box->component<TransformComponent>().position = vec3(0, -2, -5);
+	box->component<TransformComponent>().scale = vec3(1, 1, 1);
+	box->add(MeshFactory::createBox(20, 1, 20));
+	box->add<PhongMaterialComponent>(vec3(1,0,1));
+
 	auto camera = make_shared<NAISE::Engine::Entity>();
 	camera->add<TransformComponent>();
 	camera->add<CameraComponent>();
@@ -39,13 +46,14 @@ int main(int argc, char** argv) {
 	engine.entityManager.addEntity(light);
 	engine.entityManager.addEntity(camera);
 	engine.entityManager.addEntity(sphere);
+	engine.entityManager.addEntity(box);
 
 	engine.inputSystem->setInputMapper(make_shared<GameInputMapper>());
 
 	engine.addSystem(make_shared<MovementSystem>());
 
 //	engine.mainWindow->setResolution(1920, 1200);
-	engine.mainWindow->captureMouse(true);
+//	engine.mainWindow->captureMouse(true);
 //	engine.mainWindow->setFullscreen(false);
 	engine.run();
 }
