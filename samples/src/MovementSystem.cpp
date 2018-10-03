@@ -51,9 +51,14 @@ void MovementSystem::process(const NAISE::Engine::EntityManager& em, microsecond
 		  auto& inp = inputComponent.action<Actions::MouseMotion>();
 
 		  if (inp.get<bool>("active")) {
-			  float deltaX = inp.get<int>("delta_x") * mouseSpeed;
-			  float deltaY = inp.get<int>("delta_y") * mouseSpeed;
+			  float deltaX = inp.get<int>("delta_x");
+			  float deltaY = inp.get<int>("delta_y");
+			  inp.set("delta_x", 0);
+			  inp.set("delta_y", 0);
 			  inp.set("active", false);
+
+			  deltaX *= mouseSpeed;
+			  deltaY *= mouseSpeed;
 
 			  auto tmp = glm::rotate(transform.rotation, radians<float>(-deltaX), vec3(0,1,0));
 			  tmp = glm::rotate(tmp, radians<float>(-deltaY), vec3(1,0,0));

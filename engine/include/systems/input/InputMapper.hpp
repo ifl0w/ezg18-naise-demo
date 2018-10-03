@@ -45,7 +45,7 @@ public:
 template<typename T>
 T Input::get(const string& name) {
 	InputValue iv;
-	T ret;
+	T ret = 0;
 
 	try {
 		iv = values.at(name);
@@ -67,7 +67,7 @@ T Input::get(const string& name) {
 class InputMapper {
 public:
 	virtual vector<Action> resolve(const SDL_Event& event) { return vector<Action>(); };
-	virtual Input input(Action action, const SDL_Event& event) { return Input(); };
+	virtual Input input(Action action, Input& input, const SDL_Event& event) { return input; };
 };
 
 }

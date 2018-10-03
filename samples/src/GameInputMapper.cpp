@@ -18,9 +18,12 @@ vector<Action> GameInputMapper::resolve(const SDL_Event& event) {
 		default:
 			break;
 		}
+
+		break;
 	}
-	case SDL_MOUSEMOTION:
+	case SDL_MOUSEMOTION:{
 		return {  make_action<Actions::MouseMotion>()  };
+	}
 	default:
 		break;
 	}
@@ -28,22 +31,21 @@ vector<Action> GameInputMapper::resolve(const SDL_Event& event) {
 	return {};
 }
 
-Input GameInputMapper::input(Action action, const SDL_Event& event) {
-	Input inp;
+Input GameInputMapper::input(Action action, Input& inp, const SDL_Event& event) {
 
 	if (action == make_action<Actions::MouseMotion>()) {
-		inp.values["delta_x"] = event.motion.xrel;
-		inp.values["delta_y"] = event.motion.yrel;
-		inp.values["pos_x"] = event.motion.x;
-		inp.values["pos_y"] = event.motion.y;
-		inp.values["active"] = true;
+		inp.set("delta_x", inp.get<int>("delta_x") + event.motion.xrel);
+		inp.set("delta_y", inp.get<int>("delta_y") + event.motion.yrel);
+		inp.set("pos_x", event.motion.x);
+		inp.set("pos_y", event.motion.y);
+		inp.set("active", true);
 	}
 
 	if (action == make_action<Actions::MoveForward>()
 		|| action == make_action<Actions::MoveBackward>()
 		|| action == make_action<Actions::MoveLeft>()
 		|| action == make_action<Actions::MoveRight>()) {
-		inp.values["active"] = event.type == SDL_KEYDOWN;
+		inp.set("active", event.type == SDL_KEYDOWN);
 	}
 
 	return inp;

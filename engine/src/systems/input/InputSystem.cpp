@@ -23,7 +23,7 @@ void InputSystem::process(const EntityManager& em, microseconds deltaTime) {
 
 		  for (auto& action: actions) {
 			  if (comp.hasAction(action)) {
-				  comp.mapping[action] = _inputMapper->input(action, event);
+				  _inputMapper->input(action, comp.action(action), event);
 			  }
 		  }
 		});
