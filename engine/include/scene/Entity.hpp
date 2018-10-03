@@ -52,7 +52,7 @@ void Entity::add(shared_ptr<T> component) {
 
 template<class T, typename... Args>
 void Entity::add(Args&& ... args) {
-	components[type_index(typeid(T))] = make_shared<T>();
+	components[type_index(typeid(T))] = make_shared<T>(args...);
 }
 
 template<class T>

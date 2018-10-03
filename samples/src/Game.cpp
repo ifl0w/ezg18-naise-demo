@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 	sphere->add<TransformComponent>();
 	sphere->component<TransformComponent>().position = vec3(0, 0, -5);
 	sphere->add(MeshFactory::createSphere());
-	sphere->add<PhongMaterialComponent>();
+	sphere->add<PhongMaterialComponent>(vec3(1,0,0));
 
 	auto camera = make_shared<NAISE::Engine::Entity>();
 	camera->add<TransformComponent>();
