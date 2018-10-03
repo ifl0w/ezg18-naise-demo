@@ -20,6 +20,12 @@ public:
 	bool running = true;
 
 	void handleEvent(SDL_Event& event);
+
+	void captureMouse(bool capture);
+
+	void setFullscreen(bool fullscreen);
+
+	void setResolution(uint32_t width, uint32_t height);
 };
 
 }

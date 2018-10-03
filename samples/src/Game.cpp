@@ -44,5 +44,8 @@ int main(int argc, char** argv) {
 
 	engine.addSystem(make_shared<MovementSystem>());
 
+//	engine.mainWindow->setResolution(1920, 1200);
+	engine.mainWindow->captureMouse(true);
+//	engine.mainWindow->setFullscreen(false);
 	engine.run();
 }

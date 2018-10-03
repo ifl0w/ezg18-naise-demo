@@ -1,6 +1,9 @@
 #include "MovementSystem.hpp"
 #include "GameInputMapper.hpp"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/rotate_vector.hpp>
+
 void MovementSystem::process(const NAISE::Engine::EntityManager& em, microseconds deltaTime) {
 	em.filter(movementFilter, [=](Entity& entity){
 	  std::chrono::duration<float> sec = deltaTime;
@@ -16,7 +19,9 @@ void MovementSystem::process(const NAISE::Engine::EntityManager& em, microsecond
 	  	bool active = inp.get<bool>("active");
 
 	  	if(active) {
-			transform.position.z -= moveSpeed * sec.count();
+	  		vec3 orientationAxis = axis(transform.rotation);
+	  		vec3 movement = vec3(0,0, -moveSpeed * sec.count());
+			transform.position += rotate(movement, angle(transform.rotation), orientationAxis);
 	  	}
 	  }
 
@@ -25,7 +30,9 @@ void MovementSystem::process(const NAISE::Engine::EntityManager& em, microsecond
 		  bool active = inp.get<bool>("active");
 
 		  if(active) {
-			  transform.position.z += moveSpeed * sec.count();
+			  vec3 orientationAxis = axis(transform.rotation);
+			  vec3 movement = vec3(0,0, moveSpeed * sec.count());
+			  transform.position += rotate(movement, angle(transform.rotation), orientationAxis);
 		  }
 	  }
 
@@ -34,7 +41,9 @@ void MovementSystem::process(const NAISE::Engine::EntityManager& em, microsecond
 		  bool active = inp.get<bool>("active");
 
 		  if(active) {
-			  transform.position.x -= moveSpeed * sec.count();
+			  vec3 orientationAxis = axis(transform.rotation);
+			  vec3 movement = vec3(-moveSpeed * sec.count(), 0, 0);
+			  transform.position += rotate(movement, angle(transform.rotation), orientationAxis);
 		  }
 	  }
 
@@ -43,7 +52,9 @@ void MovementSystem::process(const NAISE::Engine::EntityManager& em, microsecond
 		  bool active = inp.get<bool>("active");
 
 		  if(active) {
-			  transform.position.x += moveSpeed * sec.count();
+			  vec3 orientationAxis = axis(transform.rotation);
+			  vec3 movement = vec3(moveSpeed * sec.count(), 0, 0);
+			  transform.position += rotate(movement, angle(transform.rotation), orientationAxis);
 		  }
 	  }
 

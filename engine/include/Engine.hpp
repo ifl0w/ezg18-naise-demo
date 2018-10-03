@@ -25,14 +25,14 @@ public:
 
 	shared_ptr<InputSystem> inputSystem;
 
+	shared_ptr<Window> mainWindow; // TODO: window will be deleted before the smart pointers to e.g. meshes => segfault
+
 	/**
 	 * @param system
 	 */
 	void addSystem(shared_ptr<System> system);
 
 private:
-	shared_ptr<Window> mainWindow; // TODO: window will be deleted before the smart pointers to e.g. meshes => segfault
-
 	vector<shared_ptr<System>> systems;
 
 	microseconds _deltaTime;
