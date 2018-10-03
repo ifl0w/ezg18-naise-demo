@@ -143,3 +143,7 @@ std::map<std::type_index, std::shared_ptr<Shader>> Resources::shaders =
 //
 //	return entity;
 //}
+
+void Resources::freeAll() {
+	shaders.clear();
+}

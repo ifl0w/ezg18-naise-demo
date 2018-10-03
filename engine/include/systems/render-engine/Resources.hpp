@@ -11,6 +11,12 @@ namespace Engine {
 
 class Resources {
 public:
+
+	/**
+	 * Frees all resources to enable a clean exit.
+	 */
+	static void freeAll();
+
 	/**
 	 * Load a model from a gltf source and return it as entity.
 	 * The models will be cached and identified by the path.
@@ -105,6 +111,7 @@ std::shared_ptr<Shader> Resources::getShader() {
 	Resources::shaders[typeid(T)] = std::make_shared<T>();
 	return Resources::shaders[typeid(T)];
 }
+
 //
 //template<class T, class... Args>
 //std::shared_ptr<Material> Resources::getMaterial(const std::string& identifier, Args&& ... args) {

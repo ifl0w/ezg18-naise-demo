@@ -1,5 +1,6 @@
 #include <Engine.hpp>
 #include <systems/RenderSystem.hpp>
+#include <systems/render-engine/Resources.hpp>
 
 #include <chrono>
 
@@ -20,6 +21,10 @@ Engine::Engine()
 
 	addSystem(inputSystem);
 	addSystem(make_shared<RenderSystem>());
+}
+
+Engine::~Engine() {
+	Resources::freeAll();
 }
 
 void Engine::run() {
