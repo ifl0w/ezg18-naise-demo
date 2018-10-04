@@ -21,7 +21,7 @@ public:
 	GLenum shadowMapUnit = GL_TEXTURE0 + 3;
 	GLenum glowBufferUnit = GL_TEXTURE0 + 4;
 
-	void setLightProperties(const LightComponent& light);
+	void setLightProperties(const Light& light);
 
 protected:
 	std::string buildLightPropName(std::string propertyName);

@@ -1,13 +1,13 @@
-#include <systems/render-engine/lights/LightComponent.hpp>
+#include <systems/render-engine/lights/Light.hpp>
 #include <systems/render-engine/materials/shaders/Shader.hpp>
 
-using namespace NAISE::Engine;
+using namespace NAISE::RenderCore;
 
-LightComponent::LightComponent()
-		: LightComponent(vec3(1), vec3(1), vec3(1), vec3(0.5), 1, 1, 1, 1, 1, vec3(0), false) {
+Light::Light()
+		: Light(vec3(1), vec3(1), vec3(1), vec3(0.5), 1, 1, 1, 1, 1, vec3(0), false) {
 }
 
-LightComponent::LightComponent(vec3 position,
+Light::Light(vec3 position,
 							   vec3 diffuse,
 							   vec3 specular,
 							   vec3 ambient,
@@ -33,6 +33,6 @@ LightComponent::LightComponent(vec3 position,
 	position = position;
 }
 
-bool LightComponent::cull() {
+bool Light::cull() {
 	return false;
 }

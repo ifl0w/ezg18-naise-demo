@@ -1,6 +1,6 @@
 #include <systems/render-engine/frustum-culling/AABB.hpp>
 
-using namespace NAISE::Engine;
+using namespace NAISE::RenderCore;
 
 AABB::AABB(const std::vector<glm::vec3>& points) {
 	float minX = std::numeric_limits<float>::infinity();

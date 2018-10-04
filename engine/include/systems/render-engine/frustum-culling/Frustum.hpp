@@ -9,7 +9,7 @@ using namespace std;
 using namespace glm;
 
 namespace NAISE {
-namespace Engine {
+namespace RenderCore {
 
 class Frustum {
 public:

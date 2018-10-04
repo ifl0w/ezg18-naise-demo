@@ -6,7 +6,7 @@
 #include "Mesh.hpp"
 
 namespace NAISE {
-namespace Engine {
+namespace RenderEngine {
 
 class Sphere :
 		public Mesh {

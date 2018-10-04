@@ -1,21 +1,21 @@
-#include <systems/render-engine/materials/PhongMaterialComponent.hpp>
+#include <systems/render-engine/materials/PhongMaterial.hpp>
 #include <systems/render-engine/materials/shaders/PhongShader.hpp>
 #include <systems/render-engine/Resources.hpp>
 
-using namespace NAISE::Engine;
+using namespace NAISE::RenderCore;
 
-bool PhongMaterialComponent::displayNormalTexture = true;
-bool PhongMaterialComponent::displayGlowTexture = true;
+bool PhongMaterial::displayNormalTexture = true;
+bool PhongMaterial::displayGlowTexture = true;
 
-PhongMaterialComponent::PhongMaterialComponent()
-		: PhongMaterialComponent(vec3(0.7f)) {
+PhongMaterial::PhongMaterial()
+		: PhongMaterial(vec3(0.7f)) {
 }
 
-PhongMaterialComponent::PhongMaterialComponent(vec3 diffuse)
-		: PhongMaterialComponent(diffuse, diffuse * 0.3f, diffuse * 0.2f, 1.0f) {
+PhongMaterial::PhongMaterial(vec3 diffuse)
+		: PhongMaterial(diffuse, diffuse * 0.3f, diffuse * 0.2f, 1.0f) {
 }
 
-PhongMaterialComponent::PhongMaterialComponent(vec3 diffuse, vec3 specular, vec3 ambient, float alpha)
+PhongMaterial::PhongMaterial(vec3 diffuse, vec3 specular, vec3 ambient, float alpha)
 		: diffuse(diffuse),
 		  specular(specular),
 		  ambient(ambient),
@@ -43,11 +43,11 @@ PhongMaterialComponent::PhongMaterialComponent(vec3 diffuse, vec3 specular, vec3
 	this->useWatermeshAnimationLocation = uniformLocation(shader->shaderID, "useWatermeshAnimation");
 }
 
-PhongMaterialComponent::PhongMaterialComponent(vec3 color, float diffuseFactor, float specularFactor, float ambientFactor, float alpha)
-		: PhongMaterialComponent((color * diffuseFactor), (color * specularFactor), (color * ambientFactor), alpha) {
+PhongMaterial::PhongMaterial(vec3 color, float diffuseFactor, float specularFactor, float ambientFactor, float alpha)
+		: PhongMaterial((color * diffuseFactor), (color * specularFactor), (color * ambientFactor), alpha) {
 }
 
-void PhongMaterialComponent::useMaterial() const {
+void PhongMaterial::useMaterial() const {
 	glUniform3fv(this->materialDiffLocation, 1, glm::value_ptr(diffuse));
 	glUniform3fv(this->materialSpecLocation, 1, glm::value_ptr(specular));
 	glUniform3fv(this->materialAmbiLocation, 1, glm::value_ptr(ambient));

@@ -1,10 +1,5 @@
+#include <systems/render-engine/materials/Material.hpp>
 
-//#include "Material.h"
-//
-//void Material::renderPolygonMode() {
-//	glPolygonMode(GL_FRONT_AND_BACK, PolygonMode);
-//}
-//
 //bool Material::renderShadowMode() {
 //	return ShadowMode == SHADOW;
 //}

@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include <components/MeshComponent.hpp>
 #include <components/CameraComponent.hpp>
-#include <systems/render-engine/materials/PhongMaterialComponent.hpp>
+#include <systems/render-engine/materials/PhongMaterial.hpp>
 #include <components/TransformComponent.hpp>
 #include <scene/Entity.hpp>
 
@@ -15,7 +15,7 @@
 #include "DeferredRenderTarget.hpp"
 
 #include "shaders/TextureDebugShader.hpp"
-//#include "shaders/PointLightShader.hpp"
+#include "shaders/PointLightShader.hpp"
 #include "shaders/DirectionalLightShader.hpp"
 #include "meshes/Plane.hpp"
 #include "meshes/Sphere.hpp"
@@ -29,6 +29,7 @@
 #define BIT(x) (1<<(x))
 
 using namespace gl;
+using namespace NAISE::RenderCore;
 
 namespace NAISE {
 namespace Engine {
@@ -39,6 +40,29 @@ enum DebugState {
   DEBUG_NORMAL = BIT(1),
   DEBUG_ALBEDO = BIT(2),
   DEBUG_GLOW = BIT(3)
+};
+
+struct RenderCommand {};
+
+struct DrawMesh: public RenderCommand {
+  Mesh* mesh;
+  Material* material;
+  mat4 transform;
+};
+
+struct SetRenderTarget: public RenderCommand {
+  using RenderTargetID = type_index;
+  RenderTargetID renderTargetID;
+};
+
+struct SetViewProjectionData: public RenderCommand {
+  mat4 viewMatrix;
+  mat4 projectionMatrix;
+  mat4 cameraPosition;
+};
+
+struct CommandBuffer {
+  vector<RenderCommand> commands;
 };
 
 class Scene; // forward declaration to break cyclic dependency
@@ -71,8 +95,8 @@ private:
 //	std::unique_ptr<PostProcessingTarget> postProcessingTarget;
 	std::unique_ptr<ShadowMap> shadowMap;
 
-//	PointLightShader plShader;
 	ShadowShader shadowShader;
+	PointLightShader plShader;
 	DirectionalLightShader dlShader;
 	NullShader nullShader;
 	TextureDebugShader textureDebugShader;
@@ -99,14 +123,14 @@ private:
 	bool backfaceCulling = true;
 	bool lightVolumeDebugging = false;
 
-	void geometryPass(const MeshComponent& mesh, const TransformComponent& transform, const PhongMaterialComponent& materialComponent);
+	void geometryPass(const Mesh& mesh, const Material& material, mat4 transform);
 	void shadowPass(const Entity& light, const Entity& camera, vector<Entity*> entities);
 
 	void prepareLightPass();
-	void lightPass(const LightComponent& light);
+	void lightPass(const Light& light);
 	void cleanupLightPass();
 
-	void renderLights(const LightComponent& light, const Entity& camera);
+	void renderLights(const Light& light, mat4 transform, const Entity& camera);
 //	void forwardPass(const std::shared_ptr<Scene>& scene);
 //	void glowPass(const std::shared_ptr<Scene>& scene);
 //	void textPass(const std::shared_ptr<Scene>& scene);
@@ -121,6 +145,9 @@ private:
 
 	glm::mat4 projectionMatrix;
 	glm::mat4 viewMatrix;
+
+	// command functions
+	void drawMesh(const Mesh& mesh, const Material* material = nullptr, mat4 transform = mat4(1));
 };
 
 }

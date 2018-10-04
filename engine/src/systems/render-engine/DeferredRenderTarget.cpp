@@ -2,7 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <systems/render-engine/DeferredRenderTarget.hpp>
 
-#include <systems/render-engine/lights/LightComponent.hpp>
+#include <systems/render-engine/lights/Light.hpp>
 #include <systems/render-engine/meshes/Sphere.hpp>
 #include <spdlog/spdlog.h>
 

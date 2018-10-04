@@ -9,6 +9,8 @@
 #undef far
 #undef near
 
+using namespace NAISE::RenderCore;
+
 namespace NAISE {
 namespace Engine {
 

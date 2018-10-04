@@ -4,7 +4,7 @@
 using namespace NAISE::Engine;
 
 void RenderSystem::processEntity(Entity& entity) {
-	renderEngine.geometryPass(entity.component<MeshComponent>(),
-	        entity.component<TransformComponent>(),
-	        entity.component<PhongMaterialComponent>());
+//	renderEngine.geometryPass(entity.component<MeshComponent>(),
+//	        entity.component<TransformComponent>(),
+//	        entity.component<PhongMaterialComponent>());
 }

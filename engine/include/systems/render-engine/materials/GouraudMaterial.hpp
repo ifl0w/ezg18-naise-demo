@@ -3,7 +3,7 @@
 #include "Material.hpp"
 
 namespace NAISE {
-namespace Engine {
+namespace RenderCore {
 
 class GouraudMaterial : public Material {
 public:

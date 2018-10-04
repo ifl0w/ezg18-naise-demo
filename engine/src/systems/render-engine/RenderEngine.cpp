@@ -1,7 +1,9 @@
 #include <systems/render-engine/RenderEngine.hpp>
-#include <systems/render-engine/lights/LightComponent.hpp>
+#include <systems/render-engine/lights/Light.hpp>
+
+#include <components/MaterialComponent.hpp>
+#include <components/LightComponent.hpp>
 #include <spdlog/spdlog.h>
-#include <systems/render-engine/lights/DirectionalLight.hpp>
 
 using namespace NAISE::Engine;
 using namespace std;
@@ -73,7 +75,7 @@ void RenderEngine::render(const shared_ptr<Scene>& scene) {
 	}
 }
 
-void RenderEngine::geometryPass(const MeshComponent& mesh, const TransformComponent& transform, const PhongMaterialComponent& material) {
+void RenderEngine::geometryPass(const Mesh& mesh, const Material& material, mat4 transform) {
 //	activateRenderState();
 //	for (auto const& object: scene->retrieveDeferredRenderObjects()) {
 //		if (wireframe) {
@@ -82,27 +84,7 @@ void RenderEngine::geometryPass(const MeshComponent& mesh, const TransformCompon
 //			object->material->renderPolygonMode();
 //		}
 
-	// material-shader
-	if (material.shader->shaderID != Shader::activeShader) {
-		material.shader->useShader();
-	}
-	material.shader->setModelMatrix(transform.calculateModelMatrix());
-	material.useMaterial();
-
-	if (wireframe) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	} else {
-//		object->material->renderPolygonMode();
-	}
-
-	//Bind VAO
-	glBindVertexArray(mesh.vao);
-
-	glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);
-
-	//Unbind VAO
-	glBindVertexArray(0);
-
+	drawMesh(mesh, &material, transform);
 //	}
 //	deactivateRenderState();
 }
@@ -132,7 +114,7 @@ void RenderEngine::prepareLightPass() {
 	glBlendEquation(GL_FUNC_ADD);
 }
 
-void RenderEngine::lightPass(const LightComponent& light) {
+void RenderEngine::lightPass(const Light& light) {
 //	renderLights(light);
 }
 
@@ -251,28 +233,28 @@ void RenderEngine::displayDebugQuads() {
 		textureDebugShader.useShader();
 		textureDebugShader.setMSTextureUnit(deferredTarget->gPosition);
 		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(-3, -2, 1)));
-		quad.draw();
+		drawMesh(quad);
 	}
 
 	if (debugFlags & DEBUG_NORMAL) {
 		textureDebugShader.useShader();
 		textureDebugShader.setMSTextureUnit(deferredTarget->gNormal);
 		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(-1, -2, 1)));
-		quad.draw();
+		drawMesh(quad);
 	}
 
 	if (debugFlags & DEBUG_ALBEDO) {
 		textureDebugShader.useShader();
 		textureDebugShader.setMSTextureUnit(deferredTarget->gAlbedoSpec);
 		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(1, -2, 1)));
-		quad.draw();
+		drawMesh(quad);
 	}
 
 	if (debugFlags & DEBUG_GLOW) {
 		textureDebugShader.useShader();
 		textureDebugShader.setMSTextureUnit(deferredTarget->gGlow);
 		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(+3, -2, 1)));
-		quad.draw();
+		drawMesh(quad);
 	}
 
 	glEnable(GL_DEPTH_TEST);
@@ -304,51 +286,51 @@ void RenderEngine::setBrightness(float brightness) {
 	setScreenData();
 }
 
-void RenderEngine::renderLights(const LightComponent& light, const Entity& camera) {
+void RenderEngine::renderLights(const Light& light, mat4 transform, const Entity& camera) {
 
 	// stencil test for light volumes
 	glEnable(GL_STENCIL_TEST);
 
 //	for (const auto& light: lights) {
 		if (!light.data.directional) {
-//			/* Light volume culling */
-//			nullShader.useShader();
-//
-//			glEnable(GL_DEPTH_TEST);
-//
-//			glDisable(GL_CULL_FACE);
-//
-//			glClear(GL_STENCIL_BUFFER_BIT);
-//
-//			// Stencil test succeed always. Only the depth test matters.
-//			glStencilFunc(GL_ALWAYS, 0, 0);
-//
-//			glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
-//			glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-//
-//			nullShader.setModelMatrix(glm::mat4(light->getOriginTransformation() * light->getModelMatrix()));
-//			sphereLightVolume.draw();
-//
-//			/* Light volume shading */
-//			plShader.useShader();
-//			plShader.setLightVolumeDebugging(lightVolumeDebugging);
-//
-//			glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-//
-//			glDisable(GL_DEPTH_TEST);
-//
-//			glEnable(GL_CULL_FACE);
-//			glCullFace(GL_FRONT);
-//
-//			deferredTarget->setTextureUnits(plShader);
-//
-//			plShader.setLightProperties(light);
-//			plShader.setModelMatrix(glm::mat4(light->getOriginTransformation() * light->getModelMatrix()));
-//			sphereLightVolume.draw();
-//
-//			glEnable(GL_DEPTH_TEST);
-//
-//			glCullFace(GL_BACK);
+			/* Light volume culling */
+			nullShader.useShader();
+
+			glEnable(GL_DEPTH_TEST);
+
+			glDisable(GL_CULL_FACE);
+
+			glClear(GL_STENCIL_BUFFER_BIT);
+
+			// Stencil test succeed always. Only the depth test matters.
+			glStencilFunc(GL_ALWAYS, 0, 0);
+
+			glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+			glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+
+			nullShader.setModelMatrix(transform);
+			drawMesh(sphereLightVolume);
+
+			/* Light volume shading */
+			plShader.useShader();
+			plShader.setLightVolumeDebugging(lightVolumeDebugging);
+
+			glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+
+			glDisable(GL_DEPTH_TEST);
+
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_FRONT);
+
+			deferredTarget->setTextureUnits(plShader);
+
+			plShader.setLightProperties(light);
+			plShader.setModelMatrix(transform);
+			drawMesh(sphereLightVolume);
+
+			glEnable(GL_DEPTH_TEST);
+
+			glCullFace(GL_BACK);
 		} else {
 			dlShader.useShader();
 
@@ -363,7 +345,7 @@ void RenderEngine::renderLights(const LightComponent& light, const Entity& camer
 			dlShader.setLightProperties(light);
 			auto& c = camera.component<CameraComponent>();
 			dlShader.setShadowMapViewProjection(light.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(30))) * light.getShadowMatrix());
-			quad.draw();
+			drawMesh(quad);
 
 			glEnable(GL_DEPTH_TEST);
 		}
@@ -377,7 +359,7 @@ void RenderEngine::shadowPass(const Entity& light, const Entity& camera, const v
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	shadowShader.useShader();
 
-	auto& l = light.component<DirectionalLight>();
+	auto& l = *light.component<LightComponent>().light.get();
 	auto& t = camera.component<TransformComponent>();
 	auto& c = camera.component<CameraComponent>();
 
@@ -385,24 +367,11 @@ void RenderEngine::shadowPass(const Entity& light, const Entity& camera, const v
 
 	glViewport(0, 0, shadowMap->width, shadowMap->height);
 	for (auto const& e: entities) {
-		auto& mesh = e->component<MeshComponent>();
-		auto& material = e->component<PhongMaterialComponent>();
-		auto& transform = e->component<TransformComponent>();
+		auto& mesh = *e->component<MeshComponent>().mesh.get();
+		auto material = e->component<MaterialComponent>().material.get();
+		auto transform = e->component<TransformComponent>().calculateModelMatrix();
 
-		// material-shader
-		if (material.shader->shaderID != Shader::activeShader) {
-			material.shader->useShader();
-		}
-		material.shader->setModelMatrix(transform.calculateModelMatrix());
-		material.useMaterial();
-
-		//Bind VAO
-		glBindVertexArray(mesh.vao);
-
-		glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);
-
-		//Unbind VAO
-//		glBindVertexArray(0);
+		drawMesh(mesh, material, transform);
 	}
 	glViewport(0, 0, viewportWidth, viewportHeight);
 }
@@ -509,4 +478,28 @@ void RenderEngine::toggleLightVolumeDebugging() {
 	}
 
 	lightVolumeDebugging = !lightVolumeDebugging;
+}
+
+void RenderEngine::drawMesh(const Mesh& mesh, const Material* material, mat4 transform) {
+	// material-shader
+	if (material != nullptr) {
+		if (material->shader->shaderID != Shader::activeShader) {
+			material->shader->useShader();
+		}
+		material->shader->setModelMatrix(transform);
+		material->useMaterial();
+	}
+
+	if (wireframe) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	} else {
+		if (material != nullptr) {
+			glPolygonMode(GL_FRONT_AND_BACK, material->polygonMode);
+		}
+	}
+
+	//Bind VAO
+	glBindVertexArray(mesh.vao);
+
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
 }

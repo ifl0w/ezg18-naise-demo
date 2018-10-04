@@ -1,7 +1,7 @@
 #include <systems/render-engine/meshes/Mesh.hpp>
 #include <spdlog/spdlog.h>
 
-using namespace NAISE::Engine;
+using namespace NAISE::RenderEngine;
 
 Mesh::Mesh() {
 	glGenVertexArrays(1, &vao);
@@ -101,24 +101,24 @@ void Mesh::writeToObj(std::string filename) {
 
 	outputFile.close();
 }
-
-void Mesh::draw() {
-	//Bind VAO
-	glBindVertexArray(vao);
-
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-
-	//Unbind VAO
-	glBindVertexArray(0);
-}
-
-void Mesh::drawInstances(uint64_t numberInstances, GLuint ssboTransformations) {
-	glBindVertexArray(vao);
-
-	glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, numberInstances);
-
-	glBindVertexArray(0);
-}
+//
+//void Mesh::draw() {
+//	//Bind VAO
+//	glBindVertexArray(vao);
+//
+//	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+//
+//	//Unbind VAO
+//	glBindVertexArray(0);
+//}
+//
+//void Mesh::drawInstances(uint64_t numberInstances, GLuint ssboTransformations) {
+//	glBindVertexArray(vao);
+//
+//	glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, numberInstances);
+//
+//	glBindVertexArray(0);
+//}
 
 std::vector<vec3> Mesh::getConvexHullData() {
 	if (convexHullData.empty()) {

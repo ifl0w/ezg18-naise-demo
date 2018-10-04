@@ -1,8 +1,12 @@
-#include "PointLight.h"
+#include <systems/render-engine/lights/PointLight.hpp>
+#include <systems/render-engine/lights/DirectionalLight.hpp>
+#include <systems/render-engine/materials/shaders/Shader.hpp>
 
-#include "../cameras/Camera.h"
-#include "../Engine.h"
-#include "../materials/shaders/Shader.h"
+//#include "../cameras/Camera.h"
+//#include "../Engine.h"
+//#include "../materials/shaders/Shader.h"
+
+using namespace NAISE::RenderCore;
 
 PointLight::PointLight()
 		: PointLight(vec3(0)) {
@@ -15,7 +19,7 @@ PointLight::PointLight(vec3 position)
 PointLight::PointLight(vec3 position, vec3 color)
 		: Light(position, color, color, color, 1.0, 0.7, 1.8, 360, 0, vec3(0), false) {
 
-	this->scale = vec3(calculateLightVolumeRadius());
+//	this->scale = vec3(calculateLightVolumeRadius());
 }
 
 void PointLight::setAttenuation(float constant, float linear, float quadratic) {
@@ -23,7 +27,7 @@ void PointLight::setAttenuation(float constant, float linear, float quadratic) {
 	data.attLinear = linear;
 	data.attQuadratic = quadratic;
 
-	this->scale = vec3(calculateLightVolumeRadius());
+//	this->scale = vec3(calculateLightVolumeRadius());
 }
 
 float PointLight::calculateLightVolumeRadius() {
@@ -41,9 +45,10 @@ float PointLight::calculateLightVolumeRadius() {
 }
 
 bool PointLight::cull() {
-	if(!Engine::frustumCulling) {
-		return false;
-	}
-
-	return !Shader::activeCamera->frustum.intersect(vec3(data.lightPosition), scale.x);
+//	if(!Engine::frustumCulling) {
+//		return false;
+//	}
+//
+//	return !Shader::activeCamera->frustum.intersect(vec3(data.lightPosition), scale.x);
+	return false;
 }

@@ -7,13 +7,17 @@
 //#include "../animations/VertexDisplacementAnimation.h"
 
 using namespace glm;
+using namespace NAISE::Engine;
 //using namespace NAISE::Engine::Texture;
 
 namespace NAISE {
-namespace Engine {
+namespace RenderCore {
 
-//enum RenderProperties_PolygonMode { WIREFRAME = GL_LINE, FILLED = GL_FILL, POINT = GL_POINT };
-//enum RenderProperties_ShadowMode { SHADOW = true, NO_SHADOW = false };
+constexpr GLenum WIREFRAME = GL_LINE;
+constexpr GLenum FILLED = GL_FILL;
+constexpr GLenum POINT = GL_POINT;
+
+enum ShadowMode { SHADOW = true, NO_SHADOW = false };
 
 class Material {
 public:
@@ -41,12 +45,12 @@ public:
 
 	bool wireframe = false;
 
-//	enum RenderProperties_PolygonMode PolygonMode = FILLED;
-//	enum RenderProperties_ShadowMode ShadowMode = SHADOW;
+	GLenum polygonMode = FILLED;
+	ShadowMode shadowMode = SHADOW;
 
 //	void setRenderProperty_PolygonMode(RenderProperties_PolygonMode POLYGONMODE); //bind and unbind
 //	void setRenderProperty_ShadowMode(RenderProperties_ShadowMode SHADOWMODE);
-//	void renderPolygonMode(); //bind and unbind
+//	GLenum renderPolygonMode(); //bind and unbind
 //	bool renderShadowMode();
 };
 

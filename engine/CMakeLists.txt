@@ -7,8 +7,8 @@ file(GLOB_RECURSE SRC_FILES
         src/Window.cpp
         src/components/*.cpp
         src/filter/*.cpp
-        src/meshes/*.cpp
-        src/meshes/*.cpp
+        src/factories/*.cpp
+        src/factories/*.cpp
         src/scene/*.cpp
         src/systems/RenderSystem.cpp
         src/systems/System.cpp
@@ -19,8 +19,9 @@ file(GLOB_RECURSE SRC_FILES
         #        src/systems/render-engine/PingPongTarget.cpp
         #        src/systems/render-engine/PostProcessingTarget.cpp
         src/systems/render-engine/RenderTarget.cpp
+        src/systems/render-engine/lights/PointLight.cpp
         src/systems/render-engine/lights/DirectionalLight.cpp
-        src/systems/render-engine/lights/LightComponent.cpp
+        src/systems/render-engine/lights/Light.cpp
         src/systems/render-engine/materials/*.cpp
         src/systems/render-engine/shaders/*.cpp
         src/systems/render-engine/meshes/*.cpp
@@ -30,8 +31,8 @@ file(GLOB_RECURSE SRC_FILES
         include/Window.hpp
         include/components/*.hpp
         include/filter/*.hpp
-        include/meshes/*.hpp
-        include/meshes/*.hpp
+        include/factories/*.hpp
+        include/factories/*.hpp
         include/scene/*.hpp
         include/systems/RenderSystem.hpp
         include/systems/System.hpp
@@ -43,7 +44,8 @@ file(GLOB_RECURSE SRC_FILES
         #        include/systems/render-engine/PostProcessingTarget.hpp
         include/systems/render-engine/RenderTarget.hpp
         include/systems/render-engine/lights/DirectionalLight.hpp
-        include/systems/render-engine/lights/LightComponent.hpp
+        include/systems/render-engine/lights/PointLight.hpp
+        include/systems/render-engine/lights/Light.hpp
         include/systems/render-engine/materials/*.hpp
         include/systems/render-engine/shaders/*.hpp
         include/systems/render-engine/meshes/*.hpp
@@ -100,7 +102,7 @@ add_custom_target(
 
 #Set_property(TARGET engine APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${engine_SOURCE_DIR}/external/actor-engine/libcaf_core)
 #link_directories(${engine_SOURCE_DIR}/external/actor-engine/libcaf_core)
-add_library(engine STATIC ${SRC_FILES} src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp src/components/InputComponent.cpp include/components/InputComponent.hpp include/systems/input/InputMapper.hpp)
+add_library(engine STATIC ${SRC_FILES} src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp src/components/InputComponent.cpp include/components/InputComponent.hpp include/systems/input/InputMapper.hpp include/factories/MaterialFactory.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include

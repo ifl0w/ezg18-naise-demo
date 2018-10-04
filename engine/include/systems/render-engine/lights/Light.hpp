@@ -10,7 +10,7 @@
 using namespace glm;
 
 namespace NAISE {
-namespace Engine {
+namespace RenderCore {
 
 /**
  * Light data matching the data in GLSL
@@ -30,11 +30,11 @@ struct LightData {
   float __padding[2]; // padding to match §7.6.2.2 of the OpenGL 4.5 specification (https://khronos.org/registry/OpenGL/specs/gl/glspec45.core.pdf)
 };
 
-class LightComponent: public Component {
+class Light {
 public:
-	LightComponent();
+	Light();
 
-	LightComponent(vec3 position,
+	Light(vec3 position,
 		  vec3 diffuse,
 		  vec3 specular,
 		  vec3 ambient,

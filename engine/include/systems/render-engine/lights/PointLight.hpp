@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Light.hpp"
+#include <systems/render-engine/lights/Light.hpp>
 
 namespace NAISE {
-namespace Engine {
+namespace RenderCore {
 
 class PointLight :
-		public LightComponent {
+		public Light {
 public:
 	PointLight();
 
@@ -19,10 +19,10 @@ public:
 	*/
 	void setAttenuation(float constant, float linear, float quadratic);
 
+	float calculateLightVolumeRadius();
+
 protected:
 	bool cull() override;
-private:
-	float calculateLightVolumeRadius();
 };
 
 }

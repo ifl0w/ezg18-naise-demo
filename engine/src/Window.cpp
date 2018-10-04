@@ -42,6 +42,8 @@ Window::Window() {
 		throw runtime_error(string("Could not create OpenGL context: ").append(SDL_GetError()));
 	}
 
+	SDL_GL_SetSwapInterval(0);
+
 	glbinding::initialize(getProcAddress, false);
 	glbinding::aux::enableGetErrorCallback();
 }

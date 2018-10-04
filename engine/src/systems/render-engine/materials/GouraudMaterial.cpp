@@ -2,7 +2,7 @@
 #include <systems/render-engine/materials/shaders/GouraudShader.hpp>
 #include <systems/render-engine/Resources.hpp>
 
-using namespace NAISE::Engine;
+using namespace NAISE::RenderCore;
 
 GouraudMaterial::GouraudMaterial()
 		: GouraudMaterial(vec3(0.7f)) {

@@ -2,11 +2,20 @@
 #include <components/TransformComponent.hpp>
 #include <components/MeshComponent.hpp>
 #include <components/CameraComponent.hpp>
-#include <systems/render-engine/lights/LightComponent.hpp>
-#include <systems/render-engine/lights/DirectionalLight.hpp>
-#include <systems/render-engine/materials/PhongMaterialComponent.hpp>
-#include <meshes/MeshFactory.hpp>
+#include <components/MaterialComponent.hpp>
 #include <components/InputComponent.hpp>
+#include <components/LightComponent.hpp>
+
+#include <systems/render-engine/materials/PhongMaterial.hpp>
+
+#include <systems/render-engine/lights/Light.hpp>
+#include <systems/render-engine/lights/DirectionalLight.hpp>
+#include <systems/render-engine/lights/PointLight.hpp>
+
+#include <factories/MeshFactory.hpp>
+#include <factories/LightFactory.hpp>
+#include <factories/MaterialFactory.hpp>
+
 #include <Game.hpp>
 #include <MovementSystem.hpp>
 
@@ -19,14 +28,15 @@ int main(int argc, char** argv) {
 	sphere->add<TransformComponent>();
 	sphere->component<TransformComponent>().position = vec3(0, 0, -5);
 	sphere->add(MeshFactory::createSphere());
-	sphere->add<PhongMaterialComponent>(vec3(1,0,0));
+	sphere->add<MaterialComponent>();
+	sphere->add(MaterialFactory::createMaterial<PhongMaterial>(vec3(0.8, 0, 0.8)));
 
 	auto box = make_shared<NAISE::Engine::Entity>();
 	box->add<TransformComponent>();
 	box->component<TransformComponent>().position = vec3(0, -2, -5);
 	box->component<TransformComponent>().scale = vec3(1, 1, 1);
 	box->add(MeshFactory::createBox(20, 1, 20));
-	box->add<PhongMaterialComponent>(vec3(1,0,1));
+	box->add(MaterialFactory::createMaterial<PhongMaterial>(vec3(0.8, 0.8, 0.8)));
 
 	auto camera = make_shared<NAISE::Engine::Entity>();
 	camera->add<TransformComponent>();
@@ -38,13 +48,18 @@ int main(int argc, char** argv) {
 	camera->component<InputComponent>().add<Actions::MoveRight>();
 	camera->component<InputComponent>().add<Actions::MouseMotion>();
 
-	auto light = make_shared<NAISE::Engine::Entity>();
-	light->add<TransformComponent>();
-	light->add<DirectionalLight>();
-	light->component<DirectionalLight>();
-	light->component<DirectionalLight>().data.direction = vec4(-1, -1, -1, 1);
+	auto sun = make_shared<NAISE::Engine::Entity>();
+	sun->add<TransformComponent>();
+	sun->add(LightFactory::createLight<DirectionalLight>());
+	sun->component<LightComponent>().light->data.direction = vec4(-1, -1, -1, 1);
 
-	engine.entityManager.addEntity(light);
+	auto pointLight = make_shared<NAISE::Engine::Entity>();
+	pointLight->add<TransformComponent>();
+	pointLight->component<TransformComponent>().position = vec3(-2, -1, -7);
+	pointLight->add(LightFactory::createLight<PointLight>());
+
+	engine.entityManager.addEntity(sun);
+	engine.entityManager.addEntity(pointLight);
 	engine.entityManager.addEntity(camera);
 	engine.entityManager.addEntity(sphere);
 	engine.entityManager.addEntity(box);

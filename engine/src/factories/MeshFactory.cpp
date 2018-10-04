@@ -1,42 +1,42 @@
-#include <meshes/MeshFactory.hpp>
+#include <factories/MeshFactory.hpp>
 #include <memory>
-#include <meshes/Box.hpp>
-#include <meshes/Sphere.hpp>
+#include <factories/Box.hpp>
+#include <factories/Sphere.hpp>
 
 using namespace NAISE::Engine;
 
 void MeshFactory::fillBuffers(MeshComponent& c) {
 	/* Bind vertex array as currently used one */
-	glBindVertexArray(c.vao);
+	glBindVertexArray(c.mesh->vao);
 
 	/* Bind position_vbo as active buffer */
-	glBindBuffer(GL_ARRAY_BUFFER, c.positions_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, c.mesh->positions_vbo);
 	/* Copy the vertex data to buffer */
-	glBufferData(GL_ARRAY_BUFFER, c.vertices.size() * 3 * sizeof(GLfloat), c.vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, c.mesh->vertices.size() * 3 * sizeof(GLfloat), c.mesh->vertices.data(), GL_STATIC_DRAW);
 
 	/* Enable attribute index 0 */
 	glEnableVertexAttribArray(0);
 	/* Coordinate data is going into attribute index 0 and contains three floats per vertex */
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c.indices_vbo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, c.indices.size() * sizeof(GLuint), c.indices.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c.mesh->indices_vbo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, c.mesh->indices.size() * sizeof(GLuint), c.mesh->indices.data(), GL_STATIC_DRAW);
 
 	/* Bind normals_vbo as active buffer */
-	glBindBuffer(GL_ARRAY_BUFFER, c.normals_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, c.mesh->normals_vbo);
 	/* Copy the normals data to buffer */
-	glBufferData(GL_ARRAY_BUFFER, c.normals.size() * 3 * sizeof(GLfloat), c.normals.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, c.mesh->normals.size() * 3 * sizeof(GLfloat), c.mesh->normals.data(), GL_STATIC_DRAW);
 
 	/* Enable attribute index 1 */
 	glEnableVertexAttribArray(1);
 	/* Normal data is going into attribute index 1 and contains three floats per vertex */
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-	if (c.uv_coords.size() > 0) {
+	if (c.mesh->uv_coords.size() > 0) {
 		/* Bind uv_coords_vbo as active buffer */
-		glBindBuffer(GL_ARRAY_BUFFER, c.uv_coords_vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, c.mesh->uv_coords_vbo);
 		/* Copy the uv data to buffer */
-		glBufferData(GL_ARRAY_BUFFER, c.uv_coords.size() * 2 * sizeof(GLfloat), c.uv_coords.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, c.mesh->uv_coords.size() * 2 * sizeof(GLfloat), c.mesh->uv_coords.data(), GL_STATIC_DRAW);
 
 		/* Enable attribute index 2 */
 		glEnableVertexAttribArray(2);
@@ -44,11 +44,11 @@ void MeshFactory::fillBuffers(MeshComponent& c) {
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
 
-	if (c.tangents.size() > 0) {
+	if (c.mesh->tangents.size() > 0) {
 		/* Bind normals_vbo as active buffer */
-		glBindBuffer(GL_ARRAY_BUFFER, c.tangents_vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, c.mesh->tangents_vbo);
 		/* Copy the normals data to buffer */
-		glBufferData(GL_ARRAY_BUFFER, c.tangents.size() * 3 * sizeof(GLfloat), c.tangents.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, c.mesh->tangents.size() * 3 * sizeof(GLfloat), c.mesh->tangents.data(), GL_STATIC_DRAW);
 
 		/* Enable attribute index 1 */
 		glEnableVertexAttribArray(3);
@@ -63,7 +63,7 @@ void MeshFactory::fillBuffers(MeshComponent& c) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	// deprecated
-	// c.aabb = AABB(c.vertices);
+	// c.mesh->aabb = AABB(c.mesh->vertices);
 }
 
 
@@ -77,17 +77,17 @@ shared_ptr<MeshComponent> MeshFactory::createBox(float width, float height, floa
 }
 
 shared_ptr<MeshComponent> MeshFactory::createSphere(float radius, uint32_t segments, uint32_t rings) {
-	auto boxMesh = std::make_shared<MeshComponent>();
+	auto comp = std::make_shared<MeshComponent>();
 
 	unsigned int vertexCount = (rings + 1) * (segments + 1);
-	boxMesh->vertices.resize(vertexCount);
-	boxMesh->normals.resize(vertexCount);
-	boxMesh->uv_coords.resize(vertexCount);
+	comp->mesh->vertices.resize(vertexCount);
+	comp->mesh->normals.resize(vertexCount);
+	comp->mesh->uv_coords.resize(vertexCount);
 
-	Sphere::generateGeometry(*boxMesh.get(), radius, segments, rings);
-	Sphere::generateIndices(*boxMesh.get(), boxMesh->indices, segments, rings, boxMesh->indices);
+	Sphere::generateGeometry(*comp.get(), radius, segments, rings);
+	Sphere::generateIndices(*comp.get(), comp->mesh->indices, segments, rings, comp->mesh->indices);
 
-	MeshFactory::fillBuffers(*boxMesh.get());
+	MeshFactory::fillBuffers(*comp.get());
 
-	return boxMesh;
+	return comp;
 }

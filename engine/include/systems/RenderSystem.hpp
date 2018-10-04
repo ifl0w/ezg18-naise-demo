@@ -5,11 +5,15 @@
 
 #include <filter/Filter.hpp>
 #include <scene/EntityManager.hpp>
+
 #include <components/MeshComponent.hpp>
 #include <components/TransformComponent.hpp>
+#include <components/MaterialComponent.hpp>
+#include <components/LightComponent.hpp>
+
+#include <systems/render-engine/lights/PointLight.hpp>
 
 #include <functional>
-#include <systems/render-engine/lights/DirectionalLight.hpp>
 
 namespace NAISE {
 namespace Engine {
@@ -18,7 +22,7 @@ class RenderSystem : public System {
 public:
 
 	RenderSystem() {
-		sunFilter.requirement<DirectionalLight>();
+		sunFilter.requirement<LightComponent>();
 
 		shadowFilter.requirement<TransformComponent>();
 		shadowFilter.requirement<MeshComponent>();
@@ -28,10 +32,10 @@ public:
 
 		geometryFilter.requirement<MeshComponent>();
 		geometryFilter.requirement<TransformComponent>();
-		geometryFilter.requirement<PhongMaterialComponent>();
+		geometryFilter.requirement<MaterialComponent>();
 
 		lightFilter.requirement<TransformComponent>();
-		lightFilter.requirement<DirectionalLight>();
+		lightFilter.requirement<LightComponent>();
 	}
 
 	void process(const EntityManager& em, microseconds deltaTime) override {
@@ -39,7 +43,12 @@ public:
 		Entity* sun = nullptr;
 
 		em.filter(cameraFilter, [&](Entity* entity) { camera = entity; });
-		em.filter(sunFilter, [&](Entity* entity) { sun = entity; });
+		em.filter(sunFilter, [&](Entity* entity) {
+			if (entity->component<LightComponent>().light->data.directional) {
+				sun = entity;
+				return;
+			}
+		});
 
 		if (camera == nullptr) {
 			spdlog::get("logger")->warn("RenderSystem >> no active camera found.");
@@ -58,15 +67,28 @@ public:
 //		renderEngine.backfaceCulling = false;
 		renderEngine.activateRenderState();
 		em.filter(geometryFilter, [=](Entity& entity) {
-		  renderEngine.geometryPass(entity.component<MeshComponent>(),
-									entity.component<TransformComponent>(),
-									entity.component<PhongMaterialComponent>());
+		  renderEngine.geometryPass(*entity.component<MeshComponent>().mesh.get(),
+									*entity.component<MaterialComponent>().material.get(),
+									entity.component<TransformComponent>().calculateModelMatrix());
 		});
 		renderEngine.deactivateRenderState();
 
 		renderEngine.prepareLightPass();
 		em.filter(lightFilter, [=](Entity& entity) {
-		  renderEngine.renderLights(entity.component<DirectionalLight>(), *camera);
+		  auto& light = *entity.component<LightComponent>().light.get();
+		  auto transComp = entity.component<TransformComponent>();
+
+			if (entity.component<LightComponent>().isType<PointLight>()) {
+				auto& l = dynamic_cast<PointLight&>(light);
+				light.data.lightPosition = vec4(transComp.position, 1);
+				light.data.lightPosition = vec4(transComp.position, 1);
+				vec3 scale = vec3(l.calculateLightVolumeRadius());
+				transComp.scale = scale;
+			}
+
+		  auto transform = transComp.calculateModelMatrix();
+
+		  renderEngine.renderLights(light, transform, *camera);
 		});
 		renderEngine.cleanupLightPass();
 	};

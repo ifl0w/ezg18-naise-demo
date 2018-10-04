@@ -14,7 +14,7 @@ LightShader::LightShader(std::string vertexShaderPath, std::string fragmentShade
 	this->glowBufferLocation = uniformLocation(shaderID, "gGlow");
 }
 
-void LightShader::setLightProperties(const LightComponent& light) {
+void LightShader::setLightProperties(const Light& light) {
 //	glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, 11, 0, sizeof(LightData));
 //
 //	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 11);

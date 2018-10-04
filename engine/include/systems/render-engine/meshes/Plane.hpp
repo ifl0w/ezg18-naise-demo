@@ -3,7 +3,7 @@
 #include "Mesh.hpp"
 
 namespace NAISE {
-namespace Engine {
+namespace RenderEngine {
 
 class Plane :
 		public Mesh {

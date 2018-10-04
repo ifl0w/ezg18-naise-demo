@@ -7,44 +7,24 @@
 //#include <tiny_gltf.h>
 #include <glm/glm.hpp>
 
-#include "Drawable.hpp"
-
 using namespace glm;
 using namespace gl;
+using namespace std;
 
 namespace NAISE {
-namespace Engine {
+namespace RenderEngine {
 
-class Mesh :
-		public Drawable {
+class Mesh {
 public:
-//	Mesh(const tinygltf::Mesh& mesh, const tinygltf::Model& model);
 	Mesh();
+	~Mesh();
 
-	virtual ~Mesh();
-
-	virtual void draw();
-	virtual void drawInstances(uint64_t numberInstances, GLuint ssboTransformations);
-
-	std::vector<vec3> getConvexHullData();
-
-	virtual void writeToObj(std::string filename);
-
-	virtual void textureWrap(vec2 repeatTexture);
-
-	virtual void computeTangentBasis();
-
-//	AABB aabb;
-
-protected:
-	std::vector<vec3> convexHullData;
-	std::vector<vec3> vertices;
-	std::vector<GLuint> indices;
-	std::vector<vec3> normals;
-	std::vector<vec2> uv_coords;
-	std::vector<vec3> tangents;
-
-	void fillBuffers();
+	vector<vec3> convexHullData;
+	vector<vec3> vertices;
+	vector<GLuint> indices;
+	vector<vec3> normals;
+	vector<vec2> uv_coords;
+	vector<vec3> tangents;
 
 	GLuint vao; // each mesh contains one VAO
 
@@ -54,8 +34,21 @@ protected:
 	GLuint uv_coords_vbo; // each mesh contains one uv_coords_vbo
 	GLuint tangents_vbo; // each mesh contains one tangents_vbo
 
-	GLuint instanceModelMatrix_vbo; // each mesh contains one uv_coords_vbo
+	/**
+	 * The model matrices for the mesh instances.
+	 */
+	GLuint instanceModelMatrix_vbo; // each mesh contains one instanceModelMatrix_vbo
 
+	vector<vec3> getConvexHullData();
+
+	virtual void writeToObj(std::string filename);
+
+	virtual void textureWrap(vec2 repeatTexture);
+
+	virtual void computeTangentBasis();
+
+protected:
+	void fillBuffers();
 //private:
 //	std::vector<vec3> vec3FromGLTFBuffer(int accessorIdx, const tinygltf::Model& model);
 //	std::vector<vec2> vec2FromGLTFBuffer(int accessorIdx, const tinygltf::Model& model);

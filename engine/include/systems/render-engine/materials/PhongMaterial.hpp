@@ -6,16 +6,15 @@
 //using namespace NAISE::Engine::Texture;
 
 namespace NAISE {
-namespace Engine {
+namespace RenderCore {
 
-class PhongMaterialComponent : public Component,
-							   public Material {
+class PhongMaterial : public Material {
 public:
-	PhongMaterialComponent();
+	PhongMaterial();
 //	PhongMaterial(const tinygltf::Material& material, const tinygltf::Model& model);
-	explicit PhongMaterialComponent(vec3 diffuse);
-	PhongMaterialComponent(vec3 diffuse, vec3 specular, vec3 ambient, float alpha);
-	PhongMaterialComponent(vec3 color, float diffuseFactor, float specularFactor, float ambientFactor, float alpha);
+	explicit PhongMaterial(vec3 diffuse);
+	PhongMaterial(vec3 diffuse, vec3 specular, vec3 ambient, float alpha);
+	PhongMaterial(vec3 color, float diffuseFactor, float specularFactor, float ambientFactor, float alpha);
 
 	void useMaterial() const override;
 

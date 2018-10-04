@@ -3,14 +3,15 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include <systems/render-engine/lights/LightComponent.hpp>
+#include <systems/render-engine/lights/Light.hpp>
 
 #include "ShaderUtils.hpp"
+
+using namespace NAISE::RenderCore;
 
 namespace NAISE {
 namespace Engine {
 
-class LightComponent; // forward declaration to break cyclic dependency
 class CameraComponent; // forward declaration to break cyclic dependency
 
 class Shader {

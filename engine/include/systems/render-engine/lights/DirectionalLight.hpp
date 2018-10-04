@@ -1,14 +1,14 @@
 #pragma once
 
-#include "LightComponent.hpp"
+#include "Light.hpp"
 //#include "../frustum-culling/AABB.h"
 //#include "../frustum-culling/Frustum.h"
 
 namespace NAISE {
-namespace Engine {
+namespace RenderCore {
 
 class DirectionalLight :
-		public LightComponent {
+		public Light {
 public:
 	DirectionalLight();
 

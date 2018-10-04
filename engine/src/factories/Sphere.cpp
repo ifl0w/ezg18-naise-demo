@@ -1,4 +1,4 @@
-#include <meshes/Sphere.hpp>
+#include <factories/Sphere.hpp>
 
 using namespace glm;
 using namespace NAISE::Engine;
@@ -22,12 +22,12 @@ void Sphere::generateGeometry(MeshComponent& c, float radius, unsigned int segme
 			float y = radius * sin((i) * polarAngle) * sin(j * azimuthalAngle);
 			float z = radius * cos((i) * polarAngle);
 
-			c.vertices[currentIdx] = vec3(x, z, y); // also swapped z and y
-			c.normals[currentIdx] = normalize(vec3(x, z, y));
-			c.uv_coords[currentIdx] = vec2(j * azimuthUVStep, i * polarUVStep);
+			c.mesh->vertices[currentIdx] = vec3(x, z, y); // also swapped z and y
+			c.mesh->normals[currentIdx] = normalize(vec3(x, z, y));
+			c.mesh->uv_coords[currentIdx] = vec2(j * azimuthUVStep, i * polarUVStep);
 
 			if (i > 0) { // don't add indices on first loop
-				c.indices.insert(c.indices.end(), {currentIdx, currentIdx - segmentsUV});
+				c.mesh->indices.insert(c.mesh->indices.end(), {currentIdx, currentIdx - segmentsUV});
 			}
 		}
 

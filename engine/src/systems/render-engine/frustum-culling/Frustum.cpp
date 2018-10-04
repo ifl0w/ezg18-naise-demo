@@ -1,6 +1,6 @@
 #include <systems/render-engine/frustum-culling/Frustum.hpp>
 
-using namespace NAISE::Engine;
+using namespace NAISE::RenderCore;
 
 Frustum::Frustum(double fovX, double fovY, double nearDistance, double farDistance)
 		: fovX(fovX),

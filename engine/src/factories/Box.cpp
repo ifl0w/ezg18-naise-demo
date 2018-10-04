@@ -1,4 +1,4 @@
-#include <meshes/Box.hpp>
+#include <factories/Box.hpp>
 
 using namespace glm;
 using namespace NAISE::Engine;
@@ -49,14 +49,14 @@ void Box::generateGeometry(MeshComponent& c, float width, float height, float de
 
 void Box::generateFace(MeshComponent& c, vec3 v1, vec3 v2, vec3 v3, vec3 v4, vec3 normal) {
 
-	GLuint s = c.vertices.size();
-	c.indices.insert(c.indices.end(), {s, s + 1, s + 3, s + 3, s + 2, s});
+	GLuint s = c.mesh->vertices.size();
+	c.mesh->indices.insert(c.mesh->indices.end(), {s, s + 1, s + 3, s + 3, s + 2, s});
 
-	c.vertices.insert(c.vertices.end(), {v1, v2, v3, v4});
+	c.mesh->vertices.insert(c.mesh->vertices.end(), {v1, v2, v3, v4});
 
-	c.normals.insert(c.normals.end(), {normal, normal, normal, normal});
+	c.mesh->normals.insert(c.mesh->normals.end(), {normal, normal, normal, normal});
 
-	c.uv_coords.insert(c.uv_coords.end(), {vec2(0, 1), vec2(0, 0), vec2(1, 1), vec2(1, 0)});
+	c.mesh->uv_coords.insert(c.mesh->uv_coords.end(), {vec2(0, 1), vec2(0, 0), vec2(1, 1), vec2(1, 0)});
 
 	// Edges of the triangle : position delta
 	glm::vec3 deltaPos1 = v2 - v1;
@@ -68,8 +68,8 @@ void Box::generateFace(MeshComponent& c, vec3 v1, vec3 v2, vec3 v3, vec3 v4, vec
 
 	float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
 	glm::vec3 tangent = (deltaPos1 * deltaUV2.y   - deltaPos2 * deltaUV1.y)*r;
-	c.tangents.push_back(tangent);
-	c.tangents.push_back(tangent);
+	c.mesh->tangents.push_back(tangent);
+	c.mesh->tangents.push_back(tangent);
 
 	// Edges of the triangle : position delta
 	deltaPos1 = v3 - v4;
@@ -81,6 +81,6 @@ void Box::generateFace(MeshComponent& c, vec3 v1, vec3 v2, vec3 v3, vec3 v4, vec
 
 	r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
 	tangent = (deltaPos1 * deltaUV2.y   - deltaPos2 * deltaUV1.y)*r;
-	c.tangents.push_back(tangent);
-	c.tangents.push_back(tangent);
+	c.mesh->tangents.push_back(tangent);
+	c.mesh->tangents.push_back(tangent);
 }

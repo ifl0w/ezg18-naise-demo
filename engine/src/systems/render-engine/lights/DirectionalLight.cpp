@@ -5,6 +5,7 @@
 //#include "../materials/shaders/Shader.h"
 
 using namespace NAISE::Engine;
+using namespace NAISE::RenderCore;
 using namespace glm;
 
 DirectionalLight::DirectionalLight()
@@ -12,7 +13,7 @@ DirectionalLight::DirectionalLight()
 }
 
 DirectionalLight::DirectionalLight(vec3 color, vec3 direction)
-		: LightComponent(vec3(0), color, color, color * 0.2f, 1, 0, 0, 360, 0, direction, true) {
+		: Light(vec3(0), color, color, color * 0.2f, 1, 0, 0, 360, 0, direction, true) {
 	isShadowCaster = true;
 }
 

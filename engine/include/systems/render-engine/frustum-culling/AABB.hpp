@@ -8,7 +8,7 @@ using namespace glm;
 using namespace std;
 
 namespace NAISE {
-namespace Engine {
+namespace RenderCore {
 
 class AABB {
 public:

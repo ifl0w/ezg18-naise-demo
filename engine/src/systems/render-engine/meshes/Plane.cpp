@@ -1,6 +1,6 @@
 #include <systems/render-engine/meshes/Plane.hpp>
 
-using namespace NAISE::Engine;
+using namespace NAISE::RenderEngine;
 
 Plane::Plane(float width, float height) {
 	vertices.insert(vertices.end(), {
