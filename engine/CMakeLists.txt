@@ -13,7 +13,7 @@ file(GLOB_RECURSE SRC_FILES
         src/systems/RenderSystem.cpp
         src/systems/System.cpp
         src/systems/WindowSystem.cpp
-        src/systems/render-engine/Resources.cpp
+        src/Resources.cpp
         src/systems/render-engine/DeferredRenderTarget.cpp
         src/systems/render-engine/RenderEngine.cpp
         #        src/systems/render-engine/PingPongTarget.cpp
@@ -27,6 +27,7 @@ file(GLOB_RECURSE SRC_FILES
         src/systems/render-engine/meshes/*.cpp
         src/systems/render-engine/frustum-culling/*.cpp
         src/systems/render-engine/shadow-map/*.cpp
+        src/systems/render-engine/textures/*.cpp
         include/Engine.hpp
         include/Window.hpp
         include/components/*.hpp
@@ -37,7 +38,7 @@ file(GLOB_RECURSE SRC_FILES
         include/systems/RenderSystem.hpp
         include/systems/System.hpp
         include/systems/WindowSystem.hpp
-        include/systems/render-engine/Resources.hpp
+        include/Resources.hpp
         include/systems/render-engine/DeferredRenderTarget.hpp
         include/systems/render-engine/RenderEngine.hpp
         #        include/systems/render-engine/PingPongTarget.hpp
@@ -51,6 +52,7 @@ file(GLOB_RECURSE SRC_FILES
         include/systems/render-engine/meshes/*.hpp
         include/systems/render-engine/frustum-culling/*.hpp
         include/systems/render-engine/shadow-map/*.hpp
+        include/systems/render-engine/textures/*.hpp
         )
 
 set("OpenGL_GL_PREFERENCE" "GLVND")
@@ -69,6 +71,9 @@ set(OPTION_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(external/glbinding)
 include_directories(external/glbinding/source)
+
+### tinygltf ###
+include_directories(external/tinygltf)
 
 ### GLM ###
 include_directories(external/glm)
@@ -100,14 +105,14 @@ add_custom_target(
         WORKING_DIRECTORY external/bullet3
 )
 
-#Set_property(TARGET engine APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${engine_SOURCE_DIR}/external/actor-engine/libcaf_core)
-#link_directories(${engine_SOURCE_DIR}/external/actor-engine/libcaf_core)
 add_library(engine STATIC ${SRC_FILES} src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp src/components/InputComponent.cpp include/components/InputComponent.hpp include/systems/input/InputMapper.hpp include/factories/MaterialFactory.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include
         external/glm
-        external/bullet3/src)
+        external/bullet3/src
+        external/tinygltf)
+
 target_link_libraries(engine PUBLIC
         SDL2
         glbinding

@@ -1,13 +1,15 @@
 #version 430 core
 
+#define PI 3.1415926535897932384626433832795
+
 out vec4 fragColor;
 
 in vec2 TexCoords;
 
 uniform sampler2DMS gPosition;
 uniform sampler2DMS gNormal;
-uniform sampler2DMS gAlbedoSpec;
-uniform sampler2DMS gGlow;
+uniform sampler2DMS gAlbedoRoughness;
+uniform sampler2DMS gGlowMetallic;
 
 uniform sampler2DShadow shadowMap;
 uniform mat4 depthShadowProjection;
@@ -61,32 +63,130 @@ float calculateShadowFactor(vec3 pos, vec3 normal, vec3 lightDir) {
 	return shadowFactor;
 }
 
-vec3 processLight(Light light, vec3 pos, vec3 norm, vec3 diffuse, float specular)
+//vec3 processLight(Light light, vec3 pos, vec3 norm, vec3 diffuse, float specular)
+//{
+//	norm = normalize(norm);
+//	vec3 lightDir; // from surface to light
+//	float attenuation;
+//
+//	//directional light
+//	lightDir = normalize(-light.direction.xyz);
+//	attenuation = 1.0; // no attenuation for directional lights
+//
+//	vec3 R = reflect(-lightDir, norm); //2*(dot(L, vNorm))*vNorm - L;
+//	vec3 V = normalize(cameraPosition - pos); // calculate with viewMatrix: normalize(-vec3(viewMatrix * vec4(vPos,1)));
+//
+//	float df = max(dot(lightDir, norm), 0.0);
+//	vec3 diff = light.diffuse.xyz * diffuse * df;
+//
+//	vec3 spec = vec3(0);
+//	if (df > 0) { // check if front face
+//		spec = light.specular.xyz * specular * pow(max(dot(V, R), 0), 10); // TODO: get shineyness from material
+//	}
+//
+//	diff *= attenuation;
+//	spec *= attenuation;
+//
+//	float shadowFactor = calculateShadowFactor(pos, norm, lightDir);
+//	return (diff + spec) * shadowFactor;
+//}
+
+vec3 fresnelSchlick(float cosTheta, vec3 f0)
 {
-	norm = normalize(norm);
-	vec3 lightDir; // from surface to light
-	float attenuation;
+    return f0 + (1.0 - f0) * pow(1.0 - cosTheta, 5.0);
+}
 
-	//directional light
-	lightDir = normalize(-light.direction.xyz);
-	attenuation = 1.0; // no attenuation for directional lights
+float DistributionGGX(vec3 N, vec3 H, float roughness)
+{
+    float a = roughness*roughness;
+    float a2 = a*a;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH*NdotH;
 
-	vec3 R = reflect(-lightDir, norm); //2*(dot(L, vNorm))*vNorm - L;
-	vec3 V = normalize(cameraPosition - pos); // calculate with viewMatrix: normalize(-vec3(viewMatrix * vec4(vPos,1)));
+    float num = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
 
-	float df = max(dot(lightDir, norm), 0.0);
-	vec3 diff = light.diffuse.xyz * diffuse * df;
+    return num / denom;
+}
 
-	vec3 spec = vec3(0);
-	if (df > 0) { // check if front face
-		spec = light.specular.xyz * specular * pow(max(dot(V, R), 0), 10); // TODO: get shineyness from material
-	}
+float DistributionBeckmann(vec3 N, vec3 H, float roughness)
+{
+	float m2 = max(roughness * roughness, 0.0001);
+    float NdotH = max(dot(N, H), 0.0001);
+    float cos2Alpha = NdotH*NdotH;
+    float tan2Alpha = (1 - cos2Alpha) / cos2Alpha;
 
-	diff *= attenuation;
-	spec *= attenuation;
+	float num = exp(-tan2Alpha/m2);
+	float denom = PI * m2 * cos2Alpha * cos2Alpha;
 
-	float shadowFactor = calculateShadowFactor(pos, norm, lightDir);
-	return (diff + spec) * shadowFactor;
+	return num/denom;
+}
+
+float geomAttinuationWikipedia(vec3 H, vec3 N, vec3 V, vec3 L) {
+	float VdotH = max(dot(V,H), 0.0001);
+	float HdotN = max(dot(H,N), 0);
+	float VdotN = max(dot(V,N), 0);
+	float LdotN = max(dot(L,N), 0);
+	float t1 = 2*(HdotN*VdotN) / VdotH;
+	float t2 = 2*(HdotN*LdotN) / VdotH;
+	return min(1, min(t1,t2));
+}
+
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+    float r = (roughness + 1.0);
+    float k = (r*r) / 8.0;
+
+    float num   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+
+    return num / denom;
+}
+
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2  = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1  = GeometrySchlickGGX(NdotL, roughness);
+
+    return ggx1 * ggx2;
+}
+
+vec3 processLight(Light light, vec3 pos, vec3 norm, vec3 albedo, float roughness, float metallic) {
+	vec3 toLight = normalize(-light.direction.xyz);
+	vec3 toCam = normalize(cameraPosition - pos);
+
+	float attenuation = 1;
+	float intensityFactor = 1;
+
+	vec3 halfVec = normalize(toCam + toLight);
+
+	vec3 f0 = vec3(0.04);
+	f0 = mix(f0, albedo, metallic);
+	vec3 f = fresnelSchlick(max(dot(halfVec, toCam), 0.0), f0);
+
+	//float NDF = DistributionGGX(norm, halfVec, roughness);
+	float NDF = DistributionBeckmann(norm, halfVec, roughness);
+	float G = GeometrySmith(norm, toCam, toLight, roughness);
+	//float G = geomAttinuationWikipedia(halfVec, norm, toCam, toLight);
+
+	vec3 numerator = NDF * G * f;
+	float denominator = 4.0 * max(dot(toCam, norm), 0.0) * max(dot(norm, toLight), 0.0);
+	vec3 specular = numerator / max(denominator, 0.0001);
+
+	vec3 kD = vec3(1.0) - specular;
+	kD *= 1.0 - metallic;
+
+	vec3 radiance = (light.diffuse.xyz * 1 / attenuation) * intensityFactor;
+
+    float NdotL = max(dot(norm, toLight), 0.0);
+
+    vec3 color = (kD * albedo / PI + specular) * radiance * NdotL;
+    float shadowFactor = calculateShadowFactor(pos, norm, toLight);
+
+    return color * shadowFactor;
 }
 
 void main()
@@ -101,16 +201,17 @@ void main()
 		// retrieve data from G-buffer
 		vec3 FragPos = texelFetch(gPosition, denormalizedTexCoords, i).rgb;
 		vec3 Normal = texelFetch(gNormal, denormalizedTexCoords, i).rgb;
-		vec3 Albedo = texelFetch(gAlbedoSpec, denormalizedTexCoords, i).rgb;
-		float Specular = texelFetch(gAlbedoSpec, denormalizedTexCoords, i).a;
+		vec3 Albedo = texelFetch(gAlbedoRoughness, denormalizedTexCoords, i).rgb;
+		float Roughness = texelFetch(gAlbedoRoughness, denormalizedTexCoords, i).a;
+		float Metallic = texelFetch(gGlowMetallic, denormalizedTexCoords, i).a;
 
 		// then calculate lighting as usual
 		vec3 lighting = Albedo * light.ambient.rgb;
 		vec3 viewDir = normalize(cameraPosition - FragPos);
 
-		lighting += processLight(light, FragPos, Normal, Albedo, Specular);
+		lighting += processLight(light, FragPos, Normal, Albedo, Roughness, Metallic);
 
-		sumSubSamples += vec4(lighting, 1.0);
+		sumSubSamples += vec4(vec3(lighting), 1.0);
 	}
 
 	fragColor = sumSubSamples/samples * brightnessFactor;

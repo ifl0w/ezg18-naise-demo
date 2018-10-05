@@ -1,6 +1,6 @@
 #include <Engine.hpp>
 #include <systems/RenderSystem.hpp>
-#include <systems/render-engine/Resources.hpp>
+#include <Resources.hpp>
 
 #include <chrono>
 

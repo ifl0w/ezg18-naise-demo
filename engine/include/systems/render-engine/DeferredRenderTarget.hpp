@@ -21,10 +21,10 @@ public:
 
 	void retrieveDepthBuffer();
 
-	GLuint gGlow;
+	GLuint gGlowMetallic;
 	GLuint gPosition;
 	GLuint gNormal;
-	GLuint gAlbedoSpec;
+	GLuint gAlbedoRoughness;
 	GLuint depth_rbo;
 private:
 	int width;

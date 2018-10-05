@@ -85,7 +85,7 @@ GLuint NAISE::Engine::createShaderProgram(std::string vertexShaderFile, std::str
 		// loginfo to stdout.
 //		std::cout << std::string(infoLog.data()) << std::endl;
 
-		throw std::runtime_error("Could not compile fragment shaders.");
+		throw std::runtime_error("Could not compile fragment shaders." + std::string(infoLog.data()));
 	}
 
 	//Vertex and fragment shaders are successfully compiled.

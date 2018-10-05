@@ -1,6 +1,6 @@
 #include <systems/render-engine/materials/SolidColorMaterial.hpp>
 #include <systems/render-engine/materials/shaders/SolidColorShader.hpp>
-#include <systems/render-engine/Resources.hpp>
+#include <Resources.hpp>
 
 using namespace NAISE::Engine;
 

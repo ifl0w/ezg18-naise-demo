@@ -12,7 +12,7 @@
 using namespace glm;
 using namespace gl;
 using namespace std;
-using namespace NAISE::RenderEngine;
+using namespace NAISE::RenderCore;
 
 namespace NAISE {
 namespace Engine {

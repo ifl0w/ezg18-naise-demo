@@ -1,6 +1,6 @@
 #include <systems/render-engine/materials/GouraudMaterial.hpp>
 #include <systems/render-engine/materials/shaders/GouraudShader.hpp>
-#include <systems/render-engine/Resources.hpp>
+#include <Resources.hpp>
 
 using namespace NAISE::RenderCore;
 

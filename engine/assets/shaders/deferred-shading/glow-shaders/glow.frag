@@ -64,7 +64,7 @@ vec4 gaussianBlur() {
             result += texelFetch(debugTextureMS, tmpdenormalizedTexCoords, 0).rgb * weight[i];
         }
     }
-    return vec4(result, 0.0);
+    return vec4(result, debugTextureMS.a);
 }
 
 void main()

@@ -4,19 +4,21 @@
 #include <iostream>
 #include <fstream>
 #include <glbinding/gl/gl.h>
-//#include <tiny_gltf.h>
 #include <glm/glm.hpp>
+
+#include <tiny_gltf.h>
 
 using namespace glm;
 using namespace gl;
 using namespace std;
 
 namespace NAISE {
-namespace RenderEngine {
+namespace RenderCore {
 
 class Mesh {
 public:
 	Mesh();
+	Mesh(const tinygltf::Mesh& mesh, const tinygltf::Model& model);
 	~Mesh();
 
 	vector<vec3> convexHullData;
@@ -49,10 +51,11 @@ public:
 
 protected:
 	void fillBuffers();
-//private:
-//	std::vector<vec3> vec3FromGLTFBuffer(int accessorIdx, const tinygltf::Model& model);
-//	std::vector<vec2> vec2FromGLTFBuffer(int accessorIdx, const tinygltf::Model& model);
-//	std::vector<GLuint> gluintFromGLTFBuffer(int accessorIdx, const tinygltf::Model& model);
+
+private:
+	std::vector<vec3> vec3FromGLTFBuffer(int accessorIdx, const tinygltf::Model& model);
+	std::vector<vec2> vec2FromGLTFBuffer(int accessorIdx, const tinygltf::Model& model);
+	std::vector<GLuint> gluintFromGLTFBuffer(int accessorIdx, const tinygltf::Model& model);
 };
 
 }

@@ -9,9 +9,9 @@ LightShader::LightShader(std::string vertexShaderPath, std::string fragmentShade
 		: Shader(std::move(vertexShaderPath), std::move(fragmentShaderPath)) {
 	this->positionBufferLocation = uniformLocation(shaderID, "gPosition");
 	this->normalBufferLocation = uniformLocation(shaderID, "gNormal");
-	this->diffSpecBufferLocation = uniformLocation(shaderID, "gAlbedoSpec");
+	this->albedoRoughnessBufferLocation = uniformLocation(shaderID, "gAlbedoRoughness");
 	this->shadowMapLocation = uniformLocation(shaderID, "shadowMap");
-	this->glowBufferLocation = uniformLocation(shaderID, "gGlow");
+	this->emissionMetallicBufferLocation = uniformLocation(shaderID, "gGlowMetallic");
 }
 
 void LightShader::setLightProperties(const Light& light) {

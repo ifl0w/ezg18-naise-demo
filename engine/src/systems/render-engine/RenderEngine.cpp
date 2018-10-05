@@ -245,14 +245,14 @@ void RenderEngine::displayDebugQuads() {
 
 	if (debugFlags & DEBUG_ALBEDO) {
 		textureDebugShader.useShader();
-		textureDebugShader.setMSTextureUnit(deferredTarget->gAlbedoSpec);
+		textureDebugShader.setMSTextureUnit(deferredTarget->gAlbedoRoughness);
 		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(1, -2, 1)));
 		drawMesh(quad);
 	}
 
 	if (debugFlags & DEBUG_GLOW) {
 		textureDebugShader.useShader();
-		textureDebugShader.setMSTextureUnit(deferredTarget->gGlow);
+		textureDebugShader.setMSTextureUnit(deferredTarget->gGlowMetallic);
 		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(+3, -2, 1)));
 		drawMesh(quad);
 	}
@@ -388,10 +388,10 @@ void RenderEngine::shadowPass(const Entity& light, const Entity& camera, const v
 //	GLenum attachmentpoints[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
 //
 //	 first blur step (horizontal)
-//	 reading from gGlow and writing to ping (GL_COLOR_ATTACHMENT0)
+//	 reading from gGlowMetallic and writing to ping (GL_COLOR_ATTACHMENT0)
 //	glowShader.useShader();
 //	glowShader.setHorizontalUnit(true);
-//	glowShader.setMSTextureUnit(deferredTarget->gGlow);
+//	glowShader.setMSTextureUnit(deferredTarget->gGlowMetallic);
 //	glowShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0, 0)));
 //	quad.draw();
 //
@@ -405,7 +405,7 @@ void RenderEngine::shadowPass(const Entity& light, const Entity& camera, const v
 //	quad.draw();
 //
 ///*		// third blur step (horizontal)
-//		 reading from gGlow and writing to ping (GL_COLOR_ATTACHMENT0)
+//		 reading from gGlowMetallic and writing to ping (GL_COLOR_ATTACHMENT0)
 //		glDrawBuffer (attachmentpoints[0]);
 //		glowShader.useShader();
 //		glowShader.setHorizontalUnit(true);

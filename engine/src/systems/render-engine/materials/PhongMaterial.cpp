@@ -1,6 +1,6 @@
 #include <systems/render-engine/materials/PhongMaterial.hpp>
 #include <systems/render-engine/materials/shaders/PhongShader.hpp>
-#include <systems/render-engine/Resources.hpp>
+#include <Resources.hpp>
 
 using namespace NAISE::RenderCore;
 

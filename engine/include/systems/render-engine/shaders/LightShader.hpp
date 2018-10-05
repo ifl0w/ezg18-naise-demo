@@ -12,8 +12,8 @@ public:
 	GLint shadowMapLocation = -1;
 	GLint positionBufferLocation = -1;
 	GLint normalBufferLocation = -1;
-	GLint diffSpecBufferLocation = -1;
-	GLint glowBufferLocation = -1;
+	GLint albedoRoughnessBufferLocation = -1;
+	GLint emissionMetallicBufferLocation = -1;
 
 	GLenum positionBufferUnit = GL_TEXTURE0 + 0;
 	GLenum normalBufferUnit = GL_TEXTURE0 + 1;

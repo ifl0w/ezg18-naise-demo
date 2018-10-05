@@ -1,6 +1,6 @@
 #include <systems/render-engine/meshes/Sphere.hpp>
 
-using namespace NAISE::RenderEngine;
+using namespace NAISE::RenderCore;
 
 using namespace glm;
 

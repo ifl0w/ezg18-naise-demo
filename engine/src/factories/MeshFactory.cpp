@@ -2,6 +2,7 @@
 #include <memory>
 #include <factories/Box.hpp>
 #include <factories/Sphere.hpp>
+#include <spdlog/spdlog.h>
 
 using namespace NAISE::Engine;
 

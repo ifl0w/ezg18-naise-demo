@@ -6,7 +6,7 @@
 #include <components/InputComponent.hpp>
 #include <components/LightComponent.hpp>
 
-#include <systems/render-engine/materials/PhongMaterial.hpp>
+#include <systems/render-engine/materials/PBRMaterial.hpp>
 
 #include <systems/render-engine/lights/Light.hpp>
 #include <systems/render-engine/lights/DirectionalLight.hpp>
@@ -15,6 +15,8 @@
 #include <factories/MeshFactory.hpp>
 #include <factories/LightFactory.hpp>
 #include <factories/MaterialFactory.hpp>
+
+#include <Resources.hpp>
 
 #include <Game.hpp>
 #include <MovementSystem.hpp>
@@ -26,17 +28,21 @@ int main(int argc, char** argv) {
 
 	auto sphere = make_shared<NAISE::Engine::Entity>();
 	sphere->add<TransformComponent>();
-	sphere->component<TransformComponent>().position = vec3(0, 0, -5);
+	sphere->component<TransformComponent>().position = vec3(-2, 0, -5);
 	sphere->add(MeshFactory::createSphere());
 	sphere->add<MaterialComponent>();
-	sphere->add(MaterialFactory::createMaterial<PhongMaterial>(vec3(0.8, 0, 0.8)));
+	sphere->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.8, 0, 0.8), 1, 0.2));
 
 	auto box = make_shared<NAISE::Engine::Entity>();
 	box->add<TransformComponent>();
 	box->component<TransformComponent>().position = vec3(0, -2, -5);
 	box->component<TransformComponent>().scale = vec3(1, 1, 1);
 	box->add(MeshFactory::createBox(20, 1, 20));
-	box->add(MaterialFactory::createMaterial<PhongMaterial>(vec3(0.8, 0.8, 0.8)));
+	box->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.8, 0.8, 0.8), 0, 0.2));
+
+	auto spaceship = Resources::loadModel("assets/models/spaceship/spaceship.gltf");
+	spaceship->component<TransformComponent>().position = vec3(2, 0, -5);
+	spaceship->component<TransformComponent>().scale = vec3(1, 1, 1);
 
 	auto camera = make_shared<NAISE::Engine::Entity>();
 	camera->add<TransformComponent>();
@@ -63,6 +69,7 @@ int main(int argc, char** argv) {
 	engine.entityManager.addEntity(camera);
 	engine.entityManager.addEntity(sphere);
 	engine.entityManager.addEntity(box);
+	engine.entityManager.addEntity(spaceship);
 
 	engine.inputSystem->setInputMapper(make_shared<GameInputMapper>());
 
