@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
 	auto sun = make_shared<NAISE::Engine::Entity>();
 	sun->add<TransformComponent>();
 	sun->add(LightFactory::createLight<DirectionalLight>());
-	sun->component<LightComponent>().light->data.direction = vec4(-1, -1, -1, 1);
+	sun->component<LightComponent>().light->data.direction = vec4(-1, -2, -1, 1);
 
 	auto pointLight = make_shared<NAISE::Engine::Entity>();
 	pointLight->add<TransformComponent>();

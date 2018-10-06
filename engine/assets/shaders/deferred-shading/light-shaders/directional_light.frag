@@ -200,7 +200,7 @@ void main()
 	{
 		// retrieve data from G-buffer
 		vec3 FragPos = texelFetch(gPosition, denormalizedTexCoords, i).rgb;
-		vec3 Normal = texelFetch(gNormal, denormalizedTexCoords, i).rgb;
+		vec3 Normal = normalize(texelFetch(gNormal, denormalizedTexCoords, i).rgb);
 		vec3 Albedo = texelFetch(gAlbedoRoughness, denormalizedTexCoords, i).rgb;
 		float Roughness = texelFetch(gAlbedoRoughness, denormalizedTexCoords, i).a;
 		float Metallic = texelFetch(gGlowMetallic, denormalizedTexCoords, i).a;
