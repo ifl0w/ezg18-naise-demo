@@ -12,10 +12,8 @@ in mat3 TBN;
 
 uniform sampler2D albedoTexture;
 uniform bool useAlbedoTexture;
-uniform sampler2D roughnessTexture;
-uniform bool useRoughnessTexture;
-uniform sampler2D metallicTexture;
-uniform bool useMetallicTexture;
+uniform sampler2D metallicRoughnessTexture; // packed R = metallic G = roughness
+uniform bool useMetallicRoughnessTexture;
 uniform sampler2D normalTexture;
 uniform bool useNormalTexture;
 uniform sampler2D emissionTexture;
@@ -65,16 +63,16 @@ void main() {
         gAlbedoRoughness.rgb *= texture(albedoTexture, vUV).rgb; // set diffuse to 1 if direct texture is desired
     }
 
-    // roughness in gAlbedoRoughness's alpha component
-    gAlbedoRoughness.a = material.roughness;
-    if (useRoughnessTexture) {
-        gAlbedoRoughness.a = texture(roughnessTexture, vUV).r;
-    }
-
     // metallic in gGlowMetallic's alpha component
     gGlowMetallic.a = material.metallic;
-    if (useEmissionTexture) {
-        gGlowMetallic.a = texture(metallicTexture, vUV).r;
+    if (useMetallicRoughnessTexture) {
+        gGlowMetallic.a = texture(metallicRoughnessTexture, vUV).r;
+    }
+
+    // roughness in gAlbedoRoughness's alpha component
+    gAlbedoRoughness.a = material.roughness;
+    if (useMetallicRoughnessTexture) {
+        gAlbedoRoughness.a = texture(metallicRoughnessTexture, vUV).g;
     }
 
     // GLOW

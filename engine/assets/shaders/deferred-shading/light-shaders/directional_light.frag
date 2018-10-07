@@ -167,10 +167,10 @@ vec3 processLight(Light light, vec3 pos, vec3 norm, vec3 albedo, float roughness
 	f0 = mix(f0, albedo, metallic);
 	vec3 f = fresnelSchlick(max(dot(halfVec, toCam), 0.0), f0);
 
-	//float NDF = DistributionGGX(norm, halfVec, roughness);
+//	float NDF = DistributionGGX(norm, halfVec, roughness);
 	float NDF = DistributionBeckmann(norm, halfVec, roughness);
 	float G = GeometrySmith(norm, toCam, toLight, roughness);
-	//float G = geomAttinuationWikipedia(halfVec, norm, toCam, toLight);
+//	float G = geomAttinuationWikipedia(halfVec, norm, toCam, toLight);
 
 	vec3 numerator = NDF * G * f;
 	float denominator = 4.0 * max(dot(toCam, norm), 0.0) * max(dot(norm, toLight), 0.0);

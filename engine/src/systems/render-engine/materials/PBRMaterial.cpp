@@ -21,11 +21,8 @@ PBRMaterial::PBRMaterial(vec3 albedo, float metallic, float roughness)
 	this->albedoTextureLocation = uniformLocation(shader->shaderID, "albedoTexture");
 	this->useAlbedoTextureLocation = uniformLocation(shader->shaderID, "useAlbedoTexture");
 
-	this->roughnessTextureLocation = uniformLocation(shader->shaderID, "roughnessTexture");
-	this->useRoughnessTextureLocation = uniformLocation(shader->shaderID, "useRoughnessTexture");
-
-	this->metallicTextureLocation = uniformLocation(shader->shaderID, "metallicTexture");
-	this->useMetallicTextureLocation = uniformLocation(shader->shaderID, "useMetallicTexture");
+	this->metallicRoughnessTextureLocation = uniformLocation(shader->shaderID, "metallicRoughnessTexture");
+	this->useMetallicRoughnessTextureLocation = uniformLocation(shader->shaderID, "useMetallicRoughnessTexture");
 
 	this->normalTextureLocation = uniformLocation(shader->shaderID, "normalTexture");
 	this->useNormalTextureLocation = uniformLocation(shader->shaderID, "useNormalTexture");
@@ -59,20 +56,12 @@ void PBRMaterial::useMaterial() const {
 		glUniform1i(useEmissionTextureLocation, false);
 	}
 
-	if (roughnessTexture) {
-		glUniform1i(useRoughnessTextureLocation, true);
-		glUniform1i(roughnessTextureLocation, roughnessTextureUnit);
-		roughnessTexture->useTexture(roughnessTextureUnit);
+	if (metallicRoughnessTexture) {
+		glUniform1i(useMetallicRoughnessTextureLocation, true);
+		glUniform1i(metallicRoughnessTextureLocation, metallicRoughnessTextureUnit);
+		metallicRoughnessTexture->useTexture(metallicRoughnessTextureUnit);
 	} else {
-		glUniform1i(useRoughnessTextureLocation, false);
-	}
-
-	if (metallicTexture) {
-		glUniform1i(useMetallicTextureLocation, true);
-		glUniform1i(metallicTextureLocation, metallicTextureUnit);
-		metallicTexture->useTexture(metallicTextureUnit);
-	} else {
-		glUniform1i(useMetallicTextureLocation, false);
+		glUniform1i(useMetallicRoughnessTextureLocation, false);
 	}
 
 	if (normalTexture && displayNormalTexture) {
@@ -109,22 +98,48 @@ PBRMaterial::PBRMaterial(const tinygltf::Material& material, const tinygltf::Mod
 	}
 
 	try {
-		auto gltfTexture = material.additionalValues.at("specularTexture");
+		auto factor = material.values.at("metallicFactor");
 
-		auto texID = gltfTexture.TextureIndex();
-		if (texID >= 0) {
-			metallicTexture = Resources::loadTexture(model.textures[texID], model);
-		}
+		metallic = static_cast<float>(factor.Factor());
 	} catch (std::out_of_range& e) {
 		// swollow
 	}
 
 	try {
-		auto gltfTexture = material.additionalValues.at("normalTexture");
+		auto factor = material.values.at("roughnessFactor");
+
+		roughness = static_cast<float>(factor.Factor());
+	} catch (std::out_of_range& e) {
+		// swollow
+	}
+
+	try {
+		auto gltfTexture = material.values.at("metallicRoughnessTexture");
 
 		auto texID = gltfTexture.TextureIndex();
 		if (texID >= 0) {
-			roughnessTexture = Resources::loadTexture(model.textures[texID], model);
+			metallicRoughnessTexture = Resources::loadTexture(model.textures[texID], model);
+		}
+	} catch (std::out_of_range& e) {
+		metallic = 1.0;
+		roughness = 1.0;
+	}
+
+	try {
+		auto factor = material.values.at("emissiveFactor");
+
+		auto color = factor.ColorFactor();
+		glow = vec3(color[0], color[1], color[2]);
+	} catch (std::out_of_range& e) {
+		// swollow
+	}
+
+	try {
+		auto gltfTexture = material.additionalValues.at("emissiveTexture");
+
+		auto texID = gltfTexture.TextureIndex();
+		if (texID >= 0) {
+			emissionTexture = Resources::loadTexture(model.textures[texID], model);
 		}
 	} catch (std::out_of_range& e) {
 		// swollow
@@ -141,14 +156,4 @@ PBRMaterial::PBRMaterial(const tinygltf::Material& material, const tinygltf::Mod
 		// swollow
 	}
 
-	try {
-		auto gltfTexture = material.additionalValues.at("emissiveTexture");
-
-		auto texID = gltfTexture.TextureIndex();
-		if (texID >= 0) {
-			emissionTexture = Resources::loadTexture(model.textures[texID], model);
-		}
-	} catch (std::out_of_range& e) {
-		// swollow
-	}
 }

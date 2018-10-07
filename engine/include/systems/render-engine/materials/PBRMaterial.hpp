@@ -23,13 +23,12 @@ public:
 	void useMaterial() const override;
 
 	vec3 albedo;
-	float roughness;
-	float metallic;
+	float roughness = 0.3;
+	float metallic = 0.0;
 	vec3 glow = vec3(0); // color (vec3(0) = now glow)
 
 	std::shared_ptr<Texture> albedoTexture;
-	std::shared_ptr<Texture> roughnessTexture;
-	std::shared_ptr<Texture> metallicTexture;
+	std::shared_ptr<Texture> metallicRoughnessTexture;
 	std::shared_ptr<Texture> normalTexture;
 	std::shared_ptr<Texture> emissionTexture;
 
@@ -45,23 +44,19 @@ private:
 
 	GLint useWatermeshAnimationLocation = -1;
 
-	uint32_t albedoTextureUnit = 5;
+	uint32_t albedoTextureUnit = 1;
 	GLint albedoTextureLocation = -1;
 	GLint useAlbedoTextureLocation = -1;
 
-	uint32_t roughnessTextureUnit = 6;
-	GLint roughnessTextureLocation = -1;
-	GLint useRoughnessTextureLocation = -1;
+	uint32_t metallicRoughnessTextureUnit = 2;
+	GLint metallicRoughnessTextureLocation = -1;
+	GLint useMetallicRoughnessTextureLocation = -1;
 
-	uint32_t metallicTextureUnit = 7;
-	GLint metallicTextureLocation = -1;
-	GLint useMetallicTextureLocation = -1;
-
-	uint32_t normalTextureUnit = 8;
+	uint32_t normalTextureUnit = 3;
 	GLint normalTextureLocation = -1;
 	GLint useNormalTextureLocation = -1;
 
-	uint32_t emissionTextureUnit = 9;
+	uint32_t emissionTextureUnit = 4;
 	GLint emissionTextureLocation = -1;
 	GLint useEmissionTextureLocation = -1;
 

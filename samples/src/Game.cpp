@@ -75,6 +75,14 @@ int main(int argc, char** argv) {
 
 	}
 
+	auto luminarisScene = Resources::loadModel("assets/models/luminaris/luminaris.gltf");
+	for (int j = 0; j < luminarisScene.size(); ++j) {
+		auto& t = luminarisScene[j];
+		t->component<TransformComponent>().position = vec3(0, 0, 25);
+		t->component<TransformComponent>().scale = vec3(0.2);
+		engine.entityManager.addEntity(t);
+	}
+
 	engine.entityManager.addEntity(sun);
 	engine.entityManager.addEntity(camera);
 	engine.entityManager.addEntity(sphere);
