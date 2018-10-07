@@ -123,7 +123,7 @@ private:
 	bool backfaceCulling = true;
 	bool lightVolumeDebugging = false;
 
-	void geometryPass(const Mesh& mesh, const Material& material, mat4 transform);
+	void geometryPass(const Mesh& mesh, const Material* material, mat4 transform);
 	void shadowPass(const Entity& light, const Entity& camera, vector<Entity*> entities);
 
 	void prepareLightPass();
@@ -146,7 +146,11 @@ private:
 	glm::mat4 projectionMatrix;
 	glm::mat4 viewMatrix;
 
+	/* Default properties */
+	unique_ptr<Material>  _defaultMaterial;
+
 	// command functions
+	void drawMeshDirect(const Mesh& mesh);
 	void drawMesh(const Mesh& mesh, const Material* material = nullptr, mat4 transform = mat4(1));
 };
 

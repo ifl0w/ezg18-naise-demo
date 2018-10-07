@@ -1,5 +1,9 @@
 project(engine)
 
+if(NOT MSVC)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG") # define _DEBUG flag on other non microsoft compilers
+endif(NOT MSVC)
+
 include_directories(include)
 
 file(GLOB_RECURSE SRC_FILES
@@ -113,13 +117,20 @@ target_include_directories(engine PUBLIC
         external/bullet3/src
         external/tinygltf)
 
-target_link_libraries(engine PUBLIC
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_link_libraries(engine PUBLIC
         SDL2
         glbinding
-        glbinding-aux # for additionaly, auxiliary features as logging, meta information, or debugging functionality
         Bullet3Common BulletDynamics BulletCollision LinearMath
         -lpthread)
-
+else()
+    target_link_libraries(engine PUBLIC
+            SDL2
+            glbinding
+            glbinding-aux # for additionaly, auxiliary features as logging, meta information, or debugging functionality
+            Bullet3Common BulletDynamics BulletCollision LinearMath
+            -lpthread)
+endif()
 ######## COPY ASSETS ########
 # Collect list of asset files.
 file(GLOB_RECURSE shader_files

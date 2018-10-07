@@ -5,7 +5,9 @@
 
 #include <glbinding/glbinding.h>
 #include <glbinding/Binding.h>
+#ifdef _DEBUG
 #include <glbinding-aux/debug.h>
+#endif
 #include <iostream>
 
 using namespace NAISE::Engine;
@@ -45,7 +47,9 @@ Window::Window() {
 	SDL_GL_SetSwapInterval(0);
 
 	glbinding::initialize(getProcAddress, false);
+#ifdef _DEBUG
 	glbinding::aux::enableGetErrorCallback();
+#endif
 }
 
 Window::~Window() {

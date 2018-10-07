@@ -27,6 +27,8 @@ public:
 	explicit Material(bool forwardShading)
 			: forwardShading(forwardShading) { };
 
+	virtual ~Material() = default;
+
 	/**
 	 * Initialize all necessary uniforms for this material.
 	 * TODO: move useShader into this function if possible to ensure precondition

@@ -31,7 +31,7 @@ public:
 	 * @param path
 	 * @return
 	 */
-	static shared_ptr<Entity> loadModel(const std::string& path);
+	static vector<shared_ptr<Entity>> loadModel(const std::string& path);
 
 	/**
 	 * Returns a shader object for the template type
@@ -113,7 +113,7 @@ private:
 	 * @param model
 	 * @return
 	 */
-	static shared_ptr<Entity> entityFromGLTFNode(const std::string& idPrefix, const tinygltf::Node& node,
+	static vector<shared_ptr<Entity>> entityFromGLTFNode(const std::string& idPrefix, const tinygltf::Node& node,
 												 const tinygltf::Model& model);
 
 };

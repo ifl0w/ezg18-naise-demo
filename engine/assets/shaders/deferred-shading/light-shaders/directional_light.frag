@@ -47,7 +47,7 @@ float calculateShadowFactor(vec3 pos, vec3 normal, vec3 lightDir) {
 	vec3 ProjCoords =  0.5 * (shadowPos.xyz) + 0.5;
 
 	float cosTheta = clamp(dot(normal, lightDir), 0.0, 1.0);
-    float bias = 0.00005 * tan(acos(cosTheta));
+    float bias = 0.00001 * tan(acos(cosTheta));
     bias = clamp(bias, 0.0, 0.01);
 
     // 2x2 hardware pcf + blurring with a 3x3 kernel for prettier results

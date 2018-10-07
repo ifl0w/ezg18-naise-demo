@@ -88,7 +88,9 @@ std::shared_ptr<Texture> Resources::getTexture(const std::string& identifier) {
 //	return Resources::computeShaders[key];
 //}
 
-shared_ptr<Entity> Resources::loadModel(const std::string& path) {
+vector<shared_ptr<Entity>> Resources::loadModel(const std::string& path) {
+	vector<shared_ptr<Entity>> ret;
+
 	const auto& key = path;
 	auto it = Resources::models.find(key);
 
@@ -96,8 +98,6 @@ shared_ptr<Entity> Resources::loadModel(const std::string& path) {
 	tinygltf::Model model;
 	std::string warn;
 	std::string error;
-
-	auto result = std::make_shared<Entity>();
 
 	if (it != Resources::models.end()) {
 		model = it->second;
@@ -111,17 +111,13 @@ shared_ptr<Entity> Resources::loadModel(const std::string& path) {
 
 		if (!successful) {
 			spdlog::get("logger")->error("Resources::loadModel >> Could not load ASCII model {} ({})", path, error);
-			return result;
+			return ret;
 		}
 	}
 
 	for (const auto nodeIdx: model.scenes[model.defaultScene].nodes) {
-		result = entityFromGLTFNode(path, model.nodes[nodeIdx], model);
-
-		if (result) {
-			result->add<TransformComponent>();
-//			result->addChild(entity);
-		}
+		auto result = entityFromGLTFNode(path, model.nodes[nodeIdx], model);
+		ret.insert(ret.end(), result.begin(), result.end());
 	}
 
 	for (auto& image: model.images) {
@@ -130,12 +126,16 @@ shared_ptr<Entity> Resources::loadModel(const std::string& path) {
 	}
 
 	Resources::models[key] = model;
-	return result;
+	return ret;
 }
 
-shared_ptr<Entity> Resources::entityFromGLTFNode(const std::string& idPrefix, const tinygltf::Node& node,
+vector<shared_ptr<Entity>> Resources::entityFromGLTFNode(const std::string& idPrefix, const tinygltf::Node& node,
 												 const tinygltf::Model& model) {
+	vector<shared_ptr<Entity>> ret;
+
 	auto entity = make_shared<Entity>();
+	entity->add<TransformComponent>();
+
 	string id = idPrefix + "->" + node.name;
 
 	if (node.mesh >= 0) {
@@ -144,18 +144,28 @@ shared_ptr<Entity> Resources::entityFromGLTFNode(const std::string& idPrefix, co
 		entity->add<MeshComponent>();
 		entity->component<MeshComponent>().mesh = getMesh<Mesh>(id, mesh, model);
 
+		if (node.translation.size() > 0) {
+			auto pos = vec3(node.translation[0], node.translation[1], node.translation[3]);
+			entity->component<TransformComponent>().position = pos;
+		}
+
 		/* load material */
-		// TODO: support for more than a single material per object
-		auto gltfMaterial = model.materials[mesh.primitives[0].material];
-		entity->add<MaterialComponent>();
-		entity->component<MaterialComponent>().material = getMaterial<PBRMaterial>(id, gltfMaterial, model);;
+		if (mesh.primitives[0].material >= 0) {
+			// TODO: support for more than a single material per object (iflow: probable not soon)
+			auto gltfMaterial = model.materials[mesh.primitives[0].material];
+			entity->add<MaterialComponent>();
+			entity->component<MaterialComponent>().material = getMaterial<PBRMaterial>(id, gltfMaterial, model);
+		}
+
+		ret.push_back(entity);
 	}
 
-//	for (const auto& child: node.children) {
-//		entity->addChild(entityFromGLTFNode(id, model.nodes[child], model));
-//	}
+	for (const auto& child: node.children) {
+		auto children = entityFromGLTFNode(id, model.nodes[child], model);
+		ret.insert(ret.end(), children.begin(), children.end());
+	}
 
-	return entity;
+	return ret;
 }
 
 void Resources::freeAll() {

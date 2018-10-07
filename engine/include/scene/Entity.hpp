@@ -36,6 +36,9 @@ public:
 	T& component() const;
 
 	template <class T>
+	bool has() const;
+
+	template <class T>
 	void removeComponent();
 
 private:
@@ -71,6 +74,13 @@ template<class T>
 void Entity::removeComponent() {
 	components.erase(type_index(typeid(T)));
 }
+
+template<class T>
+bool Entity::has() const {
+	auto it = components.find(type_index(typeid(T)));
+	return it != components.end();
+}
+
 
 }
 }

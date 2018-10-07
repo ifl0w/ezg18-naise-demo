@@ -40,12 +40,10 @@ int main(int argc, char** argv) {
 	box->add(MeshFactory::createBox(20, 1, 20));
 	box->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.8, 0.8, 0.8), 0, 0.2));
 
-	auto spaceship = Resources::loadModel("assets/models/spaceship/spaceship.gltf");
-	spaceship->component<TransformComponent>().position = vec3(2, 0, -5);
-	spaceship->component<TransformComponent>().scale = vec3(1, 1, 1);
 
 	auto camera = make_shared<NAISE::Engine::Entity>();
 	camera->add<TransformComponent>();
+	camera->component<TransformComponent>().position = vec3(0, 1.6, 0);
 	camera->add<CameraComponent>();
 	camera->add<InputComponent>();
 	camera->component<InputComponent>().add<Actions::MoveForward>();
@@ -58,18 +56,29 @@ int main(int argc, char** argv) {
 	sun->add<TransformComponent>();
 	sun->add(LightFactory::createLight<DirectionalLight>());
 	sun->component<LightComponent>().light->data.direction = vec4(-1, -2, -1, 1);
+	sun->component<LightComponent>().light->data.ambient = vec4(0.75, 0.75, 0.75, 1);
 
-	auto pointLight = make_shared<NAISE::Engine::Entity>();
-	pointLight->add<TransformComponent>();
-	pointLight->component<TransformComponent>().position = vec3(-2, -1, -7);
-	pointLight->add(LightFactory::createLight<PointLight>());
+	for (int i = 0; i < 5; ++i) {
+		auto pointLight = make_shared<NAISE::Engine::Entity>();
+		pointLight->add<TransformComponent>();
+		pointLight->component<TransformComponent>().position = vec3(0, 0, -i * 20);
+		pointLight->add(LightFactory::createLight<PointLight>());
+		engine.entityManager.addEntity(pointLight);
+
+
+		auto tunnelSegment = Resources::loadModel("assets/models/tunnel-segment/tunnel_segment.gltf");
+		for (int j = 0; j < tunnelSegment.size(); ++j) {
+			auto& t = tunnelSegment[j];
+			t->component<TransformComponent>().position = vec3(0, 0, -i * 20);
+			engine.entityManager.addEntity(t);
+		}
+
+	}
 
 	engine.entityManager.addEntity(sun);
-	engine.entityManager.addEntity(pointLight);
 	engine.entityManager.addEntity(camera);
 	engine.entityManager.addEntity(sphere);
 	engine.entityManager.addEntity(box);
-	engine.entityManager.addEntity(spaceship);
 
 	engine.inputSystem->setInputMapper(make_shared<GameInputMapper>());
 

@@ -1,19 +1,20 @@
 #include <systems/render-engine/RenderEngine.hpp>
-#include <systems/render-engine/lights/Light.hpp>
+#include <systems/render-engine/materials/PBRMaterial.hpp>
 
 #include <components/MaterialComponent.hpp>
 #include <components/LightComponent.hpp>
-#include <spdlog/spdlog.h>
 
 using namespace NAISE::Engine;
 using namespace std;
 using namespace glm;
 
-RenderEngine::RenderEngine() : RenderEngine(1024, 768) {};
+RenderEngine::RenderEngine()
+		: RenderEngine(1024, 768) { };
 
 RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
-	: viewportWidth(viewportWidth)
-	, viewportHeight(viewportHeight) {
+		: viewportWidth(viewportWidth),
+		  viewportHeight(viewportHeight),
+		  _defaultMaterial(make_unique<PBRMaterial>(vec3(0.9, 0, 0.9), 0, 0.5)){
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
 //	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	shadowMap = make_unique<ShadowMap>(1024 * 4, 1024 * 4);
@@ -41,9 +42,14 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 }
 
 void RenderEngine::initFrame(const CameraComponent& cameraComponent, const TransformComponent& transform) {
+	// enable back face culling
+	glEnable(GL_CULL_FACE);
+	// enable depth test
+	glEnable(GL_DEPTH_TEST);
 	deferredTarget->use();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	setProjectionData(cameraComponent.getProjectionMatrix(), glm::inverse(transform.calculateModelMatrix()), transform.position);
+	setProjectionData(cameraComponent.getProjectionMatrix(), glm::inverse(transform.calculateModelMatrix()),
+					  transform.position);
 }
 
 void RenderEngine::render(const shared_ptr<Scene>& scene) {
@@ -75,7 +81,7 @@ void RenderEngine::render(const shared_ptr<Scene>& scene) {
 	}
 }
 
-void RenderEngine::geometryPass(const Mesh& mesh, const Material& material, mat4 transform) {
+void RenderEngine::geometryPass(const Mesh& mesh, const Material* material, mat4 transform) {
 //	activateRenderState();
 //	for (auto const& object: scene->retrieveDeferredRenderObjects()) {
 //		if (wireframe) {
@@ -84,7 +90,7 @@ void RenderEngine::geometryPass(const Mesh& mesh, const Material& material, mat4
 //			object->material->renderPolygonMode();
 //		}
 
-	drawMesh(mesh, &material, transform);
+	drawMesh(mesh, material, transform);
 //	}
 //	deactivateRenderState();
 }
@@ -117,7 +123,6 @@ void RenderEngine::prepareLightPass() {
 void RenderEngine::lightPass(const Light& light) {
 //	renderLights(light);
 }
-
 
 void RenderEngine::cleanupLightPass() {
 	// write to the depth buffer again
@@ -172,7 +177,8 @@ void RenderEngine::setProjectionData(const mat4 projectionMatrix, const mat4 vie
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void RenderEngine::setShadowProjectionData(const mat4 projectionMatrix, const mat4 viewMatrix, const vec3 lightPosition) {
+void RenderEngine::setShadowProjectionData(const mat4 projectionMatrix, const mat4 viewMatrix,
+										   const vec3 lightPosition) {
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboProjectionData);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionData);
@@ -233,28 +239,28 @@ void RenderEngine::displayDebugQuads() {
 		textureDebugShader.useShader();
 		textureDebugShader.setMSTextureUnit(deferredTarget->gPosition);
 		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(-3, -2, 1)));
-		drawMesh(quad);
+		drawMeshDirect(quad);
 	}
 
 	if (debugFlags & DEBUG_NORMAL) {
 		textureDebugShader.useShader();
 		textureDebugShader.setMSTextureUnit(deferredTarget->gNormal);
 		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(-1, -2, 1)));
-		drawMesh(quad);
+		drawMeshDirect(quad);
 	}
 
 	if (debugFlags & DEBUG_ALBEDO) {
 		textureDebugShader.useShader();
 		textureDebugShader.setMSTextureUnit(deferredTarget->gAlbedoRoughness);
 		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(1, -2, 1)));
-		drawMesh(quad);
+		drawMeshDirect(quad);
 	}
 
 	if (debugFlags & DEBUG_GLOW) {
 		textureDebugShader.useShader();
 		textureDebugShader.setMSTextureUnit(deferredTarget->gGlowMetallic);
 		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(+3, -2, 1)));
-		drawMesh(quad);
+		drawMeshDirect(quad);
 	}
 
 	glEnable(GL_DEPTH_TEST);
@@ -292,63 +298,64 @@ void RenderEngine::renderLights(const Light& light, mat4 transform, const Entity
 	glEnable(GL_STENCIL_TEST);
 
 //	for (const auto& light: lights) {
-		if (!light.data.directional) {
-			/* Light volume culling */
-			nullShader.useShader();
+	if (!light.data.directional) {
+		/* Light volume culling */
+		nullShader.useShader();
 
-			glEnable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);
 
-			glDisable(GL_CULL_FACE);
+		glDisable(GL_CULL_FACE);
 
-			glClear(GL_STENCIL_BUFFER_BIT);
+		glClear(GL_STENCIL_BUFFER_BIT);
 
-			// Stencil test succeed always. Only the depth test matters.
-			glStencilFunc(GL_ALWAYS, 0, 0);
+		// Stencil test succeed always. Only the depth test matters.
+		glStencilFunc(GL_ALWAYS, 0, 0);
 
-			glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
-			glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+		glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
 
-			nullShader.setModelMatrix(transform);
-			drawMesh(sphereLightVolume);
+		nullShader.setModelMatrix(transform);
+		drawMeshDirect(sphereLightVolume);
 
-			/* Light volume shading */
-			plShader.useShader();
-			plShader.setLightVolumeDebugging(lightVolumeDebugging);
+		/* Light volume shading */
+		plShader.useShader();
+		plShader.setLightVolumeDebugging(lightVolumeDebugging);
 
-			glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+		glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
-			glDisable(GL_DEPTH_TEST);
+		glDisable(GL_DEPTH_TEST);
 
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_FRONT);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
 
-			deferredTarget->setTextureUnits(plShader);
+		deferredTarget->setTextureUnits(plShader);
 
-			plShader.setLightProperties(light);
-			plShader.setModelMatrix(transform);
-			drawMesh(sphereLightVolume);
+		plShader.setLightProperties(light);
+		plShader.setModelMatrix(transform);
+		drawMeshDirect(sphereLightVolume);
 
-			glEnable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);
 
-			glCullFace(GL_BACK);
-		} else {
-			dlShader.useShader();
+		glCullFace(GL_BACK);
+	} else {
+		dlShader.useShader();
 
-			glDisable(GL_DEPTH_TEST);
+		glDisable(GL_DEPTH_TEST);
 
-			// ignore stencil test
-			glStencilFunc(GL_ALWAYS, 0, 0);
+		// ignore stencil test
+		glStencilFunc(GL_ALWAYS, 0, 0);
 
-			deferredTarget->setTextureUnits(dlShader);
-			shadowMap->setTextureUnits(dlShader);
+		deferredTarget->setTextureUnits(dlShader);
+		shadowMap->setTextureUnits(dlShader);
 
-			dlShader.setLightProperties(light);
-			auto& c = camera.component<CameraComponent>();
-			dlShader.setShadowMapViewProjection(light.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(30))) * light.getShadowMatrix());
-			drawMesh(quad);
+		dlShader.setLightProperties(light);
+		auto& c = camera.component<CameraComponent>();
+		dlShader.setShadowMapViewProjection(
+				light.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(30))) * light.getShadowMatrix());
+		drawMeshDirect(quad);
 
-			glEnable(GL_DEPTH_TEST);
-		}
+		glEnable(GL_DEPTH_TEST);
+	}
 //	}
 
 	glDisable(GL_STENCIL_TEST);
@@ -363,17 +370,27 @@ void RenderEngine::shadowPass(const Entity& light, const Entity& camera, const v
 	auto& t = camera.component<TransformComponent>();
 	auto& c = camera.component<CameraComponent>();
 
-	setShadowProjectionData(l.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(30))), l.getShadowMatrix(), t.position);
+	setShadowProjectionData(l.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(30))), l.getShadowMatrix(),
+							t.position);
 
+	// disable back face culling
+	glDisable(GL_CULL_FACE);
 	glViewport(0, 0, shadowMap->width, shadowMap->height);
 	for (auto const& e: entities) {
 		auto& mesh = *e->component<MeshComponent>().mesh.get();
-		auto material = e->component<MaterialComponent>().material.get();
+
+		Material* material = nullptr;
+		if (e->has<MaterialComponent>()) {
+			material = e->component<MaterialComponent>().material.get();
+		}
+
 		auto transform = e->component<TransformComponent>().calculateModelMatrix();
 
 		drawMesh(mesh, material, transform);
 	}
 	glViewport(0, 0, viewportWidth, viewportHeight);
+	// enable back face culling
+	glEnable(GL_CULL_FACE);
 }
 //
 //void RenderEngine::glowPass(const std::shared_ptr<Scene>& scene) {
@@ -480,15 +497,24 @@ void RenderEngine::toggleLightVolumeDebugging() {
 	lightVolumeDebugging = !lightVolumeDebugging;
 }
 
+void RenderEngine::drawMeshDirect(const Mesh& mesh) {
+	//Bind VAO
+	glBindVertexArray(mesh.vao);
+
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
+}
+
 void RenderEngine::drawMesh(const Mesh& mesh, const Material* material, mat4 transform) {
 	// material-shader
-	if (material != nullptr) {
-		if (material->shader->shaderID != Shader::activeShader) {
-			material->shader->useShader();
-		}
-		material->shader->setModelMatrix(transform);
-		material->useMaterial();
+	if (material == nullptr) {
+		material = _defaultMaterial.get();
 	}
+
+	if (material->shader->shaderID != Shader::activeShader) {
+		material->shader->useShader();
+	}
+	material->shader->setModelMatrix(transform);
+	material->useMaterial();
 
 	if (wireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -498,8 +524,5 @@ void RenderEngine::drawMesh(const Mesh& mesh, const Material* material, mat4 tra
 		}
 	}
 
-	//Bind VAO
-	glBindVertexArray(mesh.vao);
-
-	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
+	drawMeshDirect(mesh);
 }

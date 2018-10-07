@@ -32,7 +32,6 @@ public:
 
 		geometryFilter.requirement<MeshComponent>();
 		geometryFilter.requirement<TransformComponent>();
-		geometryFilter.requirement<MaterialComponent>();
 
 		lightFilter.requirement<TransformComponent>();
 		lightFilter.requirement<LightComponent>();
@@ -44,10 +43,10 @@ public:
 
 		em.filter(cameraFilter, [&](Entity* entity) { camera = entity; });
 		em.filter(sunFilter, [&](Entity* entity) {
-			if (entity->component<LightComponent>().light->data.directional) {
-				sun = entity;
-				return;
-			}
+		  if (entity->component<LightComponent>().light->data.directional) {
+			  sun = entity;
+			  return;
+		  }
 		});
 
 		if (camera == nullptr) {
@@ -56,7 +55,7 @@ public:
 		}
 
 		if (sun != nullptr) {
-			em.filter(shadowFilter, [=](vector<Entity*> entities) {
+			em.filter(geometryFilter, [=](vector<Entity*> entities) {
 			  renderEngine.shadowPass(*sun, *camera, entities);
 			});
 		}
@@ -67,8 +66,13 @@ public:
 //		renderEngine.backfaceCulling = false;
 		renderEngine.activateRenderState();
 		em.filter(geometryFilter, [=](Entity& entity) {
+
+		  Material* material = nullptr;
+		  if (entity.has<MaterialComponent>()) {
+			  material = entity.component<MaterialComponent>().material.get();
+		  }
 		  renderEngine.geometryPass(*entity.component<MeshComponent>().mesh.get(),
-									*entity.component<MaterialComponent>().material.get(),
+									material,
 									entity.component<TransformComponent>().calculateModelMatrix());
 		});
 		renderEngine.deactivateRenderState();
@@ -78,13 +82,13 @@ public:
 		  auto& light = *entity.component<LightComponent>().light.get();
 		  auto transComp = entity.component<TransformComponent>();
 
-			if (entity.component<LightComponent>().isType<PointLight>()) {
-				auto& l = dynamic_cast<PointLight&>(light);
-				light.data.lightPosition = vec4(transComp.position, 1);
-				light.data.lightPosition = vec4(transComp.position, 1);
-				vec3 scale = vec3(l.calculateLightVolumeRadius());
-				transComp.scale = scale;
-			}
+		  if (entity.component<LightComponent>().isType<PointLight>()) {
+			  auto& l = dynamic_cast<PointLight&>(light);
+			  light.data.lightPosition = vec4(transComp.position, 1);
+			  light.data.lightPosition = vec4(transComp.position, 1);
+			  vec3 scale = vec3(l.calculateLightVolumeRadius());
+			  transComp.scale = scale;
+		  }
 
 		  auto transform = transComp.calculateModelMatrix();
 

@@ -42,46 +42,46 @@ void PBRMaterial::useMaterial() const {
 	glUniform1f(this->materialMetallicLocation, metallic);
 	glUniform3fv(this->materialEmissionLocation, 1, glm::value_ptr(glow));
 	glUniform1i(this->useWatermeshAnimationLocation, false);
-//
-//	if (diffuseTexture) {
-//		glUniform1i(useColorTextureLocation, true);
-//		glUniform1i(colorTextureLocation, colorTextureUnit);
-//		diffuseTexture->useTexture(colorTextureUnit);
-//	} else {
+
+	if (albedoTexture) {
+		glUniform1i(useAlbedoTextureLocation, true);
+		glUniform1i(albedoTextureLocation, albedoTextureUnit);
+		albedoTexture->useTexture(albedoTextureUnit);
+	} else {
 		glUniform1i(useAlbedoTextureLocation, false);
-//	}
+	}
 
-//	if (glowTexture && displayGlowTexture) {
-//		glUniform1i(useGlowTextureLocation, true);
-//		glUniform1i(glowTextureLocation, glowTextureUnit);
-//		glowTexture->useTexture(glowTextureUnit);
-//	} else {
+	if (emissionTexture && displayGlowTexture) {
+		glUniform1i(useEmissionTextureLocation, true);
+		glUniform1i(emissionTextureLocation, emissionTextureUnit);
+		emissionTexture->useTexture(emissionTextureUnit);
+	} else {
+		glUniform1i(useEmissionTextureLocation, false);
+	}
+
+	if (roughnessTexture) {
+		glUniform1i(useRoughnessTextureLocation, true);
+		glUniform1i(roughnessTextureLocation, roughnessTextureUnit);
+		roughnessTexture->useTexture(roughnessTextureUnit);
+	} else {
 		glUniform1i(useRoughnessTextureLocation, false);
-//	}
+	}
 
-//	if (specularTexture) {
-//		glUniform1i(useSpecularTextureLocation, true);
-//		glUniform1i(specularTextureLocation, specularTextureUnit);
-//		specularTexture->useTexture(specularTextureUnit);
-//	} else {
+	if (metallicTexture) {
+		glUniform1i(useMetallicTextureLocation, true);
+		glUniform1i(metallicTextureLocation, metallicTextureUnit);
+		metallicTexture->useTexture(metallicTextureUnit);
+	} else {
 		glUniform1i(useMetallicTextureLocation, false);
-//	}
+	}
 
-//	if (normalTexture && displayNormalTexture) {
-//		glUniform1i(useNormalTextureLocation, true);
-//		glUniform1i(normalTextureLocation, normalTextureUnit);
-//		normalTexture->useTexture(normalTextureUnit);
-//	} else {
-	glUniform1i(useNormalTextureLocation, false);
-//	}
-
-//	if (normalTexture && displayNormalTexture) {
-//		glUniform1i(useNormalTextureLocation, true);
-//		glUniform1i(normalTextureLocation, normalTextureUnit);
-//		normalTexture->useTexture(normalTextureUnit);
-//	} else {
-	glUniform1i(useEmissionTextureLocation, false);
-//	}
+	if (normalTexture && displayNormalTexture) {
+		glUniform1i(useNormalTextureLocation, true);
+		glUniform1i(normalTextureLocation, normalTextureUnit);
+		normalTexture->useTexture(normalTextureUnit);
+	} else {
+		glUniform1i(useNormalTextureLocation, false);
+	}
 
 	glActiveTexture(GL_TEXTURE0);
 }
