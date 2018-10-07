@@ -76,6 +76,9 @@ void MovementSystem::process(const NAISE::Engine::EntityManager& em, microsecond
 			  quat pitchQuat = quat(vec3(radians<float>(-deltaY), 0, 0));
 			  quat yawQuat = quat(vec3(0, radians<float>(-deltaX),0));
 			  transform.rotation = yawQuat * transform.rotation * pitchQuat;
+
+			  // clamp value because: https://github.com/g-truc/glm/issues/820
+			  transform.rotation.w = glm::clamp<float>(transform.rotation.w, -1, 1);
 		  }
 	  }
 
