@@ -6,10 +6,10 @@ out vec4 fragColor;
 
 in vec2 TexCoords;
 
-uniform sampler2DMS gPosition;
-uniform sampler2DMS gNormal;
-uniform sampler2DMS gAlbedoRoughness;
-uniform sampler2DMS gGlowMetallic;
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+uniform sampler2D gAlbedoRoughness;
+uniform sampler2D gGlowMetallic;
 
 layout(std140, binding = 0) uniform screenData
 {
@@ -201,27 +201,23 @@ vec3 processLight(Light light, vec3 pos, vec3 norm, vec3 albedo, float roughness
 
 void main()
 {
-    vec4 sumSubSamples = vec4(0);
-    int samples = multiSampling;
     vec2 resolution = vec2(viewportWidth, viewportHeight);
-    ivec2 denormalizedTexCoords = ivec2(gl_FragCoord.xy);
+    vec2 normalizedTexCoords = vec2(gl_FragCoord.xy / resolution);
 
-    for(int i = 0; i < samples; ++i)
-    {
-        // retrieve data from G-buffer
-        vec3 FragPos = texelFetch(gPosition, denormalizedTexCoords, i).rgb;
-        vec3 Normal = normalize(texelFetch(gNormal, denormalizedTexCoords, i).rgb);
-        vec3 Albedo = texelFetch(gAlbedoRoughness, denormalizedTexCoords, i).rgb;
-        float Roughness = texelFetch(gAlbedoRoughness, denormalizedTexCoords, i).a;
-        float Metallic = texelFetch(gGlowMetallic, denormalizedTexCoords, i).a;
+    // retrieve data from G-buffer
+    vec3 FragPos = texture(gPosition, normalizedTexCoords).rgb;
+    vec3 Normal = normalize(texture(gNormal, normalizedTexCoords).rgb);
+    vec3 Albedo = texture(gAlbedoRoughness, normalizedTexCoords).rgb;
+    float Roughness = texture(gAlbedoRoughness, normalizedTexCoords).a;
+    float Metallic = texture(gGlowMetallic, normalizedTexCoords).a;
 
-        // then calculate lighting as usual
-        vec3 lighting = processLight(light, FragPos, Normal, Albedo, Roughness, Metallic);
+    // then calculate lighting as usual
+    vec3 lighting = Albedo * light.ambient.rgb;
+    vec3 viewDir = normalize(cameraPosition - FragPos);
 
-    	sumSubSamples += vec4(lighting, 1.0);
-    }
+    lighting = processLight(light, FragPos, Normal, Albedo, Roughness, Metallic);
 
-    fragColor = sumSubSamples/samples * brightnessFactor;
+	fragColor = vec4(lighting, 1) * brightnessFactor;
 
     if(debugLightVolumes) {
         fragColor += vec4(0, 0.1, 0, 0);
