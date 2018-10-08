@@ -10,6 +10,7 @@ struct MoveBackward {};
 struct MoveLeft {};
 struct MoveRight {};
 struct MouseMotion {};
+struct MouseGrab {};
 }
 
 class GameInputMapper: public NAISE::Engine::InputMapper {

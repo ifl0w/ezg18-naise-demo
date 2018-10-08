@@ -28,6 +28,11 @@ Action make_action() {
 	return type_index(typeid(T));
 }
 
+template <typename T>
+bool is_action(Action test) {
+	return type_index(typeid(T)) == test;
+}
+
 class Input {
 public:
 	Input() = default;

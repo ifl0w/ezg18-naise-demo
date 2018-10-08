@@ -59,6 +59,17 @@ void MovementSystem::process(const NAISE::Engine::EntityManager& em, microsecond
 		  }
 	  }
 
+	  if (inputComponent.hasAction<Actions::MouseGrab>()) {
+		  auto& inp = inputComponent.action<Actions::MouseGrab>();
+		  bool active = inp.get<bool>("active");
+
+		  if (active) {
+			// TODO: systemManager
+		  	// _systemsManager->broadcast<Actions::MouseGrab>(captureMouse)
+			// mainWindow->captureMouse(true);
+		  }
+	  }
+
 	  if (inputComponent.hasAction<Actions::MouseMotion>()) {
 		  auto& inp = inputComponent.action<Actions::MouseMotion>();
 

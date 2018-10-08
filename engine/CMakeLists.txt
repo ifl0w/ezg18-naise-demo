@@ -109,7 +109,7 @@ add_custom_target(
         WORKING_DIRECTORY external/bullet3
 )
 
-add_library(engine STATIC ${SRC_FILES} src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp src/components/InputComponent.cpp include/components/InputComponent.hpp include/systems/input/InputMapper.hpp include/factories/MaterialFactory.hpp)
+add_library(engine STATIC ${SRC_FILES} src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp src/components/InputComponent.cpp include/components/InputComponent.hpp include/systems/input/InputMapper.hpp include/factories/MaterialFactory.hpp src/systems/SystemsManager.cpp include/systems/SystemsManager.hpp include/systems/Event.cpp include/systems/Event.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include
