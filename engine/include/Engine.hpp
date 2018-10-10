@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Window.hpp"
-
 #include <scene/EntityManager.hpp>
 
 #include <memory>
@@ -15,6 +13,10 @@ using namespace std;
 namespace NAISE {
 namespace Engine {
 
+namespace RuntimeEvents {
+struct Quit: public Event<> {};
+}
+
 class Engine {
 public:
 	Engine();
@@ -23,22 +25,14 @@ public:
 	void run();
 
 	EntityManager entityManager;
-
-	shared_ptr<InputSystem> inputSystem;
-
-	shared_ptr<Window> mainWindow; // TODO: window will be deleted before the smart pointers to e.g. meshes => segfault
-
-	/**
-	 * @param system
-	 */
-	void addSystem(shared_ptr<System> system);
+	SystemsManager systemsManager;
 
 private:
-	vector<shared_ptr<System>> systems;
-
 	microseconds _deltaTime;
 	steady_clock::time_point _lastFrame;
 	uint32_t _fps;
+
+	bool quit = false;
 };
 
 }

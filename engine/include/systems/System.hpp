@@ -15,12 +15,22 @@ class System {
 	friend SystemsManager;
 
 public:
+	~System() {
+		if (_systemsManager != nullptr) {
+		}
+	}
+
 	virtual void process(const EntityManager& em, microseconds deltaTime) = 0;
 
 protected:
-	SystemsManager* _systemsManager;
+	SystemsManager* _systemsManager = nullptr;
 
-//	void notify(Event event) {};
+	void setManager(SystemsManager* systemsManager) {
+		_systemsManager = systemsManager;
+		eventSetup();
+	};
+
+	virtual void eventSetup() {};
 };
 
 

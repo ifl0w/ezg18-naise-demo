@@ -20,11 +20,20 @@
 
 #include <Game.hpp>
 #include <MovementSystem.hpp>
+#include <systems/RenderSystem.hpp>
+#include <systems/WindowSystem.hpp>
 
 using namespace NAISE::Engine;
 
 int main(int argc, char** argv) {
 	NAISE::Engine::Engine engine;
+
+	// initialize the systems of the engine
+	engine.systemsManager.registerSystem<WindowSystem>();
+	engine.systemsManager.registerSystem<InputSystem>();
+	engine.systemsManager.getSystem<InputSystem>().setInputMapper(make_shared<GameInputMapper>());
+	engine.systemsManager.registerSystem<MovementSystem>();
+	engine.systemsManager.registerSystem<RenderSystem>();
 
 	auto sphere = make_shared<NAISE::Engine::Entity>();
 	sphere->add<TransformComponent>();
@@ -51,6 +60,7 @@ int main(int argc, char** argv) {
 	camera->component<InputComponent>().add<Actions::MoveLeft>();
 	camera->component<InputComponent>().add<Actions::MoveRight>();
 	camera->component<InputComponent>().add<Actions::MouseMotion>();
+	camera->component<InputComponent>().add<Actions::MouseGrab>();
 
 	auto sun = make_shared<NAISE::Engine::Entity>();
 	sun->add<TransformComponent>();
@@ -88,12 +98,7 @@ int main(int argc, char** argv) {
 	engine.entityManager.addEntity(sphere);
 	engine.entityManager.addEntity(box);
 
-	engine.inputSystem->setInputMapper(make_shared<GameInputMapper>());
-
-	engine.addSystem(make_shared<MovementSystem>());
-
 //	engine.mainWindow->setResolution(1920, 1200);
-//	engine.mainWindow->captureMouse(true);
 //	engine.mainWindow->setFullscreen(false);
 	engine.run();
 }

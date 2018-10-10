@@ -8,9 +8,7 @@ using namespace NAISE::Engine;
 using namespace std;
 using namespace chrono;
 
-Engine::Engine()
-		: mainWindow(make_shared<Window>()),
-		  inputSystem(make_shared<InputSystem>()) {
+Engine::Engine() {
 	/*
 	 * Use the logger "console" to log messages that are not suitable for the log file.
 	 */
@@ -20,10 +18,9 @@ Engine::Engine()
 	auto logger = spdlog::stdout_color_mt("logger");
 	logger->set_level(spdlog::level::warn);
 
-	inputSystem->setWindow(mainWindow);
-
-	addSystem(inputSystem);
-	addSystem(make_shared<RenderSystem>());
+	systemsManager.registerEvent<RuntimeEvents::Quit>().subscribe([&](){
+	  quit = true;
+	});
 }
 
 Engine::~Engine() {
@@ -31,12 +28,8 @@ Engine::~Engine() {
 }
 
 void Engine::run() {
-	while (mainWindow->running) {
-		for (auto& system: systems) {
-			system->process(entityManager, _deltaTime);
-		}
-
-		SDL_GL_SwapWindow(mainWindow->window);
+	while (!quit) {
+		systemsManager.process(entityManager, _deltaTime);
 
 		// fps calculation
 		_deltaTime = duration_cast<microseconds>(steady_clock::now() - _lastFrame);
@@ -44,8 +37,4 @@ void Engine::run() {
 		_fps = (uint32_t) (1000000 / _deltaTime.count());
 //		spdlog::get("console")->debug(_fps);
 	}
-}
-
-void Engine::addSystem(shared_ptr<System> system) {
-	systems.push_back(system);
 }

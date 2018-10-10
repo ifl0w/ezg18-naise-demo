@@ -4,6 +4,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp>
 #include <components/CameraComponent.hpp>
+#include <systems/WindowSystem.hpp>
 
 void MovementSystem::process(const NAISE::Engine::EntityManager& em, microseconds deltaTime) {
 	em.filter(movementFilter, [=](Entity& entity) {
@@ -63,34 +64,41 @@ void MovementSystem::process(const NAISE::Engine::EntityManager& em, microsecond
 		  auto& inp = inputComponent.action<Actions::MouseGrab>();
 		  bool active = inp.get<bool>("active");
 
+		  if (active != inp.get<bool>("grabbed")) {
+			  _systemsManager->event<WindowEvents::CaptureMouse>().emit(active);
+			  inp.set("grabbed", active);
+		  }
+
 		  if (active) {
-			// TODO: systemManager
-		  	// _systemsManager->broadcast<Actions::MouseGrab>(captureMouse)
-			// mainWindow->captureMouse(true);
+			  if (inputComponent.hasAction<Actions::MouseMotion>()) {
+				  auto& inp = inputComponent.action<Actions::MouseMotion>();
+
+				  if (inp.get<bool>("active")) {
+					  float deltaX = inp.get<int>("delta_x");
+					  float deltaY = inp.get<int>("delta_y");
+					  inp.set("delta_x", 0);
+					  inp.set("delta_y", 0);
+					  inp.set("active", false);
+
+					  deltaX *= mouseSpeed;
+					  deltaY *= mouseSpeed;
+
+					  // https://gamedev.stackexchange.com/questions/30644/how-to-keep-my-quaternion-using-fps-camera-from-tilting-and-messing-up
+					  quat pitchQuat = quat(vec3(radians<float>(-deltaY), 0, 0));
+					  // clamp value because: https://github.com/g-truc/glm/issues/820
+					  transform.rotation.w = glm::clamp<float>(transform.rotation.w, -1, 1);
+					  quat yawQuat = quat(vec3(0, radians<float>(-deltaX), 0));
+					  transform.rotation = yawQuat * transform.rotation * pitchQuat;
+				  }
+			  }
 		  }
 	  }
 
 	  if (inputComponent.hasAction<Actions::MouseMotion>()) {
 		  auto& inp = inputComponent.action<Actions::MouseMotion>();
 
-		  if (inp.get<bool>("active")) {
-			  float deltaX = inp.get<int>("delta_x");
-			  float deltaY = inp.get<int>("delta_y");
-			  inp.set("delta_x", 0);
-			  inp.set("delta_y", 0);
-			  inp.set("active", false);
-
-			  deltaX *= mouseSpeed;
-			  deltaY *= mouseSpeed;
-
-			  // https://gamedev.stackexchange.com/questions/30644/how-to-keep-my-quaternion-using-fps-camera-from-tilting-and-messing-up
-			  quat pitchQuat = quat(vec3(radians<float>(-deltaY), 0, 0));
-			  quat yawQuat = quat(vec3(0, radians<float>(-deltaX),0));
-			  transform.rotation = yawQuat * transform.rotation * pitchQuat;
-
-			  // clamp value because: https://github.com/g-truc/glm/issues/820
-			  transform.rotation.w = glm::clamp<float>(transform.rotation.w, -1, 1);
-		  }
+		  inp.set("delta_x", 0);
+		  inp.set("delta_y", 0);
 	  }
 
 	  // TODO: Move to camera system
