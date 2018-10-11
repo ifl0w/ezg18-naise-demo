@@ -85,10 +85,11 @@ void MovementSystem::process(const NAISE::Engine::EntityManager& em, microsecond
 
 					  // https://gamedev.stackexchange.com/questions/30644/how-to-keep-my-quaternion-using-fps-camera-from-tilting-and-messing-up
 					  quat pitchQuat = quat(vec3(radians<float>(-deltaY), 0, 0));
-					  // clamp value because: https://github.com/g-truc/glm/issues/820
-					  transform.rotation.w = glm::clamp<float>(transform.rotation.w, -1, 1);
 					  quat yawQuat = quat(vec3(0, radians<float>(-deltaX), 0));
 					  transform.rotation = yawQuat * transform.rotation * pitchQuat;
+
+					  // clamp value because: https://github.com/g-truc/glm/issues/820
+					  transform.rotation.w = glm::clamp<float>(transform.rotation.w, -1, 1);
 				  }
 			  }
 		  }
