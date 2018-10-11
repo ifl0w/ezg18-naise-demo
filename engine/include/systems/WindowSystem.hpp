@@ -26,12 +26,18 @@ public:
 	void process(const EntityManager& em, microseconds deltaTime) override {
 		SDL_GL_SwapWindow(window);
 	};
+
+	bool isFullscreen(){
+		return _fullscreen;
+	};
 protected:
 	void eventSetup() override;
 
 private:
 	SDL_Window *window;
 	SDL_GLContext context;
+
+	bool _fullscreen = false;
 
 	void captureMouse(bool capture);
 

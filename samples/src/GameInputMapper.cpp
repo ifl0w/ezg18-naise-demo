@@ -1,4 +1,6 @@
 #include "GameInputMapper.hpp"
+#include <systems/WindowSystem.hpp>
+#include <Engine.hpp>
 
 vector<Action> GameInputMapper::resolve(const SDL_Event& event) {
 
@@ -14,6 +16,8 @@ vector<Action> GameInputMapper::resolve(const SDL_Event& event) {
 			return {make_action<Actions::MoveLeft>()};
 		case SDLK_d:
 			return {make_action<Actions::MoveRight>()};
+		case SDLK_F11:
+			return {make_action<Actions::SetFullscreen>()};
 		default:
 			break;
 		}
@@ -57,5 +61,30 @@ Input GameInputMapper::input(Action action, Input& inp, const SDL_Event& event) 
 		inp.set("active", event.type == SDL_KEYDOWN);
 	}
 
+	if (is_action<Actions::SetFullscreen>(action)) {
+		inp.set("fullscreen", event.type == SDL_KEYDOWN);
+	}
+
 	return inp;
+}
+
+void GameInputMapper::handleEvent(const SDL_Event& event, SystemsManager* systemsManager) {
+	switch (event.type) {
+	case SDL_KEYUP: {
+		switch (event.key.keysym.sym) {
+		case SDLK_F11:
+		{
+			auto state = systemsManager->getSystem<WindowSystem>().isFullscreen();
+			systemsManager->event<WindowEvents::SetFullscreen>().emit(!state);
+			break;
+		}
+		case SDLK_ESCAPE:
+			systemsManager->event<RuntimeEvents::Quit>().emit();
+			break;
+		}
+
+		break;
+	}
+	}
+
 }

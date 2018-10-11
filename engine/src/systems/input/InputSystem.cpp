@@ -16,9 +16,12 @@ void InputSystem::process(const EntityManager& em, microseconds deltaTime) {
 		// handle window events (e.g. window close)
 		_handleWindowEvents(event);
 
+		_inputMapper->handleEvent(event, _systemsManager);
+
+		auto actions = _inputMapper->resolve(event);
+
 		em.filter(inputFilter, [=](Entity& entity) {
 		  // handle remaining events
-		  auto actions = _inputMapper->resolve(event);
 		  auto& comp = entity.component<InputComponent>();
 
 		  for (auto& action: actions) {

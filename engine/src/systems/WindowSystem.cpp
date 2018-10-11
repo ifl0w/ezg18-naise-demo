@@ -70,12 +70,18 @@ void WindowSystem::captureMouse(bool capture) {
 	}
 }
 
-void WindowSystem::setFullscreen(bool) {
-	int ret = SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+void WindowSystem::setFullscreen(bool fullscreen) {
+	int ret;
+	if(_fullscreen){
+		ret = SDL_SetWindowFullscreen(window, 0);
+	} else {
+		ret = SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+	}
 
 	if (ret != 0) {
 		throw runtime_error(string("Could not start fullscreen mode: ").append(SDL_GetError()));
 	}
+	_fullscreen = fullscreen;
 }
 
 void WindowSystem::setResolution(uint32_t width,uint32_t  height) {

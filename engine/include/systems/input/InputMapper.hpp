@@ -1,9 +1,6 @@
-#include <utility>
-
-#include <utility>
-
 #pragma once
 
+#include <utility>
 #include <string>
 #include <any>
 #include <vector>
@@ -12,6 +9,8 @@
 #include <SDL2/SDL_events.h>
 #include <spdlog/spdlog.h>
 #include <typeindex>
+
+#include <systems/SystemsManager.hpp>
 
 using namespace std;
 
@@ -73,6 +72,7 @@ class InputMapper {
 public:
 	virtual vector<Action> resolve(const SDL_Event& event) { return vector<Action>(); };
 	virtual Input input(Action action, Input& input, const SDL_Event& event) { return input; };
+	virtual void handleEvent(const SDL_Event& event, SystemsManager* systemsManager) { };
 };
 
 }
