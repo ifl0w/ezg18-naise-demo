@@ -17,8 +17,10 @@
 #include "shaders/TextureDebugShader.hpp"
 #include "shaders/PointLightShader.hpp"
 #include "shaders/DirectionalLightShader.hpp"
+#include "shaders/SkyboxShader.hpp"
 #include "meshes/Plane.hpp"
 #include "meshes/Sphere.hpp"
+#include "meshes/Skybox.hpp"
 
 #include "shadow-map/ShadowMap.hpp"
 #include "shadow-map/ShadowShader.hpp"
@@ -101,9 +103,11 @@ private:
 	NullShader nullShader;
 	TextureDebugShader textureDebugShader;
 //	GlowShader glowShader;
+	SkyboxShader skyboxShader;
 
 	Sphere sphereLightVolume = Sphere(1.0f, 16, 8);
 	Plane quad = Plane(2.0f, 2.0f);
+	Skybox skybox = Skybox(10.0f, 10.0f, 10.0f);
 
 	GLuint uboScreenData;
 	int viewportWidth = 1024;
@@ -129,6 +133,8 @@ private:
 	void prepareLightPass();
 	void lightPass(const Light& light);
 	void cleanupLightPass();
+
+	void skyboxPass();
 
 	void renderLights(const Light& light, mat4 transform, const Entity& camera);
 //	void forwardPass(const std::shared_ptr<Scene>& scene);

@@ -95,6 +95,8 @@ public:
 		  renderEngine.renderLights(light, transform, *camera);
 		});
 		renderEngine.cleanupLightPass();
+//TODO
+		renderEngine.skyboxPass();
 	};
 
 private:

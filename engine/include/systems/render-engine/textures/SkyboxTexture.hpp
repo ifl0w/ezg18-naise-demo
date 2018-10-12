@@ -21,7 +21,7 @@ public:
 
 	~SkyboxTexture();
 
-	void bind(GLenum TextureUnit);
+	void useTexture(uint32_t unit);
 
 	GLuint skyboxTextureID = 0;
 

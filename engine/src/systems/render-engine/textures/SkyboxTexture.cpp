@@ -31,7 +31,9 @@ SkyboxTexture::SkyboxTexture(std::vector<NAISE::RenderCore::SkyboxImageData> dat
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
+	//TODO generate Mipmaps
 	skyboxTextureID = textureID;
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
 }
 
@@ -39,6 +41,8 @@ SkyboxTexture::~SkyboxTexture() {
 
 }
 
-void SkyboxTexture::bind(GLenum TextureUnit) {
-
+void SkyboxTexture::useTexture(uint32_t unit) {
+	glActiveTexture(GL_TEXTURE0 + unit);
+	//glActiveTexture(TextureUnit);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTextureID);
 }

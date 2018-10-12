@@ -32,7 +32,7 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 
 	glGenBuffers(1, &uboProjectionData);
 	glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionData);
-	glBufferData(GL_UNIFORM_BUFFER, 80, nullptr, GL_STATIC_DRAW); // allocate 80 bytes of memory
+	glBufferData(GL_UNIFORM_BUFFER, 64 * 3 + 16, nullptr, GL_STATIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glGenBuffers(1, &ssboLightData);
@@ -171,8 +171,9 @@ void RenderEngine::setProjectionData(const mat4 projectionMatrix, const mat4 vie
 	glm::mat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
 
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, value_ptr(viewProjectionMatrix));
-
-	glBufferSubData(GL_UNIFORM_BUFFER, 64, 16, value_ptr(cameraPosition));
+	glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, value_ptr(projectionMatrix));
+	glBufferSubData(GL_UNIFORM_BUFFER, 128, 64, value_ptr(viewMatrix));
+	glBufferSubData(GL_UNIFORM_BUFFER, 192, 16, value_ptr(cameraPosition));
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
@@ -525,4 +526,24 @@ void RenderEngine::drawMesh(const Mesh& mesh, const Material* material, mat4 tra
 	}
 
 	drawMeshDirect(mesh);
+}
+
+void RenderEngine::skyboxPass() {
+
+	if (skyboxShader.shaderID != Shader::activeShader) {
+		skyboxShader.useShader();
+	}
+
+	//TODO shouldn't be hardcoded
+	glm::mat4 modelMatrix = mat4(1);
+	skyboxShader.setModelMatrix(modelMatrix);
+	skyboxShader.setBackgroundColor(glm::vec3(1));
+
+	glDepthMask(GL_FALSE);
+	glDepthFunc(GL_LEQUAL);
+
+	drawMeshDirect(skybox);
+
+	glDepthFunc(GL_LESS);
+	glDepthMask(GL_TRUE);
 }

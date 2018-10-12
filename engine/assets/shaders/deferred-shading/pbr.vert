@@ -16,6 +16,8 @@ layout(std430, binding = 4) buffer particleTransformations
 layout(std140, binding = 1) uniform projectionData
 {
     mat4 viewProjection;    // size = 64B
+    mat4 projectionMatrix;    // size = 64B
+    mat4 viewMatrix;    // size = 64B
     vec3 cameraPosition;    // size = 16B
 };
 

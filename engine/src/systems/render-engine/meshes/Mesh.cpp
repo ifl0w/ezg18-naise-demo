@@ -40,15 +40,17 @@ void Mesh::fillBuffers() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indices_vbo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
-	/* Bind normals_vbo as active buffer */
-	glBindBuffer(GL_ARRAY_BUFFER, normals_vbo);
-	/* Copy the normals data to buffer */
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * 3 * sizeof(GLfloat), normals.data(), GL_STATIC_DRAW);
+	if (normals.size() > 0) {
+		/* Bind normals_vbo as active buffer */
+		glBindBuffer(GL_ARRAY_BUFFER, normals_vbo);
+		/* Copy the normals data to buffer */
+		glBufferData(GL_ARRAY_BUFFER, normals.size() * 3 * sizeof(GLfloat), normals.data(), GL_STATIC_DRAW);
 
-	/* Enable attribute index 1 */
-	glEnableVertexAttribArray(1);
-	/* Normal data is going into attribute index 1 and contains three floats per vertex */
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		/* Enable attribute index 1 */
+		glEnableVertexAttribArray(1);
+		/* Normal data is going into attribute index 1 and contains three floats per vertex */
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	}
 
 	if (uv_coords.size() > 0) {
 		/* Bind uv_coords_vbo as active buffer */
