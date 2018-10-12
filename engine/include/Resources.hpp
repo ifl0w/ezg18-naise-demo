@@ -89,6 +89,15 @@ public:
 	static std::shared_ptr<Texture> loadTexture(const std::string& identifier, const std::string& path);
 
 	/**
+	 * Load 6 textures for the skybox and store it under the given identifier.
+	 *
+	 * @param identifier
+	 * @param paths
+	 * @return
+	 */
+	static std::shared_ptr<Texture> loadSkyboxTexture(const std::string& identifier, const std::vector<std::string> paths);
+
+	/**
 	 * Retrieve a texture by an identifier.
 	 * An empty texture is returned, if the identifier does not exist yet.
 	 *

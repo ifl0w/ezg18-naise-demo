@@ -76,6 +76,9 @@ set(OPTION_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/glbinding)
 include_directories(external/glbinding/source)
 
+### stb ###
+include_directories(external/stb)
+
 ### tinygltf ###
 include_directories(external/tinygltf)
 
@@ -109,7 +112,7 @@ add_custom_target(
         WORKING_DIRECTORY external/bullet3
 )
 
-add_library(engine STATIC ${SRC_FILES} src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp src/components/InputComponent.cpp include/components/InputComponent.hpp include/systems/input/InputMapper.hpp include/factories/MaterialFactory.hpp src/systems/SystemsManager.cpp include/systems/SystemsManager.hpp include/systems/Event.cpp include/systems/Event.hpp)
+add_library(engine STATIC ${SRC_FILES} src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp src/components/InputComponent.cpp include/components/InputComponent.hpp include/systems/input/InputMapper.hpp include/factories/MaterialFactory.hpp src/systems/SystemsManager.cpp include/systems/SystemsManager.hpp include/systems/Event.cpp include/systems/Event.hpp src/systems/render-engine/textures/SkyboxTexture.cpp include/systems/render-engine/textures/SkyboxTexture.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include

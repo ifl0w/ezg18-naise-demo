@@ -7,12 +7,18 @@
 #include <components/MeshComponent.hpp>
 #include <systems/render-engine/materials/PBRMaterial.hpp>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#undef STB_IMAGE_IMPLEMENTATION
+
 // defining tinygltf macros
 #define TINYGLTF_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <tiny_gltf.h>
+
 #include <components/TransformComponent.hpp>
+
+#include <systems/render-engine/textures/SkyboxTexture.hpp>
 
 using namespace NAISE::Engine;
 
@@ -47,6 +53,42 @@ std::shared_ptr<Texture> Resources::loadTexture(const std::string& identifier, c
 	}
 
 	Resources::textures[key] = std::make_shared<ImageTexture>(ImageTexture::loadDDS(path.c_str()));
+	return Resources::textures[key];
+}
+
+std::shared_ptr<Texture> Resources::loadSkyboxTexture(const std::string& identifier,
+													  const std::vector<std::string> paths) {
+	assert(paths.size() == 6);
+
+	const auto& key = identifier;
+	auto it = Resources::textures.find(key);
+
+	if (it != Resources::textures.end()) {
+		return it->second;
+	}
+
+	std::vector<SkyboxImageData> skyboxImages(paths.size());
+
+	int width, height, nrChannels;
+	for (unsigned int i = 0; i < paths.size(); i++)
+	{
+		SkyboxImageData data;
+		data.data = stbi_load(paths[i].c_str(), &width, &height, &nrChannels, 0);
+		data.width = width;
+		data.height = height;
+		data.nrChannels = nrChannels;
+
+		if (data.data) {
+			skyboxImages.push_back(data);
+		} else {
+			spdlog::get("logger")->error("Cubemap texture failed to load at path: {}", paths[i]);
+		}
+	}
+
+	Resources::textures[key] = std::make_shared<SkyboxTexture>(skyboxImages);
+	for (auto& d: skyboxImages){
+		stbi_image_free(d.data);
+	}
 	return Resources::textures[key];
 }
 

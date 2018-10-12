@@ -13,3 +13,6 @@
 [submodule "tinygltf"]
 	path = engine/external/tinygltf
 	url = https://github.com/syoyo/tinygltf
+[submodule "stb"]
+	path = engine/external/stb
+	url = git@github.com:nothings/stb.git
