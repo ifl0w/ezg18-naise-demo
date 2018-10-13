@@ -19,6 +19,7 @@
 #include <components/TransformComponent.hpp>
 
 #include <systems/render-engine/textures/SkyboxTexture.hpp>
+#include <Utils.hpp>
 
 using namespace NAISE::Engine;
 
@@ -81,7 +82,8 @@ std::shared_ptr<Texture> Resources::loadSkyboxTexture(const std::string& identif
 		if (data.data) {
 			skyboxImages.push_back(data);
 		} else {
-			spdlog::get("logger")->error("Resources::Skybox texture failed to load at path: {}", paths[i]);
+			NAISE_ERROR_PERSISTENCE("Resources::Skybox texture failed to load at path: {}", paths[i]);
+			//spdlog::get("logger")->error("Resources::Skybox texture failed to load at path: {}", paths[i]);
 		}
 	}
 
