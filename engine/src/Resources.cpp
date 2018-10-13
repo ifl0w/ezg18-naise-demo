@@ -81,7 +81,7 @@ std::shared_ptr<Texture> Resources::loadSkyboxTexture(const std::string& identif
 		if (data.data) {
 			skyboxImages.push_back(data);
 		} else {
-			spdlog::get("logger")->error("Cubemap texture failed to load at path: {}", paths[i]);
+			spdlog::get("logger")->error("Resources::Skybox texture failed to load at path: {}", paths[i]);
 		}
 	}
 

@@ -16,7 +16,7 @@ Engine::Engine() {
 	console->set_level(spdlog::level::debug);
 
 	auto logger = spdlog::stdout_color_mt("logger");
-	logger->set_level(spdlog::level::warn);
+	logger->set_level(spdlog::level::trace);
 
 	systemsManager.registerEvent<RuntimeEvents::Quit>().subscribe([&](){
 	  quit = true;

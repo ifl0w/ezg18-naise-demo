@@ -21,7 +21,7 @@ SkyboxTexture::SkyboxTexture(std::vector<NAISE::RenderCore::SkyboxImageData> dat
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, data[0].width, data[0].height, 0, GL_RGB,
 						 GL_UNSIGNED_BYTE, data[0].data);
 		} else {
-			spdlog::get("logger")->warn("nrChannels unequal 3 or 4 is not supported for cubemaps");
+			spdlog::get("logger")->warn("Skybox::nrChannels unequal 3 or 4 is not supported for cubemaps");
 		}
 	}
 

@@ -1,4 +1,4 @@
-#include <systems/render-engine/meshes/Skybox.hpp>
+#include <systems/render-engine/meshes/SkyboxMesh.hpp>
 
 using namespace NAISE::RenderCore;
 

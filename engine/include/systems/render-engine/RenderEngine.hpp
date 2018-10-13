@@ -20,7 +20,7 @@
 #include "shaders/SkyboxShader.hpp"
 #include "meshes/Plane.hpp"
 #include "meshes/Sphere.hpp"
-#include "meshes/Skybox.hpp"
+#include "systems/render-engine/meshes/SkyboxMesh.hpp"
 
 #include "shadow-map/ShadowMap.hpp"
 #include "shadow-map/ShadowShader.hpp"

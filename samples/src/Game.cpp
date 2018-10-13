@@ -5,6 +5,7 @@
 #include <components/MaterialComponent.hpp>
 #include <components/InputComponent.hpp>
 #include <components/LightComponent.hpp>
+#include <Utils.hpp>
 
 #include <systems/render-engine/materials/PBRMaterial.hpp>
 
@@ -48,7 +49,6 @@ int main(int argc, char** argv) {
 	box->component<TransformComponent>().scale = vec3(1, 1, 1);
 	box->add(MeshFactory::createBox(20, 1, 20));
 	box->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.8, 0.8, 0.8), 0, 0.2));
-
 
 	auto camera = make_shared<NAISE::Engine::Entity>();
 	camera->add<TransformComponent>();

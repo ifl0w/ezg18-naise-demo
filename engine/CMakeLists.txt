@@ -4,6 +4,8 @@ if(NOT MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG") # define _DEBUG flag on other non microsoft compilers
 endif(NOT MSVC)
 
+add_definitions(-DSPDLOG_TRACE_ON)
+
 include_directories(include)
 
 file(GLOB_RECURSE SRC_FILES
@@ -112,7 +114,7 @@ add_custom_target(
         WORKING_DIRECTORY external/bullet3
 )
 
-add_library(engine STATIC ${SRC_FILES} src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp src/components/InputComponent.cpp include/components/InputComponent.hpp include/systems/input/InputMapper.hpp include/factories/MaterialFactory.hpp src/systems/SystemsManager.cpp include/systems/SystemsManager.hpp include/systems/Event.cpp include/systems/Event.hpp src/systems/render-engine/textures/SkyboxTexture.cpp include/systems/render-engine/textures/SkyboxTexture.hpp src/systems/render-engine/meshes/Skybox.cpp include/systems/render-engine/meshes/Skybox.hpp include/systems/render-engine/shaders/SkyboxShader.hpp)
+add_library(engine STATIC ${SRC_FILES} src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp src/components/InputComponent.cpp include/components/InputComponent.hpp include/systems/input/InputMapper.hpp include/factories/MaterialFactory.hpp src/systems/SystemsManager.cpp include/systems/SystemsManager.hpp include/systems/Event.cpp include/systems/Event.hpp src/systems/render-engine/textures/SkyboxTexture.cpp include/systems/render-engine/textures/SkyboxTexture.hpp src/systems/render-engine/meshes/SkyboxMesh.cpp include/systems/render-engine/meshes/SkyboxMesh.hpp include/systems/render-engine/shaders/SkyboxShader.hpp include/Utils.hpp src/Utils.cpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include

@@ -1,6 +1,8 @@
 project(samples)
 set(CMAKE_CXX_STANDARD 17)
 
+add_definitions(-DSPDLOG_TRACE_ON)
+
 file(GLOB_RECURSE SRC_FILES
         src/**/*.cpp
         src/*.cpp
