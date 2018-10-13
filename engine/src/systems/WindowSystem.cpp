@@ -2,8 +2,9 @@
 
 #include <string>
 
-#include <glbinding-aux/debug.h>
 #include <glbinding/glbinding.h>
+#include <glbinding-aux/debug.h>
+#include <glbinding-aux/ContextInfo.h>
 
 #include <Engine.hpp>
 
@@ -29,14 +30,14 @@ WindowSystem::WindowSystem() {
 		throw runtime_error(string("Could not create window: ").append(SDL_GetError()));
 	}
 
-	int setAttributeRet = SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	setAttributeRet = SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	setAttributeRet = SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
-	setAttributeRet = SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	setSDLAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	setSDLAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	setSDLAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+	setSDLAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	context = SDL_GL_CreateContext(window);
 	// Check that the window was successfully created
-	if (window == nullptr) {
+	if (context == nullptr) {
 		// In the case that the window could not be made...
 		throw runtime_error(string("Could not create OpenGL context: ").append(SDL_GetError()));
 	}
@@ -46,6 +47,10 @@ WindowSystem::WindowSystem() {
 	glbinding::initialize(getProcAddress, false);
 #ifdef DEBUG
 	glbinding::aux::enableGetErrorCallback();
+
+	spdlog::get("console")->info("OpenGL Version: {}", glbinding::aux::ContextInfo::version().toString());
+	spdlog::get("console")->info("OpenGL Vendor: {}", glbinding::aux::ContextInfo::vendor());
+	spdlog::get("console")->info("OpenGL Renderer: {}", glbinding::aux::ContextInfo::renderer());
 #endif
 
 	Engine::getEventManager().event<WindowEvents::CaptureMouse>().subscribe([&](bool capture){
@@ -96,4 +101,14 @@ void WindowSystem::setFullscreen(bool fullscreen) {
 
 void WindowSystem::setResolution(uint32_t width,uint32_t  height) {
 	SDL_SetWindowSize(window, width, height);
+}
+
+void WindowSystem::setSDLAttribute(SDL_GLattr attr, int val) {
+	int setAttributeRet = SDL_GL_SetAttribute(attr, val);
+
+	if (setAttributeRet != 0) {
+		// In the case that the window could not be made...
+		spdlog::get("logger")->error("SDL_GL_SetAttribute error! Attribute: {}, Value: {}", attr, val);
+		throw runtime_error((SDL_GetError()));
+	}
 }

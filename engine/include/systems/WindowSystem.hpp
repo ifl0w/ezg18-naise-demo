@@ -42,6 +42,8 @@ private:
 	void setFullscreen(bool fullscreen);
 
 	void setResolution(uint32_t width, uint32_t height);
+
+	void setSDLAttribute(SDL_GLattr attr, int val);
 };
 
 }

@@ -34,7 +34,7 @@ void Engine::run() {
 		_deltaTime = duration_cast<microseconds>(steady_clock::now() - _lastFrame);
 		_lastFrame = steady_clock::now();
 		_fps = (uint32_t) (1000000 / _deltaTime.count());
-//		spdlog::get("console")->debug(_fps);
+		//spdlog::get("console")->debug(_fps);
 	}
 }
 
