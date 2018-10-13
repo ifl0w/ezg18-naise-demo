@@ -1,23 +1,18 @@
 #pragma once
 
-
-#include "../../meshes/Mesh.h"
+#include <systems/render-engine/meshes/Mesh.hpp>
 
 namespace NAISE {
-namespace ENGINE {
+namespace Engine {
 
-class BulletDebugDrawerMesh :
-		  public Mesh {
+class BulletDebugDrawerMesh : public RenderCore::Mesh {
 public:
 	BulletDebugDrawerMesh();
 
 	void addLine(vec3 from, vec3 to);
+
+	void startDebugFrame();
 	void finishDebugMesh();
-
-	void draw() override;
-
-private:
-	uint32_t sizeOfLastIndexBuffer = 0;
 };
 
 }

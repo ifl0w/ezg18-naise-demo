@@ -68,18 +68,18 @@ Input GameInputMapper::input(Action action, Input& inp, const SDL_Event& event) 
 	return inp;
 }
 
-void GameInputMapper::handleEvent(const SDL_Event& event, SystemsManager* systemsManager) {
+void GameInputMapper::handleEvent(const SDL_Event& event) {
 	switch (event.type) {
 	case SDL_KEYUP: {
 		switch (event.key.keysym.sym) {
 		case SDLK_F11:
 		{
-			auto state = systemsManager->getSystem<WindowSystem>().isFullscreen();
-			systemsManager->event<WindowEvents::SetFullscreen>().emit(!state);
+			auto state = Engine::getSystemsManager().getSystem<WindowSystem>().isFullscreen();
+			Engine::getEventManager().event<WindowEvents::SetFullscreen>().emit(!state);
 			break;
 		}
 		case SDLK_ESCAPE:
-			systemsManager->event<RuntimeEvents::Quit>().emit();
+			Engine::getEventManager().event<RuntimeEvents::Quit>().emit();
 			break;
 		}
 

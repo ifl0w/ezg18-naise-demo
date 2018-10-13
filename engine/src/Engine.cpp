@@ -2,29 +2,28 @@
 #include <systems/RenderSystem.hpp>
 #include <Resources.hpp>
 
+#include <systems/EventManager.hpp>
+
 #include <chrono>
 
 using namespace NAISE::Engine;
 using namespace std;
 using namespace chrono;
 
+EventManager Engine::eventManager;
+SystemsManager Engine::systemsManager;
+EntityManager Engine::entityManager;
+
 Engine::Engine() {
-	/*
-	 * Use the logger "console" to log messages that are not suitable for the log file.
-	 */
-	auto console = spdlog::stdout_color_mt("console");
-	console->set_level(spdlog::level::debug);
+	Engine::initialize();
 
-	auto logger = spdlog::stdout_color_mt("logger");
-	logger->set_level(spdlog::level::warn);
-
-	systemsManager.registerEvent<RuntimeEvents::Quit>().subscribe([&](){
+	Engine::eventManager.event<RuntimeEvents::Quit>().subscribe([&](){
 	  quit = true;
 	});
 }
 
 Engine::~Engine() {
-	Resources::freeAll();
+	Engine::shutdown();
 }
 
 void Engine::run() {
@@ -37,4 +36,33 @@ void Engine::run() {
 		_fps = (uint32_t) (1000000 / _deltaTime.count());
 //		spdlog::get("console")->debug(_fps);
 	}
+}
+
+EventManager& Engine::getEventManager() {
+	return Engine::eventManager;
+}
+
+EntityManager& Engine::getEntityManager() {
+	return Engine::entityManager;
+}
+
+SystemsManager& Engine::getSystemsManager() {
+	return Engine::systemsManager;
+}
+
+void Engine::initialize() {
+	/*
+	 * Use the logger "console" to log messages that are not suitable for the log file.
+	 */
+	auto console = spdlog::stdout_color_mt("console");
+	console->set_level(spdlog::level::debug);
+
+	auto logger = spdlog::stdout_color_mt("logger");
+	logger->set_level(spdlog::level::warn);
+}
+
+void Engine::shutdown() {
+	Engine::systemsManager.cleanup();
+	Engine::entityManager.cleanup();
+	Resources::freeAll();
 }

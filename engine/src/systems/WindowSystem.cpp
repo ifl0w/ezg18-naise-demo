@@ -1,9 +1,11 @@
 #include <systems/WindowSystem.hpp>
 
 #include <string>
+
 #include <glbinding-aux/debug.h>
 #include <glbinding/glbinding.h>
 
+#include <Engine.hpp>
 
 using namespace NAISE::Engine;
 using namespace std;
@@ -45,6 +47,14 @@ WindowSystem::WindowSystem() {
 #ifdef DEBUG
 	glbinding::aux::enableGetErrorCallback();
 #endif
+
+	Engine::getEventManager().event<WindowEvents::CaptureMouse>().subscribe([&](bool capture){
+	  captureMouse(capture);
+	});
+
+	Engine::getEventManager().event<WindowEvents::SetFullscreen>().subscribe([&](bool fullscreen){
+	  setFullscreen(fullscreen);
+	});
 }
 
 ProcAddress NAISE::Engine::getProcAddress(const char* name) {
@@ -87,14 +97,3 @@ void WindowSystem::setFullscreen(bool fullscreen) {
 void WindowSystem::setResolution(uint32_t width,uint32_t  height) {
 	SDL_SetWindowSize(window, width, height);
 }
-
-void WindowSystem::eventSetup() {
-	_systemsManager->event<WindowEvents::CaptureMouse>().subscribe([&](bool capture){
-	  captureMouse(capture);
-	});
-
-	_systemsManager->event<WindowEvents::SetFullscreen>().subscribe([&](bool fullscreen){
-	  setFullscreen(fullscreen);
-	});
-}
-

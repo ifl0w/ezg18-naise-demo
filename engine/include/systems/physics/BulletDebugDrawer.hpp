@@ -1,18 +1,23 @@
 #pragma once
 
-#define BT_USE_DOUBLE_PRECISION
-
 #include <LinearMath/btIDebugDraw.h>
 
-#include "../../materials/shaders/Shader.h"
-#include "../../materials/PhongMaterial.h"
-#include "../../meshes/Mesh.h"
-#include "BulletDebugDrawerMesh.h"
+#include <memory>
+#include <unordered_map>
+
+#include "BulletDebugDrawerMesh.hpp"
+
+#include <scene/Entity.hpp>
+#include <components/MaterialComponent.hpp>
+#include <components/MeshComponent.hpp>
 
 namespace NAISE {
-namespace ENGINE {
+namespace Engine {
 
-class Object; // forward declaration
+struct PhysicsDebugComponent: public Component {
+  glm::vec3 color = glm::vec3(1,0,0);
+  BulletDebugDrawerMesh mesh;
+};
 
 class BulletDebugDrawer
 		: public btIDebugDraw {
@@ -35,12 +40,13 @@ public:
 
 	int getDebugMode() const override { return m_debugMode; }
 
-	std::shared_ptr<Object> retrieveDebugObject();
+	void beginDebugFrame();
+	void finishMeshes();
 
 protected:
 	int m_debugMode = 0;
-	std::shared_ptr<Material> material;
-	std::shared_ptr<BulletDebugDrawerMesh> currentMesh;
+
+	std::vector<std::shared_ptr<Entity>> debugEntities;
 };
 
 }

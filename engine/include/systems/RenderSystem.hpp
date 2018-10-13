@@ -14,6 +14,7 @@
 #include <systems/render-engine/lights/PointLight.hpp>
 
 #include <functional>
+#include <systems/physics/BulletDebugDrawer.hpp>
 
 namespace NAISE {
 namespace Engine {
@@ -35,6 +36,8 @@ public:
 
 		lightFilter.requirement<TransformComponent>();
 		lightFilter.requirement<LightComponent>();
+
+		debugDrawFilter.requirement<PhysicsDebugComponent>();
 	}
 
 	void process(const EntityManager& em, microseconds deltaTime) override {
@@ -95,6 +98,13 @@ public:
 		  renderEngine.renderLights(light, transform, *camera);
 		});
 		renderEngine.cleanupLightPass();
+
+//		renderEngine.activateRenderState();
+		em.filter(debugDrawFilter, [&](Entity& entity) {
+		  auto& p = entity.component<PhysicsDebugComponent>();
+		  renderEngine.drawDebugMesh(p.mesh, p.color);
+		});
+//		renderEngine.deactivateRenderState();
 	};
 
 private:
@@ -106,6 +116,7 @@ private:
 	Filter cameraFilter;
 	Filter geometryFilter;
 	Filter lightFilter;
+	Filter debugDrawFilter;
 
 	RenderEngine renderEngine;
 };

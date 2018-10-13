@@ -30,8 +30,6 @@ public:
 	bool isFullscreen(){
 		return _fullscreen;
 	};
-protected:
-	void eventSetup() override;
 
 private:
 	SDL_Window *window;

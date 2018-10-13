@@ -6,6 +6,8 @@
 #include <components/CameraComponent.hpp>
 #include <systems/WindowSystem.hpp>
 
+#include <Engine.hpp>
+
 void MovementSystem::process(const NAISE::Engine::EntityManager& em, microseconds deltaTime) {
 	em.filter(movementFilter, [=](Entity& entity) {
 	  std::chrono::duration<float> sec = deltaTime;
@@ -65,7 +67,7 @@ void MovementSystem::process(const NAISE::Engine::EntityManager& em, microsecond
 		  bool active = inp.get<bool>("active");
 
 		  if (active != inp.get<bool>("grabbed")) {
-			  _systemsManager->event<WindowEvents::CaptureMouse>().emit(active);
+			  Engine::getEventManager().event<WindowEvents::CaptureMouse>().emit(active);
 			  inp.set("grabbed", active);
 		  }
 

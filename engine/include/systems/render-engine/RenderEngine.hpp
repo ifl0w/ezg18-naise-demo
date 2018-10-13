@@ -17,6 +17,7 @@
 #include "shaders/TextureDebugShader.hpp"
 #include "shaders/PointLightShader.hpp"
 #include "shaders/DirectionalLightShader.hpp"
+#include "materials/shaders/SolidColorShader.hpp"
 #include "meshes/Plane.hpp"
 #include "meshes/Sphere.hpp"
 
@@ -100,6 +101,7 @@ private:
 	DirectionalLightShader dlShader;
 	NullShader nullShader;
 	TextureDebugShader textureDebugShader;
+	SolidColorShader solidColorShader; // used for debugging
 //	GlowShader glowShader;
 
 	Sphere sphereLightVolume = Sphere(1.0f, 16, 8);
@@ -152,6 +154,7 @@ private:
 	// command functions
 	void drawMeshDirect(const Mesh& mesh);
 	void drawMesh(const Mesh& mesh, const Material* material = nullptr, mat4 transform = mat4(1));
+	void drawDebugMesh(const Mesh& mesh, glm::vec3 color);
 };
 
 }
