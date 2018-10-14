@@ -23,6 +23,8 @@ public:
 
 	void setBackgroundColor(glm::vec3 backgroundColor);
 	void setModelMatrix(glm::mat4 modelMatrix);
+	std::shared_ptr<Texture> getSkyboxTexture();
+
 
 private:
 

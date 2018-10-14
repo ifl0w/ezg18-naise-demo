@@ -74,3 +74,7 @@ void Skybox::useSkybox() const{
 	glUniform1i(this->useSkyboxTextureLocation, useSkyboxTexture);
 	glActiveTexture(GL_TEXTURE0);
 }
+
+std::shared_ptr<Texture> Skybox::getSkyboxTexture() {
+	return skyboxTexture;
+}

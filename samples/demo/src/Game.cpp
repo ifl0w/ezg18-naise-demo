@@ -58,7 +58,14 @@ int main(int argc, char** argv) {
 	sphere->add(RigidBodyFactory::createSphere(1, 10, vec3(-2, 0, -20)));
 	sphere->add(MeshFactory::create<Sphere>());
 	sphere->add<MaterialComponent>();
-	sphere->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.8, 0, 0.8), 1, 0.2));
+
+	auto material = std::make_shared<PBRMaterial>(vec3(0.8, 0, 0.8), 1.0f, 0.2f);
+	material->skyboxTexture = skybox.getSkyboxTexture();
+	material->useSkyboxTexture = true;
+
+	auto materialComponent = std::make_shared<MaterialComponent>();
+	materialComponent->material = material;
+	sphere->add(materialComponent);
 
 	auto box = make_shared<NAISE::Engine::Entity>();
 	box->add<TransformComponent>();
