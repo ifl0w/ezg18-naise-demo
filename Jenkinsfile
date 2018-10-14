@@ -23,7 +23,7 @@ pipeline {
 
 		stage('Build') {
 			steps {
-                sh './build-scripts/build_release.sh'
+                sh './build-scripts/build-release.sh'
             }
 		}
 
@@ -36,13 +36,13 @@ pipeline {
             }
 
             steps {
-                sh './build-scripts/build_release.sh'
+                sh './build-scripts/build-release.sh'
             }
 
 			post {
                 always {
-                        archiveArtifacts 'release-win-x64/**/*'
-                        archiveArtifacts 'release-linux-x64/**/*'
+                        archiveArtifacts 'release-win-x64/artifacts/**/*'
+                        archiveArtifacts 'release-linux-x64/artifacts/**/*'
                 }
             }
 		}
