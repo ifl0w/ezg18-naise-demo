@@ -17,13 +17,13 @@ class SkyboxTexture  :
 		public Texture {
 public:
 
+	SkyboxTexture();
 	SkyboxTexture(std::vector<SkyboxImageData> data);
 
 	~SkyboxTexture();
 
 	void useTexture(uint32_t unit);
 
-	GLuint skyboxTextureID = 0;
 
 };
 }

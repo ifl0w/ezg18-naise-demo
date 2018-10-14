@@ -100,7 +100,7 @@ public:
 		renderEngine.cleanupLightPass();
 
 		//TODO
-		renderEngine.skyboxPass();
+		renderEngine.skyboxPass(skybox);
 
 //		renderEngine.activateRenderState();
 		em.filter(debugDrawFilter, [&](Entity& entity) {
@@ -109,6 +109,10 @@ public:
 		});
 //		renderEngine.deactivateRenderState();
 	};
+
+	void setSkybox(Skybox& skybox){
+		this->skybox = skybox;
+	}
 
 private:
 
@@ -122,6 +126,8 @@ private:
 	Filter debugDrawFilter;
 
 	RenderEngine renderEngine;
+
+	Skybox skybox = Skybox(glm::vec3(0.3,0.3,0.3));
 };
 
 }

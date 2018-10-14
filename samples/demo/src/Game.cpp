@@ -41,6 +41,17 @@ int main(int argc, char** argv) {
 	Engine::getSystemsManager().registerSystem<PhysicsSystem>();
 	Engine::getSystemsManager().registerSystem<RenderSystem>();
 
+	std::string posX = "assets/textures/skybox/clouds1_east.bmp";
+	std::string negX = "assets/textures/skybox/clouds1_west.bmp";
+	std::string posY = "assets/textures/skybox/clouds1_up.bmp";
+	std::string negY = "assets/textures/skybox/clouds1_down.bmp";
+	std::string posZ = "assets/textures/skybox/clouds1_north.bmp";
+	std::string negZ = "assets/textures/skybox/clouds1_south.bmp";
+	std::vector<std::string> paths = {posX, negX, posY, negY, posZ, negZ};
+	auto skybox = NAISE::Engine::Skybox("skybox_clouds1", paths);
+	skybox.setBackgroundColor(glm::vec3(1,0.95,0.9));
+	Engine::getSystemsManager().getSystem<RenderSystem>().setSkybox(skybox);
+
 	auto sphere = make_shared<NAISE::Engine::Entity>();
 	sphere->add<TransformComponent>();
 	sphere->component<TransformComponent>().position = vec3(-2, 0, -5);

@@ -2,7 +2,7 @@
 
 using namespace NAISE::RenderCore;
 
-Skybox::Skybox(float width, float height, float depth) {
+SkyboxMesh::SkyboxMesh(float width, float height, float depth) {
 
 	auto x = width / 2;
 	auto y = height / 2;

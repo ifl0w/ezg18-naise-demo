@@ -543,22 +543,6 @@ void RenderEngine::drawDebugMesh(const Mesh& mesh, glm::vec3 color) {
 
 }
 
-void RenderEngine::skyboxPass() {
-
-	if (skyboxShader.shaderID != Shader::activeShader) {
-		skyboxShader.useShader();
-	}
-
-	//TODO shouldn't be hardcoded
-	glm::mat4 modelMatrix = mat4(1);
-	skyboxShader.setModelMatrix(modelMatrix);
-	skyboxShader.setBackgroundColor(glm::vec3(1));
-
-	glDepthMask(GL_FALSE);
-	glDepthFunc(GL_LEQUAL);
-
-	drawMeshDirect(skybox);
-
-	glDepthFunc(GL_LESS);
-	glDepthMask(GL_TRUE);
+void RenderEngine::skyboxPass(Skybox& skybox) {
+	skybox.drawSkybox();
 }

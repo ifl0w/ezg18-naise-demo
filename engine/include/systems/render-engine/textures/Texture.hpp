@@ -26,7 +26,7 @@ public:
 
 	GLuint textureID = 0;
 
-	void useTexture(uint32_t unit);
+	virtual void useTexture(uint32_t unit);
 
 	void setWrapping(GLenum DIRECTION, GLenum WRAPPING); //bind and unbind
 	void setWrapping(GLenum WRAPPING);

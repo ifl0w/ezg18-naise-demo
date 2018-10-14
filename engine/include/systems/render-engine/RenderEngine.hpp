@@ -9,6 +9,7 @@
 #include <systems/render-engine/materials/PhongMaterial.hpp>
 #include <components/TransformComponent.hpp>
 #include <scene/Entity.hpp>
+#include <Skybox.hpp>
 
 //#include "../meshes/Mesh.h"
 
@@ -109,7 +110,7 @@ private:
 
 	Sphere sphereLightVolume = Sphere(1.0f, 16, 8);
 	Plane quad = Plane(2.0f, 2.0f);
-	Skybox skybox = Skybox(10.0f, 10.0f, 10.0f);
+	SkyboxMesh skyboxMesh = SkyboxMesh(10.0f, 10.0f, 10.0f);
 
 	GLuint uboScreenData;
 	int viewportWidth = 1024;
@@ -136,7 +137,7 @@ private:
 	void lightPass(const Light& light);
 	void cleanupLightPass();
 
-	void skyboxPass();
+	void skyboxPass(Skybox& skybox);
 
 	void renderLights(const Light& light, mat4 transform, const Entity& camera);
 //	void forwardPass(const std::shared_ptr<Scene>& scene);
