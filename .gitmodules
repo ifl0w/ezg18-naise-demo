@@ -12,7 +12,7 @@
 	url = git@github.com:gabime/spdlog.git
 [submodule "tinygltf"]
 	path = engine/external/tinygltf
-	url = https://github.com/syoyo/tinygltf
+	url = git@github.com:syoyo/tinygltf.git
 [submodule "stb"]
 	path = engine/external/stb
 	url = git@github.com:nothings/stb.git
