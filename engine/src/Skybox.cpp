@@ -5,21 +5,24 @@
 
 using namespace NAISE::Engine;
 
-Skybox::Skybox(){
+Skybox::Skybox() {
 	initialize();
 }
 
 Skybox::Skybox(glm::vec3 backgroundColor)
-	: backgroundColor(backgroundColor){
+		: backgroundColor(backgroundColor) {
 	initialize();
 }
 
-Skybox::Skybox(const std::string& identifier, std::vector<std::string> paths)
-//		: skyboxTexture(Resources::loadSkyboxTexture(identifier, paths)){
-{
+Skybox::Skybox(const std::string& identifier, std::vector<std::string> paths) {
 	skyboxTexture = Resources::loadSkyboxTexture(identifier, paths);
+	useSkyboxTexture = true;
+	initialize();
+}
 
-	//SkyboxTexture t = SkyboxTexture(Resources::loadSkyboxTexture(identifier, paths));
+Skybox::Skybox(const glm::vec3 backgroundColor, const std::string& identifier, const std::vector<std::string> paths)
+		: backgroundColor(backgroundColor) {
+	skyboxTexture = Resources::loadSkyboxTexture(identifier, paths);
 	useSkyboxTexture = true;
 	initialize();
 }
@@ -36,37 +39,25 @@ void Skybox::initialize() {
 }
 
 void Skybox::drawSkybox() {
-
 	if (skyboxShader->shaderID != Shader::activeShader) {
 		skyboxShader->useShader();
 	}
 
 	skyboxShader->setModelMatrix(this->modelMatrix);
 	useSkybox();
-//	skyboxShader->setBackgroundColor(this->backgroundColor);
 
 	glDepthMask(GL_FALSE);
 	glDepthFunc(GL_LEQUAL);
 
 	glBindVertexArray(skyboxMesh.vao);
-
 	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(skyboxMesh.indices.size()), GL_UNSIGNED_INT, 0);
 
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
-
 }
 
-void Skybox::setModelMatrix(glm::mat4 modelMatrix) {
-	this->modelMatrix = modelMatrix;
-}
-
-void Skybox::setBackgroundColor(glm::vec3 backgroundColor) {
-	this->backgroundColor = backgroundColor;
-}
-
-void Skybox::useSkybox() const{
-	if(useSkyboxTexture){
+void Skybox::useSkybox() const {
+	if (useSkyboxTexture) {
 		glUniform1i(skyboxTextureLocation, skyboxTextureUnit);
 		skyboxTexture->useTexture(skyboxTextureUnit);
 	}
@@ -77,4 +68,17 @@ void Skybox::useSkybox() const{
 
 std::shared_ptr<Texture> Skybox::getSkyboxTexture() {
 	return skyboxTexture;
+}
+
+void Skybox::setModelMatrix(glm::mat4 modelMatrix) {
+	this->modelMatrix = modelMatrix;
+}
+
+void Skybox::setBackgroundColor(glm::vec3 backgroundColor) {
+	this->backgroundColor = backgroundColor;
+}
+
+void Skybox::setSkyboxTexture(const std::string& identifier, std::vector<std::string> paths) {
+	skyboxTexture = Resources::loadSkyboxTexture(identifier, paths);
+	useSkyboxTexture = true;
 }
