@@ -14,8 +14,8 @@ namespace NAISE {
 namespace RenderCore {
 
 constexpr GLenum WIREFRAME = GL_LINE;
-constexpr GLenum FILLED = GL_FILL;
-constexpr GLenum POINT = GL_POINT;
+constexpr GLenum FACES = GL_FILL;
+constexpr GLenum VERTICES = GL_POINT;
 
 enum ShadowMode { SHADOW = true, NO_SHADOW = false };
 
@@ -47,7 +47,7 @@ public:
 
 	bool wireframe = false;
 
-	GLenum polygonMode = FILLED;
+	GLenum polygonMode = FACES;
 	ShadowMode shadowMode = SHADOW;
 
 //	void setRenderProperty_PolygonMode(RenderProperties_PolygonMode POLYGONMODE); //bind and unbind

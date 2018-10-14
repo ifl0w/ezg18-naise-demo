@@ -1,6 +1,6 @@
 #pragma once
 
-#import "../materials/shaders/Shader.hpp"
+#include "../materials/shaders/Shader.hpp"
 
 namespace NAISE {
 namespace Engine {

@@ -16,3 +16,6 @@
 [submodule "stb"]
 	path = engine/external/stb
 	url = git@github.com:nothings/stb.git
+[submodule "sdl2"]
+	path = engine/external/sdl2
+	url = git@github.com:SDL-mirror/SDL.git
