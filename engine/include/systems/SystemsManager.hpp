@@ -11,37 +11,32 @@
 namespace NAISE {
 namespace Engine {
 
-class System; // forward decl
+class System;
+class Engine;
 
 class SystemsManager {
+	friend Engine;
 public:
 	template<typename T, typename ... Args>
 	void registerSystem(Args... args);
 
-	template <typename T>
+	template<typename T>
 	T& getSystem();
 
 	template<typename T>
 	void removeSystem();
 
-	template <typename T>
-	T& registerEvent();
-
-	template <typename T>
-	T& event();
-
 	void process(const EntityManager& em, std::chrono::microseconds deltaTime);
 
+	void cleanup();
 private:
 	std::unordered_map<std::type_index, std::shared_ptr<System>> systems;
-	std::unordered_map<EventType, std::unique_ptr<EventBase>> events;
 };
 
 template<typename T, typename... Args>
 void SystemsManager::registerSystem(Args... args) {
 	auto s = std::make_shared<T>(args ...);
 	systems.insert(pair(std::type_index(typeid(T)), s));
-	s->setManager(this);
 }
 
 template<typename T>
@@ -57,39 +52,11 @@ T& SystemsManager::getSystem() {
 	return *tmp;
 }
 
-
 template<typename T>
 void SystemsManager::removeSystem() {
 	erase(remove_if(systems.begin(), systems.end(),
-			[](auto& s) { return typeid(s) == typeid(T); }));
+					[](auto& s) { return typeid(s) == typeid(T); }));
 }
-
-template<typename T>
-T& SystemsManager::registerEvent() {
-	auto typeIdx = std::type_index(typeid(T));
-	auto exists = events.count(typeIdx);
-
-	if (!exists) {
-		events.insert(std::pair(typeIdx, make_unique<T>()));
-	}
-
-	auto event = static_cast<T*>(events[typeIdx].get());
-	return *event;
-}
-
-template<typename T>
-T& SystemsManager::event() {
-	auto typeIdx = std::type_index(typeid(T));
-	auto exists = events.count(typeIdx);
-
-	if (!exists) {
-		events.insert(std::pair(typeIdx, make_unique<T>()));
-	}
-
-	auto event = static_cast<T*>(events[typeIdx].get());
-	return *event;
-}
-
 
 }
 }

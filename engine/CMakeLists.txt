@@ -1,8 +1,9 @@
 project(engine)
 
-if(NOT MSVC)
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG") # define _DEBUG flag on other non microsoft compilers
-endif(NOT MSVC)
+### Debug Flags ###
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DDEBUG)
+endif ()
 
 add_definitions(-DSPDLOG_TRACE_ON)
 
@@ -19,6 +20,7 @@ file(GLOB_RECURSE SRC_FILES
         src/systems/RenderSystem.cpp
         src/systems/System.cpp
         src/systems/WindowSystem.cpp
+        src/systems/physics/*.cpp
         src/Resources.cpp
         src/systems/render-engine/DeferredRenderTarget.cpp
         src/systems/render-engine/RenderEngine.cpp
@@ -59,6 +61,7 @@ file(GLOB_RECURSE SRC_FILES
         include/systems/render-engine/frustum-culling/*.hpp
         include/systems/render-engine/shadow-map/*.hpp
         include/systems/render-engine/textures/*.hpp
+        include/systems/physics/*.hpp
         )
 
 set("OpenGL_GL_PREFERENCE" "GLVND")
@@ -96,6 +99,8 @@ set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
 set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
 set(BULLET2_USE_THREAD_LOCKS ON CACHE BOOL "" FORCE)
 
+add_definitions(-DBT_USE_DOUBLE_PRECISION)
+
 if (CMAKE_FIND_ROOT_PATH)
     set(WTF_BULLET ${CMAKE_FIND_ROOT_PATH})
     unset(CMAKE_FIND_ROOT_PATH)
@@ -114,7 +119,19 @@ add_custom_target(
         WORKING_DIRECTORY external/bullet3
 )
 
-add_library(engine STATIC ${SRC_FILES} src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp src/components/InputComponent.cpp include/components/InputComponent.hpp include/systems/input/InputMapper.hpp include/factories/MaterialFactory.hpp src/systems/SystemsManager.cpp include/systems/SystemsManager.hpp include/systems/Event.cpp include/systems/Event.hpp src/systems/render-engine/textures/SkyboxTexture.cpp include/systems/render-engine/textures/SkyboxTexture.hpp src/systems/render-engine/meshes/SkyboxMesh.cpp include/systems/render-engine/meshes/SkyboxMesh.hpp include/systems/render-engine/shaders/SkyboxShader.hpp include/Utils.hpp src/Utils.cpp)
+add_library(engine STATIC ${SRC_FILES}
+        src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp
+        src/components/InputComponent.cpp include/components/InputComponent.hpp
+        include/systems/input/InputMapper.hpp include/factories/MaterialFactory.hpp
+        src/systems/SystemsManager.cpp include/systems/SystemsManager.hpp
+        include/systems/Event.hpp src/systems/PhysicsSystem.cpp
+        include/systems/PhysicsSystem.hpp src/components/RigidBodyComponent.cpp
+        include/components/RigidBodyComponent.hpp src/factories/RigidBodyFactory.cpp
+        include/factories/RigidBodyFactory.hpp include/systems/EventManager.hpp
+        include/Utils.hpp src/Utils.cpp
+        src/systems/render-engine/textures/SkyboxTexture.cpp include/systems/render-engine/textures/SkyboxTexture.hpp
+        src/systems/render-engine/meshes/SkyboxMesh.cpp include/systems/render-engine/meshes/SkyboxMesh.hpp
+        include/systems/render-engine/shaders/SkyboxShader.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include

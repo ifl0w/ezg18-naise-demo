@@ -9,6 +9,10 @@ class SolidColorShader :
 		public Shader {
 public:
 	SolidColorShader();
+
+	void setColor(glm::vec3 color);
+private:
+	GLuint colorLocation;
 };
 
 }

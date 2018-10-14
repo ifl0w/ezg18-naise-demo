@@ -96,14 +96,14 @@ void RenderEngine::geometryPass(const Mesh& mesh, const Material* material, mat4
 }
 
 //void RenderEngine::forwardPass(const shared_ptr<Scene>& scene) {
-//	setLightData();
+////	setLightData();
 //
-//	activateRenderState();
+////	activateRenderState();
 //	deferredTarget->retrieveDepthBuffer();
-//	for (auto const& object: scene->retrieveForwardRenderObjects()) {
-//		object->render();
-//	}
-//	deactivateRenderState();
+//
+//	object->render();
+//
+//	//	deactivateRenderState();
 //}
 
 void RenderEngine::prepareLightPass() {
@@ -526,6 +526,21 @@ void RenderEngine::drawMesh(const Mesh& mesh, const Material* material, mat4 tra
 	}
 
 	drawMeshDirect(mesh);
+}
+
+void RenderEngine::drawDebugMesh(const Mesh& mesh, glm::vec3 color) {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	if (solidColorShader.shaderID != Shader::activeShader) {
+		solidColorShader.useShader();
+	}
+
+	solidColorShader.setModelMatrix(mat4(1));
+	solidColorShader.setColor(color);
+
+	glBindVertexArray(mesh.vao);
+	glDrawElements(GL_LINES, static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
+
 }
 
 void RenderEngine::skyboxPass() {

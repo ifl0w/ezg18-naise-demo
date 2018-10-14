@@ -18,6 +18,7 @@
 #include "shaders/PointLightShader.hpp"
 #include "shaders/DirectionalLightShader.hpp"
 #include "shaders/SkyboxShader.hpp"
+#include "materials/shaders/SolidColorShader.hpp"
 #include "meshes/Plane.hpp"
 #include "meshes/Sphere.hpp"
 #include "systems/render-engine/meshes/SkyboxMesh.hpp"
@@ -102,6 +103,7 @@ private:
 	DirectionalLightShader dlShader;
 	NullShader nullShader;
 	TextureDebugShader textureDebugShader;
+	SolidColorShader solidColorShader; // used for debugging
 //	GlowShader glowShader;
 	SkyboxShader skyboxShader;
 
@@ -158,6 +160,7 @@ private:
 	// command functions
 	void drawMeshDirect(const Mesh& mesh);
 	void drawMesh(const Mesh& mesh, const Material* material = nullptr, mat4 transform = mat4(1));
+	void drawDebugMesh(const Mesh& mesh, glm::vec3 color);
 };
 
 }

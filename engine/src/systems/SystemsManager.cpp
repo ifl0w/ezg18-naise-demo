@@ -10,3 +10,7 @@ void SystemsManager::process(const EntityManager& em, std::chrono::microseconds 
 	}
 }
 
+void SystemsManager::cleanup() {
+	systems.clear();
+}
+

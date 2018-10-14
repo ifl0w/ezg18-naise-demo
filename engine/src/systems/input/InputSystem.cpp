@@ -16,7 +16,7 @@ void InputSystem::process(const EntityManager& em, microseconds deltaTime) {
 		// handle window events (e.g. window close)
 		_handleWindowEvents(event);
 
-		_inputMapper->handleEvent(event, _systemsManager);
+		_inputMapper->handleEvent(event);
 
 		auto actions = _inputMapper->resolve(event);
 
@@ -41,7 +41,7 @@ void InputSystem::_handleWindowEvents(SDL_Event& event) {
 	if (event.type == SDL_WINDOWEVENT) {
 		switch (event.window.event) {
 		case SDL_WINDOWEVENT_CLOSE:
-			_systemsManager->event<RuntimeEvents::Quit>().emit();
+			Engine::getEventManager().event<RuntimeEvents::Quit>().emit();
 			break;
 		default:
 			// swallow unhandled events

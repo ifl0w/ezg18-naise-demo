@@ -11,7 +11,7 @@ namespace RenderCore {
 class Sphere :
 		public Mesh {
 public:
-	Sphere(float radius, unsigned int segments, unsigned int rings);
+	Sphere(float radius = 1.0, unsigned int segments = 32, unsigned int rings = 16);
 
 	float const radius;
 	unsigned int const segments;

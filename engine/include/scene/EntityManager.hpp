@@ -14,7 +14,6 @@ namespace Engine {
 
 class EntityManager {
 public:
-
 	~EntityManager() {
 		entities.clear();
 	}
@@ -27,9 +26,21 @@ public:
 	 */
 	void addEntity(shared_ptr<Entity> entity);
 
+	/**
+	 * Get the entity by its ID.
+	 * Returns a pointer to the entity or null if no such entity exists.
+	 *
+	 * @param id
+	 * @return
+	 */
+	Entity* getEntity(EntityID id);
+
 	void filter(Filter filter, function<void (Entity&)> filterCallback) const;
 	void filter(Filter filter, function<void (Entity*)> filterCallback) const;
 	void filter(Filter filter, function<void (vector<Entity*>)> filterCallback) const;
+
+	void cleanup();
+
 private:
 	vector<shared_ptr<Entity>> entities;
 };

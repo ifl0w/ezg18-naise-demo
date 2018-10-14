@@ -30,8 +30,6 @@ public:
 	bool isFullscreen(){
 		return _fullscreen;
 	};
-protected:
-	void eventSetup() override;
 
 private:
 	SDL_Window *window;
@@ -44,6 +42,8 @@ private:
 	void setFullscreen(bool fullscreen);
 
 	void setResolution(uint32_t width, uint32_t height);
+
+	void setSDLAttribute(SDL_GLattr attr, int val);
 };
 
 }

@@ -72,7 +72,7 @@ class InputMapper {
 public:
 	virtual vector<Action> resolve(const SDL_Event& event) { return vector<Action>(); };
 	virtual Input input(Action action, Input& input, const SDL_Event& event) { return input; };
-	virtual void handleEvent(const SDL_Event& event, SystemsManager* systemsManager) { };
+	virtual void handleEvent(const SDL_Event& event) { };
 };
 
 }
