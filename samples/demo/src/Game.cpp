@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
 	sphere->add(MeshFactory::create<Sphere>());
 	sphere->add<MaterialComponent>();
 
-	auto material = std::make_shared<PBRMaterial>(vec3(0.8, 0, 0.8), 1.0f, 0.2f);
+	auto material = std::make_shared<PBRMaterial>(vec3(0.8), 0.0f, 0.7f);
 	material->skyboxTexture = skybox.getSkyboxTexture();
 	material->useSkyboxTexture = true;
 
@@ -73,7 +73,8 @@ int main(int argc, char** argv) {
 	box->component<TransformComponent>().scale = vec3(1, 1, 1);
 	box->add(RigidBodyFactory::createBox(50, 1, 200, 0, vec3(0, -2, -5)));
 	box->add(MeshFactory::createBox(50, 1, 200));
-	box->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.8, 0.8, 0.8), 0, 0.2));
+	//box->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.8, 0.8, 0.8), 0, 0.2));
+	box->add(materialComponent);
 
 	auto camera = make_shared<NAISE::Engine::Entity>();
 	camera->add<TransformComponent>();

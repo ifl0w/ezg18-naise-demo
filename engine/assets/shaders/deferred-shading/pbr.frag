@@ -98,8 +98,11 @@ void main() {
 
     //Cubemap Reflections (only glossy)
     if (useSkyboxTexture) {
-           gAlbedoRoughness.rgb = texture(skyboxTexture, normalize(Reflection)).rgb;
-        }
+        float reflectionFactor = gAlbedoRoughness.a;
+        vec3 reflectionColor = texture(skyboxTexture, normalize(Reflection)).rgb;
+        reflectionColor = mix(reflectionColor, vec3(1), reflectionFactor);
+        gAlbedoRoughness.rgb *= reflectionColor;
+    }
 
 
     //BLOOM
