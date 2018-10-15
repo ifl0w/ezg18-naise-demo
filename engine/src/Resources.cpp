@@ -68,7 +68,7 @@ std::shared_ptr<Texture> Resources::loadSkyboxTexture(const std::string& identif
 		return it->second;
 	}
 
-	std::vector<SkyboxImageData> skyboxImages(paths.size());
+	std::vector<SkyboxImageData> skyboxImages;
 
 	int width, height, nrChannels;
 	for (unsigned int i = 0; i < paths.size(); i++)
@@ -83,7 +83,6 @@ std::shared_ptr<Texture> Resources::loadSkyboxTexture(const std::string& identif
 			skyboxImages.push_back(data);
 		} else {
 			NAISE_ERROR_PERSISTENCE("Resources::Skybox texture failed to load at path: {}", paths[i]);
-			//spdlog::get("logger")->error("Resources::Skybox texture failed to load at path: {}", paths[i]);
 		}
 	}
 

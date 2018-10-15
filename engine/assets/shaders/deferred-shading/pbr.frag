@@ -9,6 +9,7 @@ in vec3 vNorm;
 in vec3 vPos;
 in vec2 vUV;
 in mat3 TBN;
+in vec3 Reflection;
 
 uniform sampler2D albedoTexture;
 uniform bool useAlbedoTexture;
@@ -18,6 +19,8 @@ uniform sampler2D normalTexture;
 uniform bool useNormalTexture;
 uniform sampler2D emissionTexture;
 uniform bool useEmissionTexture;
+uniform samplerCube skyboxTexture;
+uniform bool useSkyboxTexture;
 
 layout(std140, binding = 0) uniform screenData
 {
@@ -27,6 +30,14 @@ layout(std140, binding = 0) uniform screenData
     float brightnessFactor; // multiplied to the color to lighten or darken the result
 };
 
+uniform projectionData
+{
+    mat4 viewProjection;    // size = 64B
+    mat4 projectionMatrix;    // size = 64B
+    mat4 viewMatrix;    // size = 64B
+    vec3 cameraPosition;    // size = 16B
+};
+
 uniform struct Material {
 	vec3 albedo;
 	float roughness;
@@ -34,7 +45,7 @@ uniform struct Material {
 	vec3 emission; // (vec3(0) = no glow)
 } material;
 
-uniform vec3 cameraPosition;
+//uniform vec3 cameraPosition;
 
 uniform mat4 modelMatrix;
 
@@ -84,6 +95,15 @@ void main() {
             gGlowMetallic = vec4(0.0, 0.0, 0.0, 0.0);
         }
     }
+
+    //Cubemap Reflections (only glossy)
+    if (useSkyboxTexture) {
+        float reflectionFactor = gAlbedoRoughness.a;
+        vec3 reflectionColor = texture(skyboxTexture, normalize(Reflection)).rgb;
+        reflectionColor = mix(reflectionColor, vec3(1), reflectionFactor);
+        gAlbedoRoughness.rgb *= reflectionColor;
+    }
+
 
     //BLOOM
     // check whether fragment output is higher than threshold, if so output as brightness color

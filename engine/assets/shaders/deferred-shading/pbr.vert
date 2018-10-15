@@ -29,6 +29,7 @@ out vec3 vPos;
 out vec3 vNorm;
 out vec2 vUV;
 out mat3 TBN;
+out vec3 Reflection;
 
 /**WATERMESH ANIMATION**/
 uniform float wavelength;
@@ -150,6 +151,9 @@ void main() {
 
     mat4 normalMatrix = transpose(inverse(mMatrix));
     vNorm = normalize(vec3(normalMatrix * vec4(newNormal, 1)));
+
+     vec3 ViewDirection = (vPos - cameraPosition);
+     Reflection  = reflect(ViewDirection, vNorm);
 
 	gl_Position = viewProjection * pos;
 

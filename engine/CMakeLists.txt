@@ -160,7 +160,7 @@ add_library(engine STATIC ${SRC_FILES}
         include/Utils.hpp src/Utils.cpp
         src/systems/render-engine/textures/SkyboxTexture.cpp include/systems/render-engine/textures/SkyboxTexture.hpp
         src/systems/render-engine/meshes/SkyboxMesh.cpp include/systems/render-engine/meshes/SkyboxMesh.hpp
-        include/systems/render-engine/shaders/SkyboxShader.hpp)
+        include/systems/render-engine/shaders/SkyboxShader.hpp src/Skybox.cpp include/Skybox.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include

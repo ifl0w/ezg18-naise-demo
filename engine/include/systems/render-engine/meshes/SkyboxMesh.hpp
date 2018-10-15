@@ -5,10 +5,10 @@
 namespace NAISE {
 namespace RenderCore {
 
-class Skybox :
+class SkyboxMesh :
 		public Mesh {
 public:
-	Skybox(float width = 5, float height = 5, float depth = 5);
+	SkyboxMesh(float width = 5, float height = 5, float depth = 5);
 };
 
 }
