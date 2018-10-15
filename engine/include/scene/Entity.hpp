@@ -1,7 +1,6 @@
 #pragma once
 
 #include <components/Component.hpp>
-#include <aspects/Aspect.hpp>
 
 #include <unordered_map>
 #include <memory>
@@ -13,11 +12,13 @@ using namespace std;
 namespace NAISE {
 namespace Engine {
 
+using EntityID = uint64_t;
+
 class Entity {
 public:
-	explicit Entity(uint64_t id): id(id) { };
+	explicit Entity(): id(Entity::_lastID++) { };
 
-	const uint64_t id;
+	const EntityID id;
 
 	/**
 	 * Add a component to the entity. The entity will take ownership of the given component.
@@ -26,48 +27,60 @@ public:
 	 * @param component
 	 */
 	template <class T>
-	void addComponent(shared_ptr<T> component);
+	void add(shared_ptr<T> component);
 
 	template <class T, typename... Args>
-	void addComponent(Args&&... args);
+	void add(Args&& ... args);
 
 	template <class T>
-	T& component();
+	T& component() const;
+
+	template <class T>
+	bool has() const;
 
 	template <class T>
 	void removeComponent();
 
-	/**
-	 * Match against a given aspect.
-	 *
-	 * @param aspect
-	 * @return
-	 */
-	virtual bool match(shared_ptr<Aspect>& aspect);
-
 private:
+	friend class Filter;
 	unordered_map<type_index, shared_ptr<Component>> components;
+
+	static EntityID _lastID;
 };
 
 template<class T>
-void Entity::addComponent(shared_ptr<T> component) {
+void Entity::add(shared_ptr<T> component) {
 	components[type_index(typeid(T))] = component;
 }
 
 template<class T, typename... Args>
-void Entity::addComponent(Args&&... args) {
-	components[type_index(typeid(T))] = make_shared<T>();
+void Entity::add(Args&& ... args) {
+	components[type_index(typeid(T))] = make_shared<T>(args...);
 }
 
 template<class T>
-T& Entity::component() {
-	return components[type_index(typeid(T))].get();
+T& Entity::component() const {
+	try {
+		auto tmp = components.at(type_index(typeid(T)));
+	} catch (std::out_of_range& e) {
+		throw std::invalid_argument("Entity does not contain the requested component.");
+	}
+
+	auto tmp = static_cast<T*>(components.at(type_index(typeid(T))).get());
+	return *tmp;
 }
 
 template<class T>
 void Entity::removeComponent() {
 	components.erase(type_index(typeid(T)));
 }
+
+template<class T>
+bool Entity::has() const {
+	auto it = components.find(type_index(typeid(T)));
+	return it != components.end();
+}
+
 
 }
 }

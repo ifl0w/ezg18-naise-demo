@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Entity.hpp"
-#include "systems/System.hpp"
+#include "filter/Filter.hpp"
 
 #include <vector>
 #include <memory>
@@ -14,6 +14,10 @@ namespace Engine {
 
 class EntityManager {
 public:
+	~EntityManager() {
+		entities.clear();
+	}
+
 	/**
 	 * Add the entity to the EntityManager.
 	 * The EntityManager takes ownership of the given entity.
@@ -23,12 +27,22 @@ public:
 	void addEntity(shared_ptr<Entity> entity);
 
 	/**
-	 * @param system
+	 * Get the entity by its ID.
+	 * Returns a pointer to the entity or null if no such entity exists.
+	 *
+	 * @param id
+	 * @return
 	 */
-	void addSystem(shared_ptr<System> system);
+	Entity* getEntity(EntityID id);
+
+	void filter(Filter filter, function<void (Entity&)> filterCallback) const;
+	void filter(Filter filter, function<void (Entity*)> filterCallback) const;
+	void filter(Filter filter, function<void (vector<Entity*>)> filterCallback) const;
+
+	void cleanup();
+
 private:
-	vector<shared_ptr<System>> systems;
-	map<uint64_t, shared_ptr<Entity>> entities;
+	vector<shared_ptr<Entity>> entities;
 };
 
 }

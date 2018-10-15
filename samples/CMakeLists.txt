@@ -1,18 +1,13 @@
-project(samples)
+cmake_minimum_required(VERSION 3.10)
+project(NAISE_Engine_samples)
+
 set(CMAKE_CXX_STANDARD 17)
 
-file(GLOB_RECURSE SRC_FILES
-        src/**/*.cpp
-        src/*.cpp
-        include/**/*.hpp
-        include/*.hpp
-        )
+if (MINGW)
+    # hack needed to compile in mingw
+    # Source: http://forums.libsdl.org/viewtopic.php?p=49618
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lmingw32 -lSDL2main")
+endif ()
 
-include_directories(include)
-
-include_directories(${NAISE_Engine_SOURCE_DIR}/engine/include)
-
-add_executable(samples ${SRC_FILES})
-add_dependencies(samples engine)
-
-target_link_libraries(samples engine)
+subdirs(demo
+        performance-test)

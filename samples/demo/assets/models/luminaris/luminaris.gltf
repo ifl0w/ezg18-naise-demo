@@ -1,0 +1,243 @@
+{
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5123,
+            "count" : 23316,
+            "max" : [
+                7505
+            ],
+            "min" : [
+                0
+            ],
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 7506,
+            "max" : [
+                21.581092834472656,
+                9.113365173339844,
+                39.6657600402832
+            ],
+            "min" : [
+                -21.581092834472656,
+                -6.279411315917969,
+                -41.83313751220703
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 7506,
+            "max" : [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "min" : [
+                -1.0,
+                -1.0,
+                -1.0
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5126,
+            "count" : 7506,
+            "max" : [
+                0.9999998807907104,
+                1.0,
+                0.999362051486969,
+                1.0
+            ],
+            "min" : [
+                -0.9999998807907104,
+                -0.9999611973762512,
+                -1.0,
+                -1.0
+            ],
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 4,
+            "componentType" : 5126,
+            "count" : 7506,
+            "max" : [
+                0.9995793700218201,
+                0.9918729364871979
+            ],
+            "min" : [
+                0.001453652512282133,
+                0.0053462982177734375
+            ],
+            "type" : "VEC2"
+        }
+    ],
+    "asset" : {
+        "generator" : "Khronos Blender glTF 2.0 exporter",
+        "version" : "2.0"
+    },
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 46632,
+            "byteOffset" : 0,
+            "target" : 34963
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 90072,
+            "byteOffset" : 46632,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 90072,
+            "byteOffset" : 136704,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 120096,
+            "byteOffset" : 226776,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 60048,
+            "byteOffset" : 346872,
+            "target" : 34962
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 406920,
+            "uri" : "luminaris.bin"
+        }
+    ],
+    "images" : [
+        {
+            "name" : "luminaris_emissive",
+            "uri" : "luminaris_emissive.jpg"
+        },
+        {
+            "name" : "luminaris_diffuse",
+            "uri" : "luminaris_diffuse.jpg"
+        },
+        {
+            "name" : "luminaris_normal",
+            "uri" : "luminaris_normal.jpg"
+        },
+        {
+            "name" : "luminaris_roughness",
+            "uri" : "luminaris_roughness.jpg"
+        }
+    ],
+    "materials" : [
+        {
+            "emissiveFactor" : [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "emissiveTexture" : {
+                "index" : 0
+            },
+            "name" : "Luminaris starship material",
+            "normalTexture" : {
+                "index" : 2
+            },
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 1
+                },
+                "metallicRoughnessTexture" : {
+                    "index" : 3
+                }
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Untitled",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "NORMAL" : 2,
+                        "POSITION" : 1,
+                        "TANGENT" : 3,
+                        "TEXCOORD_0" : 4
+                    },
+                    "indices" : 0,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Luminaris Ingame",
+            "rotation" : [
+                -2.1855694143368964e-08,
+                0.0,
+                -0.0,
+                1.0
+            ],
+            "translation" : [
+                3.450441852237418e-07,
+                -1.2375773191452026,
+                7.893690586090088
+            ]
+        },
+        {
+            "name" : "Sun",
+            "rotation" : [
+                0.2117634266614914,
+                0.43135032057762146,
+                -0.10491114109754562,
+                0.8706818222999573
+            ],
+            "translation" : [
+                6.239661693572998,
+                1.9957194328308105,
+                29.78681182861328
+            ]
+        }
+    ],
+    "samplers" : [
+        {}
+    ],
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                1,
+                0
+            ]
+        }
+    ],
+    "textures" : [
+        {
+            "sampler" : 0,
+            "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 1
+        },
+        {
+            "sampler" : 0,
+            "source" : 2
+        },
+        {
+            "sampler" : 0,
+            "source" : 3
+        }
+    ]
+}
