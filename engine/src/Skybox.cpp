@@ -14,13 +14,13 @@ Skybox::Skybox(glm::vec3 backgroundColor)
 	initialize();
 }
 
-Skybox::Skybox(const std::string& identifier, std::vector<std::string> paths) {
+Skybox::Skybox(const std::string &identifier, std::vector<std::string> paths) {
 	skyboxTexture = Resources::loadSkyboxTexture(identifier, paths);
 	useSkyboxTexture = true;
 	initialize();
 }
 
-Skybox::Skybox(const glm::vec3 backgroundColor, const std::string& identifier, const std::vector<std::string> paths)
+Skybox::Skybox(const glm::vec3 backgroundColor, const std::string &identifier, const std::vector<std::string> paths)
 		: backgroundColor(backgroundColor) {
 	skyboxTexture = Resources::loadSkyboxTexture(identifier, paths);
 	useSkyboxTexture = true;
@@ -57,12 +57,15 @@ void Skybox::drawSkybox() {
 }
 
 void Skybox::useSkybox() const {
-	if (useSkyboxTexture) {
+	if (skyboxTexture && useSkyboxTexture) {
+		glUniform1i(useSkyboxTextureLocation, true);
 		glUniform1i(skyboxTextureLocation, skyboxTextureUnit);
 		skyboxTexture->useTexture(skyboxTextureUnit);
+	} else {
+		glUniform1i(useSkyboxTextureLocation, false);
 	}
 	glUniform3fv(this->backgroundColorLocation, 1, glm::value_ptr(backgroundColor));
-	glUniform1i(this->useSkyboxTextureLocation, useSkyboxTexture);
+
 	glActiveTexture(GL_TEXTURE0);
 }
 
@@ -78,7 +81,20 @@ void Skybox::setBackgroundColor(glm::vec3 backgroundColor) {
 	this->backgroundColor = backgroundColor;
 }
 
-void Skybox::setSkyboxTexture(const std::string& identifier, std::vector<std::string> paths) {
+void Skybox::setSkyboxTexture(const std::string &identifier, std::vector<std::string> paths) {
 	skyboxTexture = Resources::loadSkyboxTexture(identifier, paths);
 	useSkyboxTexture = true;
+}
+
+void Skybox::applyToShader(shared_ptr<Shader> shader) {
+	//TODO uniformLocation shouldn't be set every frame
+	GLint tmpTextureLocation = uniformLocation(shader->shaderID, "skyboxTexture");
+	GLint tmpUseLocation = uniformLocation(shader->shaderID, "useSkyboxTexture");
+
+	if (skyboxTexture && useSkyboxTexture) {
+		glUniform1i(tmpUseLocation, true);
+		glUniform1i(tmpTextureLocation, skyboxTextureUnit);
+	} else {
+		glUniform1i(tmpUseLocation, false);
+	}
 }

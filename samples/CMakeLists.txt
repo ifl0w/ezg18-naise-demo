@@ -4,4 +4,5 @@ project(NAISE_Engine_samples)
 set(CMAKE_CXX_STANDARD 17)
 
 subdirs(demo
-        performance-test)
+        performance-test
+        material-showcase)

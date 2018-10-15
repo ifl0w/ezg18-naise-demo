@@ -44,6 +44,8 @@ public:
 		Entity* camera = nullptr;
 		Entity* sun = nullptr;
 
+		renderEngine.setSkybox(&skybox);
+
 		em.filter(cameraFilter, [&](Entity* entity) { camera = entity; });
 		em.filter(sunFilter, [&](Entity* entity) {
 		  if (entity->component<LightComponent>().light->data.directional) {
@@ -100,7 +102,7 @@ public:
 		renderEngine.cleanupLightPass();
 
 		//TODO
-		renderEngine.skyboxPass(skybox);
+		renderEngine.skyboxPass();
 
 //		renderEngine.activateRenderState();
 		em.filter(debugDrawFilter, [&](Entity& entity) {

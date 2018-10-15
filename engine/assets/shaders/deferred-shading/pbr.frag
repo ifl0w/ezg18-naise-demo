@@ -67,7 +67,6 @@ void main() {
         gNormal = normalize(TBN * gNormal);
     }
 
-
     // diffuse per-fragment color
     gAlbedoRoughness.rgb = material.albedo;
     if (useAlbedoTexture) {
@@ -98,12 +97,26 @@ void main() {
 
     //Cubemap Reflections (only glossy)
     if (useSkyboxTexture) {
-        float reflectionFactor = gAlbedoRoughness.a;
-        vec3 reflectionColor = texture(skyboxTexture, normalize(Reflection)).rgb;
-        reflectionColor = mix(reflectionColor, vec3(1), reflectionFactor);
+        float roughnessFactor = gAlbedoRoughness.a;
+        float metalicFactor = gGlowMetallic.a;
+
+        //TODO make mipmap level dependent on texture size
+        int mipmapLevel = int(roughnessFactor * 12);
+        vec3 reflectionColor = textureLod(skyboxTexture, normalize(Reflection), mipmapLevel).rgb;
+
+        // non-metallic materials do not reflect color
+        float lighness = length(reflectionColor)/ length(vec3(1));
+        // non-metallic materials only reflect brighter values
+        vec3 clampedLightness = clamp(vec3(lighness), gAlbedoRoughness.rgb, vec3(1));
+        vec3 m = mix(clampedLightness, reflectionColor, metalicFactor);
+        // less rougher materials have more reflection and lesser diffuse color
+        // in contrast to non-metallic materials, metal reflects the environment color
+        vec3 r = mix(reflectionColor, gAlbedoRoughness.rgb, roughnessFactor);
+
+        reflectionColor = (m + r) / 2;
+
         gAlbedoRoughness.rgb *= reflectionColor;
     }
-
 
     //BLOOM
     // check whether fragment output is higher than threshold, if so output as brightness color

@@ -31,12 +31,10 @@ public:
 	std::shared_ptr<Texture> metallicRoughnessTexture;
 	std::shared_ptr<Texture> normalTexture;
 	std::shared_ptr<Texture> emissionTexture;
-	std::shared_ptr<Texture> skyboxTexture;
 
 	/* Flags for enabeling/disabeling */
 	static bool displayNormalTexture;
 	static bool displayGlowTexture;
-	static bool useSkyboxTexture;
 
 private:
 	GLint materialAlbedoLocation = -1;
@@ -61,10 +59,6 @@ private:
 	uint32_t emissionTextureUnit = 4;
 	GLint emissionTextureLocation = -1;
 	GLint useEmissionTextureLocation = -1;
-
-	uint32_t skyboxTextureUnit = 13;
-	GLint skyboxTextureLocation = -1;
-	GLint useSkyboxTextureLocation = -1;
 
 };
 
