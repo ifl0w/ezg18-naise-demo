@@ -19,7 +19,7 @@
 #include <components/TransformComponent.hpp>
 
 #include <systems/render-engine/textures/SkyboxTexture.hpp>
-#include <Utils.hpp>
+#include <Logger.hpp>
 
 using namespace NAISE::Engine;
 
@@ -34,7 +34,7 @@ struct Image {
 //source: https://en.wikipedia.org/wiki/List_of_file_signatures || https://blog.netspi.com/magic-bytes-identifying-common-file-formats-at-a-glance/
 //TODO test filetypes
 struct Image JPG {IMAGE_FILE_JPG, "ÿØÿÛ", 8, "\xFF\xD8\xFF", 3};
-struct Image PNG {IMAGE_FILE_PNG, "\x89PNG", 4, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8};
+struct Image PNG {IMAGE_FILE_PNG, "\x89PNG", 4, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8}; //"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A""\x50\x89\x47\x4E\x0A\x0D\x0A\x1A"
 struct Image DDS {IMAGE_FILE_DDS, "DDS", 3, "\x44\x44\x53\x20", 4};
 struct Image BMP {IMAGE_FILE_BMP, "BM", 2, "\x42\x4D", 2};
 
@@ -137,7 +137,7 @@ std::shared_ptr<Texture> Resources::loadSkyboxTexture(const std::string& identif
 		if (data.data) {
 			skyboxImages.push_back(data);
 		} else {
-			NAISE_ERROR_PERSISTENCE("Resources::Skybox texture failed to load at path: {}", paths[i]);
+			NAISE_ERROR_LOG("Resources::Skybox texture failed to load at path: {}", paths[i]);
 		}
 	}
 
@@ -170,7 +170,7 @@ std::shared_ptr<Texture> Resources::getTexture(const std::string& identifier) {
 		return it->second;
 	}
 
-	spdlog::get("logger")->warn("NAISE::ENGINE::Resources >> Texture '{}' not found.", key);
+	NAISE_WARN_LOG("Texture '{}' not found.", key);
 	return std::shared_ptr<Texture>();
 }
 
@@ -203,12 +203,11 @@ vector<shared_ptr<Entity>> Resources::loadModel(const std::string& path) {
 		bool successful = loader.LoadASCIIFromFile(&model, &error, &warn, path);
 
 		if (!warn.empty()) {
-			spdlog::get("logger")
-					->warn("Resources::loadModel >> Warning during loading of ASCII model {} ({})", path, warn);
+			NAISE_WARN_LOG("Warning during loading of ASCII model {} ({})", path, warn);
 		}
 
 		if (!successful) {
-			spdlog::get("logger")->error("Resources::loadModel >> Could not load ASCII model {} ({})", path, error);
+			NAISE_ERROR_LOG("Could not load ASCII model {} ({})", path, error);
 			return ret;
 		}
 	}
@@ -282,33 +281,36 @@ ImageFileType Resources::getImageTypeByMagic(const std::string& path) {
 	if (input.good())
 	{
 		string firstLine;
+		char * buffer = new char [20];
+
+		input.read(buffer, 20);
 		getline(input, firstLine);
 
-		if(strncmp(firstLine.c_str(), JPG.magic_signature.c_str(), JPG.magic_signaturBytes) == 0){
-			NAISE_WARN_PERSISTENCE("ITS A JPG");
+		if(strncmp(buffer, JPG.magic_signature.c_str(), JPG.magic_signaturBytes) == 0){
+			NAISE_DEBUG_CONSOL("ITS A JPG");
 			return JPG.imageFileType;
 		}
 		//TODO test different pngs
-		if(strncmp(firstLine.c_str(), PNG.magic_signature.c_str(), PNG.magic_signaturBytes) == 0 ||
-				strncmp(firstLine.c_str(), PNG.magic_mnemonic.c_str(), PNG.magic_mnemonicBytes) == 0){
-			NAISE_WARN_PERSISTENCE("ITS A PNG");
+		if(strncmp(buffer, PNG.magic_signature.c_str(), PNG.magic_signaturBytes) == 0 ||
+						strncmp(firstLine.c_str(), PNG.magic_mnemonic.c_str(), PNG.magic_mnemonicBytes) == 0){
+			NAISE_DEBUG_CONSOL("ITS A PNG");
 			return PNG.imageFileType;
 		}
 		//TODO test dds
-		if(strncmp(firstLine.c_str(), DDS.magic_signature.c_str(), DDS.magic_signaturBytes) == 0){
-			NAISE_WARN_PERSISTENCE("ITS A DDS");
+		if(strncmp(buffer, DDS.magic_signature.c_str(), DDS.magic_signaturBytes) == 0){
+			NAISE_DEBUG_CONSOL("ITS A DDS");
 			return DDS.imageFileType;
 		}
-		if(strncmp(firstLine.c_str(), BMP.magic_signature.c_str(), BMP.magic_signaturBytes) == 0){
-			NAISE_WARN_PERSISTENCE("ITS A BMP");
+		if(strncmp(buffer, BMP.magic_signature.c_str(), BMP.magic_signaturBytes) == 0){
+			NAISE_DEBUG_CONSOL("ITS A BMP");
 			return BMP.imageFileType;
 		}
 
 	} else {
-		NAISE_ERROR_PERSISTENCE("Could not open File: {}", path);
+		NAISE_ERROR_LOG("Could not open File: {}", path);
 	}
 
-	NAISE_ERROR_PERSISTENCE("File type is not supported: {}", path);
+	NAISE_ERROR_LOG("File type is not supported: {}", path);
 	return IMAGE_FILE_INVALID;
 }
 
@@ -323,7 +325,7 @@ std::shared_ptr<Texture> Resources::loadWithSTB(const std::string& path) {
 	if(data) {
 
 	} else {
-		NAISE_ERROR_PERSISTENCE("Texture failed to load at path: {}", path);
+		NAISE_ERROR_LOG("Texture failed to load at path: {}", path);
 	}
 
 	// Create one OpenGL texture
@@ -370,7 +372,6 @@ std::shared_ptr<Texture> Resources::loadWithSTB(const std::string& path) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glGenerateMipmap(GL_TEXTURE_2D);
-
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
