@@ -183,16 +183,7 @@ else()
 endif ()
 
 ######## COPY ASSETS ########
-# Collect list of asset files.
-file(GLOB_RECURSE shader_files
-        RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/assets/
-        ${CMAKE_CURRENT_SOURCE_DIR}/assets/shaders/**/*.*
-        ${CMAKE_CURRENT_SOURCE_DIR}/assets/shaders/*.*)
-
-# This will contain full paths to files in binary directory.
-set(binary_files_list)
-foreach (file ${shader_files})
-    set(source_file ${CMAKE_CURRENT_SOURCE_DIR}/assets/${file})
-    set(binary_file ${CMAKE_CURRENT_BINARY_DIR}/${file})
-    configure_file(${source_file} ${binary_file} COPYONLY)
-endforeach ()
+add_custom_command(TARGET engine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/assets/shaders
+        $<TARGET_FILE_DIR:engine>/engine/shaders)

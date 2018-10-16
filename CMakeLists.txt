@@ -25,3 +25,14 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(NAISE_BUILD_ARTIFACTS_DIRECTORY ${CMAKE_BINARY_DIR}/artifacts)
 
 subdirs(engine samples)
+
+### functions ###
+
+# This function sets up a post build command that copies the required resources to the
+# build folder of the software that is using this engine.
+function(COPY_NAISE_ENGINE_RESOURCES target)
+    add_custom_command(TARGET ${target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            $<TARGET_FILE_DIR:engine>/engine
+            $<TARGET_FILE_DIR:${target}>/engine)
+endfunction(COPY_NAISE_ENGINE_RESOURCES PARENT_SCOPE)
