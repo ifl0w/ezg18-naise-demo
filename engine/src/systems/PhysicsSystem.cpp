@@ -64,7 +64,7 @@ void PhysicsSystem::process(const EntityManager& em, microseconds deltaTime) {
 		  auto& transform = entity.component<TransformComponent>();
 
 		  btTransform newWorldTransform;
-		  newWorldTransform.setFromOpenGLMatrix(glm::value_ptr(dmat4(transform.calculateModelMatrix())));
+		  newWorldTransform.setFromOpenGLMatrix(glm::value_ptr(transform.calculateModelMatrix()));
 
 		  rigidBody->getMotionState()->setWorldTransform(newWorldTransform);
 	  }

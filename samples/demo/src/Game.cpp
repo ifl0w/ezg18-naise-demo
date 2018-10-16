@@ -122,4 +122,6 @@ int main(int argc, char **argv) {
 //	engine.mainWindow->setResolution(1920, 1200);
 //	engine.mainWindow->setFullscreen(false);
 	engine.run();
+
+	return 0;
 }
