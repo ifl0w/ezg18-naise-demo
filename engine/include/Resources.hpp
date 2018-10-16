@@ -17,6 +17,23 @@ using namespace NAISE::RenderCore;
 namespace NAISE {
 namespace Engine {
 
+/**
+ * All supported image file types should be listed in here
+ * source: https://oroboro.com/image-format-magic-bytes/
+ */
+enum ImageFileType {
+	IMAGE_FILE_JPG,
+	IMAGE_FILE_PNG,
+	IMAGE_FILE_DDS,
+	IMAGE_FILE_GIF,
+	IMAGE_FILE_BMP,
+	IMAGE_FILE_TGA,
+	IMAGE_FILE_PSD,
+	IMAGE_FILE_HDR,
+	IMAGE_FILE_PIC,
+	IMAGE_FILE_INVALID,  // unidentified image types.
+};
+
 class Resources {
 public:
 
@@ -106,6 +123,13 @@ public:
 	 */
 	static std::shared_ptr<Texture> getTexture(const std::string& identifier);
 
+	/**
+	 * Returns the type of an image-file
+	 * @param path
+	 * @return enum
+	 */
+	static ImageFileType getImageTypeByMagic(const std::string& path);
+
 private:
 	static std::map<std::type_index, std::shared_ptr<Shader>> shaders;
 //	static std::map<std::string, std::shared_ptr<ComputeShader>> computeShaders;
@@ -113,7 +137,6 @@ private:
 	static std::map<pair<type_index, std::string>, std::shared_ptr<Mesh>> meshes;
 	static std::map<pair<type_index, std::string>, std::shared_ptr<Material>> materials;
 	static std::map<std::string, tinygltf::Model> models;
-
 	/**
 	 * Creates an entity for every node in the loaded scene.
 	 *
@@ -124,6 +147,12 @@ private:
 	 */
 	static vector<shared_ptr<Entity>> entityFromGLTFNode(const std::string& idPrefix, const tinygltf::Node& node,
 												 const tinygltf::Model& model);
+
+	/**
+	 * Loads textures with stbi_load
+	 * Supported image-file-types: JPG, PNG, TGA, BMP, PSD, GIF, HDR, PIC
+	 */
+	static std::shared_ptr<Texture> loadWithSTB(const std::string& path);
 
 };
 

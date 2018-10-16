@@ -23,6 +23,27 @@
 
 using namespace NAISE::Engine;
 
+struct Image {
+	ImageFileType imageFileType;
+	std::string magic_mnemonic;
+	int magic_mnemonicBytes;
+	std::string magic_signature;
+	int magic_signaturBytes;
+};
+
+//source: https://en.wikipedia.org/wiki/List_of_file_signatures || https://blog.netspi.com/magic-bytes-identifying-common-file-formats-at-a-glance/
+//TODO test filetypes
+struct Image JPG {IMAGE_FILE_JPG, "ÿØÿÛ", 8, "\xFF\xD8\xFF", 3};
+struct Image PNG {IMAGE_FILE_PNG, "\x89PNG", 4, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8};
+struct Image DDS {IMAGE_FILE_DDS, "DDS", 3, "\x44\x44\x53\x20", 4};
+struct Image BMP {IMAGE_FILE_BMP, "BM", 2, "\x42\x4D", 2};
+
+struct Image GIF {IMAGE_FILE_GIF, "GIF8", 4, "\x47\x49\x46\x38", 6};
+struct Image PSD {IMAGE_FILE_PSD, "8BPS", 4, "\x38\x42\x50\x53", 4};
+/*struct Image HDR {IMAGE_FILE_HDR, };
+struct Image PIC {IMAGE_FILE_PIC, };
+struct Image TGA {IMAGE_FILE_TGA, };*/
+
 std::map<std::type_index, std::shared_ptr<Shader>> Resources::shaders =
 		std::map<std::type_index, std::shared_ptr<Shader>>();
 
@@ -50,10 +71,44 @@ std::shared_ptr<Texture> Resources::loadTexture(const std::string& identifier, c
 	auto it = Resources::textures.find(key);
 
 	if (it != Resources::textures.end()) {
-		return it->second;
+	return it->second;
 	}
 
-	Resources::textures[key] = std::make_shared<ImageTexture>(ImageTexture::loadDDS(path.c_str()));
+	ImageFileType imageFileType = getImageTypeByMagic(path);
+	switch (imageFileType){
+		case(IMAGE_FILE_INVALID):
+			break;
+		case(IMAGE_FILE_JPG):
+			Resources::textures[key] = loadWithSTB(path);
+			break;
+		case(IMAGE_FILE_PNG):
+			Resources::textures[key] = loadWithSTB(path);
+			break;
+		case(IMAGE_FILE_BMP):
+			Resources::textures[key] = loadWithSTB(path);
+			break;
+		case(IMAGE_FILE_TGA):
+			Resources::textures[key] = loadWithSTB(path);
+			break;
+		case(IMAGE_FILE_PSD):
+			Resources::textures[key] = loadWithSTB(path);
+			break;
+		case(IMAGE_FILE_GIF):
+			Resources::textures[key] = loadWithSTB(path);
+			break;
+		case(IMAGE_FILE_HDR):
+			Resources::textures[key] = loadWithSTB(path);
+			break;
+		case(IMAGE_FILE_PIC):
+			Resources::textures[key] = loadWithSTB(path);
+			break;
+		case(IMAGE_FILE_DDS):
+			//TODO function should move to resources
+			Resources::textures[key] = std::make_shared<ImageTexture>(ImageTexture::loadDDS(path.c_str()));
+			break;
+			//TODO add other formatloader
+	}
+
 	return Resources::textures[key];
 }
 
@@ -217,4 +272,107 @@ void Resources::freeAll() {
 	materials.clear();
 	meshes.clear();
 	models.clear();
+}
+
+ImageFileType Resources::getImageTypeByMagic(const std::string& path) {
+
+	// to read 'magic' out of file
+	ifstream input(path);
+
+	if (input.good())
+	{
+		string firstLine;
+		getline(input, firstLine);
+
+		if(strncmp(firstLine.c_str(), JPG.magic_signature.c_str(), JPG.magic_signaturBytes) == 0){
+			NAISE_WARN_PERSISTENCE("ITS A JPG");
+			return JPG.imageFileType;
+		}
+		//TODO test different pngs
+		if(strncmp(firstLine.c_str(), PNG.magic_signature.c_str(), PNG.magic_signaturBytes) == 0 ||
+				strncmp(firstLine.c_str(), PNG.magic_mnemonic.c_str(), PNG.magic_mnemonicBytes) == 0){
+			NAISE_WARN_PERSISTENCE("ITS A PNG");
+			return PNG.imageFileType;
+		}
+		//TODO test dds
+		if(strncmp(firstLine.c_str(), DDS.magic_signature.c_str(), DDS.magic_signaturBytes) == 0){
+			NAISE_WARN_PERSISTENCE("ITS A DDS");
+			return DDS.imageFileType;
+		}
+		if(strncmp(firstLine.c_str(), BMP.magic_signature.c_str(), BMP.magic_signaturBytes) == 0){
+			NAISE_WARN_PERSISTENCE("ITS A BMP");
+			return BMP.imageFileType;
+		}
+
+	} else {
+		NAISE_ERROR_PERSISTENCE("Could not open File: {}", path);
+	}
+
+	NAISE_ERROR_PERSISTENCE("File type is not supported: {}", path);
+	return IMAGE_FILE_INVALID;
+}
+
+std::shared_ptr<Texture> Resources::loadWithSTB(const std::string& path) {
+
+	auto texture = make_shared<ImageTexture>();
+
+	int width, height, nrChannels;
+
+	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+
+	if(data) {
+
+	} else {
+		NAISE_ERROR_PERSISTENCE("Texture failed to load at path: {}", path);
+	}
+
+	// Create one OpenGL texture
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+
+	// "Bind" the newly created texture : all future texture functions will modify this texture
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+
+	//TODO
+	// Give the image to OpenGL
+	switch (nrChannels){
+		case 1:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0,  GL_RED, GL_UNSIGNED_BYTE, data);
+			break;
+		case 2:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, data);
+			break;
+		case 3:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			break;
+		case 4:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			break;
+	}
+
+	texture->width = width;
+	texture->height = height;
+	texture->size = width * height * nrChannels;
+	texture->data = data;
+	texture->format = GL_RGB;
+	texture->textureID = textureID;
+
+//	delete[] data;
+
+	// Poor filtering, or ...
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	// ... nice trilinear filtering.
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return texture;
 }

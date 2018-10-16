@@ -73,7 +73,20 @@ int main(int argc, char** argv) {
 	box->component<TransformComponent>().position = vec3(0, -2, -5);
 	box->component<TransformComponent>().scale = vec3(1, 1, 1);
 	box->add(MeshFactory::createBox(50, 1, 200));
-	box->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.8, 0.8, 0.8), 0, 0.2));
+	//box->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.8, 0.8, 0.8), 0, 0.2));
+
+	auto materialComponent = make_shared<MaterialComponent>();
+	auto material = make_shared<PBRMaterial>(vec3(0.2, 0.2, 0.2), 0, 0.6);
+/*	material->albedoTexture = Resources::loadTexture("bla4", "assets/textures/cb7lf-1haxn.dds");
+	material->albedoTexture = Resources::loadTexture("bla3", "assets/textures/clouds1_west.bmp");
+	material->albedoTexture = Resources::loadTexture("bla2", "assets/textures/skybox/top.png");
+	material->albedoTexture = Resources::loadTexture("bla5", "assets/textures/horizontalSkyBox.png");
+
+	material->albedoTexture = Resources::loadTexture("color", "assets/textures/Metal_Panel_005_COLOR.jpg");
+	material->normalTexture = Resources::loadTexture("norm", "assets/textures/Metal_Panel_005_NORM.jpg");
+	material->metallicRoughnessTexture = Resources::loadTexture("rough", "assets/textures/Metal_Panel_005_ROUGH.jpg");*/
+	materialComponent->material = material;
+	box->add(materialComponent);
 
 	auto camera = make_shared<NAISE::Engine::Entity>();
 	camera->add<TransformComponent>();
