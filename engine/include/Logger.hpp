@@ -3,6 +3,10 @@
 #include <string>
 #include <spdlog/spdlog.h>
 
+
+#define spdlog::stdout_color_mt("logger")->set_level(spdlog::level::warn);
+
+
 //#ifdef NAISE_DEBUG_ON
 #define NAISE_DEBUG(logger, format, ...) NAISE::Engine::Log::debug(__FILE__,__LINE__, logger, format, ##__VA_ARGS__);
 #define NAISE_WARN(logger, format, ...) NAISE::Engine::Log::warn(__FILE__,__LINE__, logger, format, ##__VA_ARGS__);

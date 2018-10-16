@@ -108,12 +108,10 @@ void main() {
         float lighness = length(reflectionColor)/ length(vec3(1));
         // non-metallic materials only reflect brighter values
         vec3 clampedLightness = clamp(vec3(lighness), gAlbedoRoughness.rgb, vec3(1));
-        vec3 m = mix(clampedLightness, reflectionColor, metalicFactor);
         // less rougher materials have more reflection and lesser diffuse color
         // in contrast to non-metallic materials, metal reflects the environment color
-        vec3 r = mix(reflectionColor, gAlbedoRoughness.rgb, roughnessFactor);
-
-        reflectionColor = (m + r) / 2;
+        reflectionColor  = mix(reflectionColor, gAlbedoRoughness.rgb, roughnessFactor);
+        reflectionColor = mix(clampedLightness, reflectionColor, metalicFactor);
 
         gAlbedoRoughness.rgb *= reflectionColor;
     }
