@@ -6,7 +6,7 @@
 #include <components/MaterialComponent.hpp>
 #include <components/InputComponent.hpp>
 #include <components/LightComponent.hpp>
-#include <Utils.hpp>
+#include <Logger.hpp>
 
 #include <systems/render-engine/materials/PBRMaterial.hpp>
 #include <systems/render-engine/lights/DirectionalLight.hpp>

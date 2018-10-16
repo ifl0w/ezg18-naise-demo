@@ -157,7 +157,7 @@ add_library(engine STATIC ${SRC_FILES}
         include/systems/PhysicsSystem.hpp src/components/RigidBodyComponent.cpp
         include/components/RigidBodyComponent.hpp src/factories/RigidBodyFactory.cpp
         include/factories/RigidBodyFactory.hpp include/systems/EventManager.hpp
-        include/Utils.hpp src/Utils.cpp
+        include/Logger.hpp src/Logger.cpp
         src/systems/render-engine/textures/SkyboxTexture.cpp include/systems/render-engine/textures/SkyboxTexture.hpp
         src/systems/render-engine/meshes/SkyboxMesh.cpp include/systems/render-engine/meshes/SkyboxMesh.hpp
         include/systems/render-engine/shaders/SkyboxShader.hpp src/Skybox.cpp include/Skybox.hpp)

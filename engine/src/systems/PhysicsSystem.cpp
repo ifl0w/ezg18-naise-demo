@@ -98,5 +98,5 @@ glm::vec3 NAISE::Engine::btVector3ToVec3(btVector3 vec) {
 }
 
 void NAISE::Engine::physicsTickCallback(btDynamicsWorld* world, double timeStep) {
-	spdlog::get("console")->debug("PhysicsSystem >> Substep callback not implemented.");
+	NAISE_DEBUG_CONSOL("Substep callback not implemented.");
 }

@@ -2,7 +2,7 @@
 #include <glbinding/gl/gl.h>
 #include <iostream>
 #include <spdlog/spdlog.h>
-#include <Utils.hpp>
+#include <Logger.hpp>
 
 using namespace gl;
 using namespace NAISE::RenderCore;
@@ -36,7 +36,7 @@ SkyboxTexture::SkyboxTexture(std::vector<NAISE::RenderCore::SkyboxImageData> dat
 			//Resources failed to load
 			//Error handling where textures are loaded
 		} else {
-			NAISE_WARN_PERSISTENCE("Skybox::nrChannels unequal 3 or 4 is not supported for cubemaps; nrChannels: {}",
+			NAISE_WARN_LOG("Skybox::nrChannels unequal 3 or 4 is not supported for cubemaps; nrChannels: {}",
 								   data[i].nrChannels);
 		}
 	}
