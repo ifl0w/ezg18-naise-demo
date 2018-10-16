@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
 	auto skybox = NAISE::Engine::Skybox(identifier, paths);
 	Engine::getSystemsManager().getSystem<RenderSystem>().setSkybox(skybox);
 
-	int resolution = 6;
+	int resolution = 10;
 	float radius = 1;
 	float gap = 0.5;
 	vec3 color = vec3(0.8, 0, 0);

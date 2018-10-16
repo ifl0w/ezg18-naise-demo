@@ -17,8 +17,11 @@ SkyboxTexture::SkyboxTexture(std::vector<NAISE::RenderCore::SkyboxImageData> dat
 	glGenTextures(1, &tmpTextureID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, tmpTextureID);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0); //initial value for lowest defined mipmap level = 0
+
+	int mipmapCount = 0;
+	mipmapCount = (int)(log(fmax(data[0].width, data[0].height))/log(2));
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL,
-					12); //initial value for the highest defined mipmap level = 1000
+					mipmapCount); //initial value for the highest defined mipmap level = 1000
 
 	for (unsigned int i = 0; i < data.size(); i++) {
 		if (data[i].nrChannels == 3) {

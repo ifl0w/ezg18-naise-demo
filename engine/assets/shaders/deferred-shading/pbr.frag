@@ -100,8 +100,8 @@ void main() {
         float roughnessFactor = gAlbedoRoughness.a;
         float metalicFactor = gGlowMetallic.a;
 
-        //TODO make mipmap level dependent on texture size
-        int mipmapLevel = int(roughnessFactor * 12);
+        int mipmapCount = textureQueryLevels(skyboxTexture);
+        int mipmapLevel = int(roughnessFactor * mipmapCount);
         vec3 reflectionColor = textureLod(skyboxTexture, normalize(Reflection), mipmapLevel).rgb;
 
         // non-metallic materials do not reflect color
