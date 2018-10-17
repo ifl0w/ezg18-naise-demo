@@ -11,6 +11,7 @@
 #include <typeindex>
 
 #include <systems/SystemsManager.hpp>
+#include <Logger.hpp>
 
 using namespace std;
 
@@ -57,7 +58,7 @@ T Input::get(const string& name) {
 		try {
 			ret = std::any_cast<T>(iv);
 		} catch (std::bad_any_cast& e) {
-			spdlog::get("console")->warn("Input::get >> Bad any cast");
+			NAISE_WARN_CONSOL("Bad any cast");
 			// swallow and return default
 		}
 

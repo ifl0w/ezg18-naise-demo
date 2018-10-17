@@ -30,7 +30,7 @@ public:
 	 * @param identifier is used to retrieve a texture, if it already exist
 	 * @param paths of the 6 skybox textures
 	 */
-	Skybox(const std::string& identifier, std::vector<std::string> paths);
+	Skybox(const std::string &identifier, std::vector<std::string> paths);
 
 	/**
 	 * Constructs a skybox with the given background color and textures.
@@ -38,20 +38,32 @@ public:
 	 * @param identifier
 	 * @param paths
 	 */
-	Skybox(const glm::vec3 backgroundColor, const std::string& identifier, const std::vector<std::string> paths);
+	Skybox(const glm::vec3 backgroundColor, const std::string &identifier, const std::vector<std::string> paths);
 
 	~Skybox();
 
 	void drawSkybox();
 
+	/**
+	 * Sets the background color. THis color will be multiplied with the texture - if available.
+	 * Otherwise it will be a solid background color.
+	 *
+	 * @param backgroundColor
+	 */
 	void setBackgroundColor(glm::vec3 backgroundColor);
-	void setSkyboxTexture(const std::string& identifier, std::vector<std::string> paths);
+
+	void setSkyboxTexture(const std::string &identifier, std::vector<std::string> paths);
+
 	void setModelMatrix(glm::mat4 modelMatrix);
+
 	std::shared_ptr<Texture> getSkyboxTexture();
+
+	void applyToShader(shared_ptr<Shader> shared_ptr);
 
 private:
 
 	void initialize();
+
 	void useSkybox() const;
 
 	SkyboxMesh skyboxMesh = SkyboxMesh(10, 10, 10);

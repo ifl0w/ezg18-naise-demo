@@ -1,4 +1,6 @@
 #include <Engine.hpp>
+#include <Logger.hpp>
+#include <Resources.hpp>
 
 #include <components/TransformComponent.hpp>
 #include <components/MeshComponent.hpp>
@@ -6,7 +8,7 @@
 #include <components/MaterialComponent.hpp>
 #include <components/InputComponent.hpp>
 #include <components/LightComponent.hpp>
-#include <Utils.hpp>
+#include <components/ParentComponent.hpp>
 
 #include <systems/render-engine/materials/PBRMaterial.hpp>
 #include <systems/render-engine/lights/DirectionalLight.hpp>
@@ -17,11 +19,10 @@
 #include <factories/MaterialFactory.hpp>
 #include <factories/RigidBodyFactory.hpp>
 
-#include <Resources.hpp>
-
 #include <systems/RenderSystem.hpp>
 #include <systems/WindowSystem.hpp>
 #include <systems/PhysicsSystem.hpp>
+#include <systems/TransformSystem.hpp>
 
 #include "Game.hpp"
 
@@ -30,7 +31,7 @@
 
 using namespace NAISE::Engine;
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
 	NAISE::Engine::Engine engine;
 
 	// initialize the systems of the engine
@@ -39,6 +40,7 @@ int main(int argc, char** argv) {
 	Engine::getSystemsManager().getSystem<InputSystem>().setInputMapper(make_shared<FPSCameraInputMapper>());
 	Engine::getSystemsManager().registerSystem<FPSCameraMovementSystem>();
 	Engine::getSystemsManager().registerSystem<PhysicsSystem>();
+	Engine::getSystemsManager().registerSystem<TransformSystem>();
 	Engine::getSystemsManager().registerSystem<RenderSystem>();
 
 	std::string posX = "assets/textures/skybox/clouds1_east.bmp";
@@ -47,9 +49,11 @@ int main(int argc, char** argv) {
 	std::string negY = "assets/textures/skybox/clouds1_down.bmp";
 	std::string posZ = "assets/textures/skybox/clouds1_north.bmp";
 	std::string negZ = "assets/textures/skybox/clouds1_south.bmp";
+	string identifier = "clouds1";
+
 	std::vector<std::string> paths = {posX, negX, posY, negY, posZ, negZ};
-	auto skybox = NAISE::Engine::Skybox("skybox_clouds1", paths);
-	skybox.setBackgroundColor(glm::vec3(1,0.95,0.9));
+	auto skybox = NAISE::Engine::Skybox(identifier, paths);
+	//skybox.setBackgroundColor(glm::vec3(1,0.95,0.9));
 	Engine::getSystemsManager().getSystem<RenderSystem>().setSkybox(skybox);
 
 	auto sphere = make_shared<NAISE::Engine::Entity>();
@@ -58,14 +62,7 @@ int main(int argc, char** argv) {
 	sphere->add(RigidBodyFactory::createSphere(1, 10, vec3(-2, 0, -20)));
 	sphere->add(MeshFactory::create<Sphere>());
 	sphere->add<MaterialComponent>();
-
-	auto material = std::make_shared<PBRMaterial>(vec3(0.8), 0.0f, 0.7f);
-	material->skyboxTexture = skybox.getSkyboxTexture();
-	material->useSkyboxTexture = true;
-
-	auto materialComponent = std::make_shared<MaterialComponent>();
-	materialComponent->material = material;
-	sphere->add(materialComponent);
+	sphere->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(1, 0, 0), 0, 0.5));
 
 	auto box = make_shared<NAISE::Engine::Entity>();
 	box->add<TransformComponent>();
@@ -73,15 +70,22 @@ int main(int argc, char** argv) {
 	box->component<TransformComponent>().scale = vec3(1, 1, 1);
 	box->add(RigidBodyFactory::createBox(50, 1, 200, 0, vec3(0, -2, -5)));
 	box->add(MeshFactory::createBox(50, 1, 200));
-	//box->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.8, 0.8, 0.8), 0, 0.2));
-	box->add(materialComponent);
+	box->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.2, 0.2, 0.2), 0, 0.6));
+
+	auto wall = make_shared<NAISE::Engine::Entity>();
+	wall->add<TransformComponent>();
+	wall->component<TransformComponent>().position = vec3(0, 50, -100);
+	wall->add(RigidBodyFactory::createBox(50, 10, 1, 0, vec3(0, 5, -100)));
+	wall->add(MeshFactory::createBox(50, 10, 1));
+	wall->add(materialComponent);
+	wall->add<ParentComponent>(box->id);
 
 	auto camera = make_shared<NAISE::Engine::Entity>();
 	camera->add<TransformComponent>();
 	camera->component<TransformComponent>().position = vec3(0, 1.6, 0);
 	camera->add<CameraComponent>();
 	camera->add<InputComponent>();
-	camera->add(RigidBodyFactory::createSphere(1, 0, vec3(0,0,0), true));
+	camera->add(RigidBodyFactory::createSphere(1, 0, vec3(0, 0, 0), true));
 	camera->component<InputComponent>().add<Actions::MoveForward>();
 	camera->component<InputComponent>().add<Actions::MoveBackward>();
 	camera->component<InputComponent>().add<Actions::MoveLeft>();
@@ -105,7 +109,7 @@ int main(int argc, char** argv) {
 
 		auto tunnelSegment = Resources::loadModel("assets/models/tunnel-segment/tunnel_segment.gltf");
 		for (int j = 0; j < tunnelSegment.size(); ++j) {
-			auto& t = tunnelSegment[j];
+			auto &t = tunnelSegment[j];
 			t->component<TransformComponent>().position = vec3(0, 0, -i * 20);
 			Engine::getEntityManager().addEntity(t);
 		}
@@ -114,7 +118,7 @@ int main(int argc, char** argv) {
 
 	auto luminarisScene = Resources::loadModel("assets/models/luminaris/luminaris.gltf");
 	for (int j = 0; j < luminarisScene.size(); ++j) {
-		auto& t = luminarisScene[j];
+		auto &t = luminarisScene[j];
 		t->component<TransformComponent>().position = vec3(0, 0, 25);
 		t->component<TransformComponent>().scale = vec3(0.2);
 		Engine::getEntityManager().addEntity(t);
@@ -124,6 +128,7 @@ int main(int argc, char** argv) {
 	Engine::getEntityManager().addEntity(camera);
 	Engine::getEntityManager().addEntity(sphere);
 	Engine::getEntityManager().addEntity(box);
+	Engine::getEntityManager().addEntity(wall);
 
 //	engine.mainWindow->setResolution(1920, 1200);
 //	engine.mainWindow->setFullscreen(false);

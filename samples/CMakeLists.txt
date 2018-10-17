@@ -10,4 +10,5 @@ if (MINGW)
 endif ()
 
 subdirs(demo
-        performance-test)
+        performance-test
+        material-showcase)

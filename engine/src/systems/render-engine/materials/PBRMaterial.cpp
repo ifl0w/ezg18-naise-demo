@@ -6,7 +6,6 @@ using namespace NAISE::RenderCore;
 
 bool PBRMaterial::displayNormalTexture = true;
 bool PBRMaterial::displayGlowTexture = true;
-bool PBRMaterial::useSkyboxTexture = false;
 
 PBRMaterial::PBRMaterial(vec3 albedo, float metallic, float roughness)
 		: albedo(albedo),
@@ -32,9 +31,6 @@ PBRMaterial::PBRMaterial(vec3 albedo, float metallic, float roughness)
 	this->useEmissionTextureLocation = uniformLocation(shader->shaderID, "useEmissionTexture");
 
 	this->useWatermeshAnimationLocation = uniformLocation(shader->shaderID, "useWatermeshAnimation");
-
-	this->skyboxTextureLocation = uniformLocation(shader->shaderID, "skyboxTexture");
-	this->useSkyboxTextureLocation = uniformLocation(shader->shaderID, "useSkyboxTexture");
 }
 
 void PBRMaterial::useMaterial() const {
@@ -74,14 +70,6 @@ void PBRMaterial::useMaterial() const {
 		normalTexture->useTexture(normalTextureUnit);
 	} else {
 		glUniform1i(useNormalTextureLocation, false);
-	}
-
-	if (skyboxTexture && useSkyboxTexture) {
-		glUniform1i(useSkyboxTextureLocation, true);
-		glUniform1i(skyboxTextureLocation, skyboxTextureUnit);
-		skyboxTexture->useTexture(skyboxTextureUnit);
-	} else {
-		glUniform1i(useSkyboxTextureLocation, false);
 	}
 
 	glActiveTexture(GL_TEXTURE0);

@@ -105,7 +105,7 @@ void FPSCameraMovementSystem::process(const NAISE::Engine::EntityManager& em, mi
 	  }
 
 	  // TODO: Move to camera system
-	  auto positionMatrix = glm::mat4(transform.calculateModelMatrix());
+	  auto positionMatrix = glm::mat4(transform.getModelMatrix());
 	  entity.component<CameraComponent>().frustum.recalculate(positionMatrix);
 
 	});

@@ -157,10 +157,12 @@ add_library(engine STATIC ${SRC_FILES}
         include/systems/PhysicsSystem.hpp src/components/RigidBodyComponent.cpp
         include/components/RigidBodyComponent.hpp src/factories/RigidBodyFactory.cpp
         include/factories/RigidBodyFactory.hpp include/systems/EventManager.hpp
-        include/Utils.hpp src/Utils.cpp
+        include/Logger.hpp src/Logger.cpp
         src/systems/render-engine/textures/SkyboxTexture.cpp include/systems/render-engine/textures/SkyboxTexture.hpp
         src/systems/render-engine/meshes/SkyboxMesh.cpp include/systems/render-engine/meshes/SkyboxMesh.hpp
-        include/systems/render-engine/shaders/SkyboxShader.hpp src/Skybox.cpp include/Skybox.hpp)
+        include/systems/render-engine/shaders/SkyboxShader.hpp src/Skybox.cpp include/Skybox.hpp
+        src/systems/TransformSystem.cpp include/systems/TransformSystem.hpp
+        include/components/ParentComponent.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include
@@ -183,16 +185,7 @@ else()
 endif ()
 
 ######## COPY ASSETS ########
-# Collect list of asset files.
-file(GLOB_RECURSE shader_files
-        RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/assets/
-        ${CMAKE_CURRENT_SOURCE_DIR}/assets/shaders/**/*.*
-        ${CMAKE_CURRENT_SOURCE_DIR}/assets/shaders/*.*)
-
-# This will contain full paths to files in binary directory.
-set(binary_files_list)
-foreach (file ${shader_files})
-    set(source_file ${CMAKE_CURRENT_SOURCE_DIR}/assets/${file})
-    set(binary_file ${CMAKE_CURRENT_BINARY_DIR}/${file})
-    configure_file(${source_file} ${binary_file} COPYONLY)
-endforeach ()
+add_custom_command(TARGET engine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/assets/shaders
+        $<TARGET_FILE_DIR:engine>/engine/shaders)

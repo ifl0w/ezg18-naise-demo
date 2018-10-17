@@ -23,6 +23,8 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	glEnable(GL_CULL_FACE);
 	// enable depth test
 	glEnable(GL_DEPTH_TEST);
+	// enable seamless cubemaps for mipmapping
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	glGenBuffers(1, &uboScreenData);
 	glBindBuffer(GL_UNIFORM_BUFFER, uboScreenData);
@@ -48,7 +50,7 @@ void RenderEngine::initFrame(const CameraComponent& cameraComponent, const Trans
 	glEnable(GL_DEPTH_TEST);
 	deferredTarget->use();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	setProjectionData(cameraComponent.getProjectionMatrix(), glm::inverse(transform.calculateModelMatrix()),
+	setProjectionData(cameraComponent.getProjectionMatrix(), glm::inverse(transform.getModelMatrix()),
 					  transform.position);
 }
 
@@ -385,7 +387,7 @@ void RenderEngine::shadowPass(const Entity& light, const Entity& camera, const v
 			material = e->component<MaterialComponent>().material.get();
 		}
 
-		auto transform = e->component<TransformComponent>().calculateModelMatrix();
+		auto transform = e->component<TransformComponent>().getModelMatrix();
 
 		drawMesh(mesh, material, transform);
 	}
@@ -514,6 +516,9 @@ void RenderEngine::drawMesh(const Mesh& mesh, const Material* material, mat4 tra
 	if (material->shader->shaderID != Shader::activeShader) {
 		material->shader->useShader();
 	}
+
+	_skybox->applyToShader(material->shader);
+
 	material->shader->setModelMatrix(transform);
 	material->useMaterial();
 
@@ -543,6 +548,12 @@ void RenderEngine::drawDebugMesh(const Mesh& mesh, glm::vec3 color) {
 
 }
 
-void RenderEngine::skyboxPass(Skybox& skybox) {
-	skybox.drawSkybox();
+void RenderEngine::skyboxPass() {
+	if(_skybox != nullptr){
+		_skybox->drawSkybox();
+	}
+}
+
+void RenderEngine::setSkybox(Skybox *skybox) {
+	_skybox = skybox;
 }

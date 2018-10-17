@@ -1,6 +1,5 @@
 #include <scene/Entity.hpp>
-
-#include <spdlog/spdlog.h>
+#include <Logger.hpp>
 
 using namespace NAISE::Engine;
 

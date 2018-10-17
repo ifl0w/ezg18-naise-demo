@@ -87,57 +87,56 @@ public:
 	void setBrightness(float brightness);
 	void setViewportSize(int width, int height);
 	void setMultiSampling(int sampling);
+	void setSkybox(Skybox* skybox);
 
 	void toggleBackfaceCulling();
 	void toggleWireframe();
 	void toggleLightVolumeDebugging();
 
-	uint8_t debugFlags = 0;
+	void skyboxPass();
 
+	uint8_t debugFlags = 0;
 private:
 	std::unique_ptr<DeferredRenderTarget> deferredTarget;
+
 //	std::unique_ptr<PostProcessingTarget> postProcessingTarget;
 	std::unique_ptr<ShadowMap> shadowMap;
-
 	ShadowShader shadowShader;
 	PointLightShader plShader;
 	DirectionalLightShader dlShader;
 	NullShader nullShader;
 	TextureDebugShader textureDebugShader;
 	SolidColorShader solidColorShader; // used for debugging
+
 //	GlowShader glowShader;
-	SkyboxShader skyboxShader;
-
 	Sphere sphereLightVolume = Sphere(1.0f, 16, 8);
-	Plane quad = Plane(2.0f, 2.0f);
-	SkyboxMesh skyboxMesh = SkyboxMesh(10.0f, 10.0f, 10.0f);
 
+	Plane quad = Plane(2.0f, 2.0f);
 	GLuint uboScreenData;
 	int viewportWidth = 1024;
 	int viewportHeight = 768;
 	int multiSampling = 1;
 	float graphicsBrightness = 1.0;
-	void setScreenData();
 
+	void setScreenData();
 	GLuint uboProjectionData;
 	void setProjectionData(mat4 projectionMatrix, mat4 viewMatrix, vec3 cameraPosition);
+
 	void setShadowProjectionData(mat4 projectionMatrix, mat4 viewMatrix, vec3 lightPosition);
-
 	GLuint ssboLightData;
-//	void setLightData();
 
+//	void setLightData();
 	bool wireframe = false;
 	bool backfaceCulling = true;
+
 	bool lightVolumeDebugging = false;
-
 	void geometryPass(const Mesh& mesh, const Material* material, mat4 transform);
-	void shadowPass(const Entity& light, const Entity& camera, vector<Entity*> entities);
 
+	void shadowPass(const Entity& light, const Entity& camera, vector<Entity*> entities);
 	void prepareLightPass();
 	void lightPass(const Light& light);
-	void cleanupLightPass();
 
-	void skyboxPass(Skybox& skybox);
+	void cleanupLightPass();
 
 	void renderLights(const Light& light, mat4 transform, const Entity& camera);
 //	void forwardPass(const std::shared_ptr<Scene>& scene);
@@ -157,6 +156,7 @@ private:
 
 	/* Default properties */
 	unique_ptr<Material>  _defaultMaterial;
+	Skybox* _skybox;
 
 	// command functions
 	void drawMeshDirect(const Mesh& mesh);
