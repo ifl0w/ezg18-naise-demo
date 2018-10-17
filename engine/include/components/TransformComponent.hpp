@@ -10,15 +10,21 @@ using namespace glm;
 namespace NAISE {
 namespace Engine {
 
+class TransformSystem;
+
 class TransformComponent: public Component {
+	friend TransformSystem;
 public:
 	vec3 position;
 	vec3 scale = vec3(1);
 	quat rotation = angleAxis(radians<float>(0), vec3(0,1,0));
 
-	mat4 transform;
+	mat4 getModelMatrix() const {
+		return transform;
+	}
 
-	mat4 calculateModelMatrix() const {
+private:
+	void calculateModelMatrix() {
 		glm::mat4 model = glm::dmat4(1);
 
 		// reversed because glm operations do: "original * modifier"
@@ -29,8 +35,10 @@ public:
 
 		model = glm::scale(model, glm::vec3(scale));
 
-		return model;
+		transform = model;
 	}
+
+	mat4 transform;
 };
 
 }
