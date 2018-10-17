@@ -3,7 +3,6 @@
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <components/RigidBodyComponent.hpp>
 #include <components/TransformComponent.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include <Engine.hpp>
 
@@ -36,41 +35,46 @@ PhysicsSystem::PhysicsSystem() {
 	debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawWireframe | btIDebugDraw::DBG_DrawConstraints);
 
 	Engine::getEventManager().event<RuntimeEvents::EntityAdded>().subscribe([&](EntityID id) {
-		Entity* newEntity = Engine::getEntityManager().getEntity(id);
+	  Entity* newEntity = Engine::getEntityManager().getEntity(id);
 
-		if (newEntity && newEntity->has<RigidBodyComponent>()) {
-			rigidBodyEntities.push_back(newEntity);
-			auto rigidBody = newEntity->component<RigidBodyComponent>().rigidBody.get();
-			rigidBody->activate(true);
-			dynamicsWorld->addRigidBody(rigidBody);
-		}
+	  if (newEntity && newEntity->has<RigidBodyComponent>()) {
+		  rigidBodyEntities.push_back(newEntity);
+		  auto rigidBody = newEntity->component<RigidBodyComponent>().rigidBody.get();
+		  rigidBody->activate(true);
+		  dynamicsWorld->addRigidBody(rigidBody);
+	  }
 	});
 }
 
 void PhysicsSystem::process(const EntityManager& em, microseconds deltaTime) {
 	std::chrono::duration<float> sec = deltaTime;
-	dynamicsWorld->stepSimulation(sec.count(), PHYSICS_SUBSTEPS, 1.0f/60.0f); // timeStep < substeps * fixedTime
+	dynamicsWorld->stepSimulation(sec.count(), PHYSICS_SUBSTEPS, 1.0f / 60.0f); // timeStep < substeps * fixedTime
 
-	em.filter(rigidBodyFilter, [&](Entity& entity){
+	em.filter(rigidBodyFilter, [&](Entity& entity) {
 	  auto rigidBody = entity.component<RigidBodyComponent>().rigidBody.get();
 
-	  if(!rigidBody->isKinematicObject()) {
+	  if (!rigidBody->isStaticOrKinematicObject()) {
 		  auto& transform = entity.component<TransformComponent>();
 		  auto rigidTransform = rigidBody->getWorldTransform();
 
 		  transform.rotation = btQuaternion3ToQuat(rigidTransform.getRotation());
 		  transform.position = btVector3ToVec3(rigidTransform.getOrigin());
 	  } else {
+		  // TODO: this branch should probably be executed before the simulation. Investigate!
 		  auto& transform = entity.component<TransformComponent>();
 
 		  btTransform newWorldTransform;
-		  newWorldTransform.setFromOpenGLMatrix(glm::value_ptr(transform.calculateModelMatrix()));
+		  newWorldTransform.setFromOpenGLMatrix(glm::value_ptr(transform.getModelMatrix()));
 
-		  rigidBody->getMotionState()->setWorldTransform(newWorldTransform);
+		  if (rigidBody->isKinematicObject()) {
+			  rigidBody->getMotionState()->setWorldTransform(newWorldTransform);
+		  } else {
+			  rigidBody->setWorldTransform(newWorldTransform);
+		  }
 	  }
 	});
 
-	if (physicsDebugging) {
+	if (true || physicsDebugging) {
 		debugDrawer->beginDebugFrame();
 		dynamicsWorld->debugDrawWorld();
 		debugDrawer->finishMeshes();

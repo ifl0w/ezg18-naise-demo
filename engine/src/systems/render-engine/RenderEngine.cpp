@@ -48,7 +48,7 @@ void RenderEngine::initFrame(const CameraComponent& cameraComponent, const Trans
 	glEnable(GL_DEPTH_TEST);
 	deferredTarget->use();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	setProjectionData(cameraComponent.getProjectionMatrix(), glm::inverse(transform.calculateModelMatrix()),
+	setProjectionData(cameraComponent.getProjectionMatrix(), glm::inverse(transform.getModelMatrix()),
 					  transform.position);
 }
 
@@ -385,7 +385,7 @@ void RenderEngine::shadowPass(const Entity& light, const Entity& camera, const v
 			material = e->component<MaterialComponent>().material.get();
 		}
 
-		auto transform = e->component<TransformComponent>().calculateModelMatrix();
+		auto transform = e->component<TransformComponent>().getModelMatrix();
 
 		drawMesh(mesh, material, transform);
 	}

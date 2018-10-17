@@ -6,6 +6,7 @@
 #include <components/MaterialComponent.hpp>
 #include <components/InputComponent.hpp>
 #include <components/LightComponent.hpp>
+#include <components/ParentComponent.hpp>
 #include <Utils.hpp>
 
 #include <systems/render-engine/materials/PBRMaterial.hpp>
@@ -22,6 +23,7 @@
 #include <systems/RenderSystem.hpp>
 #include <systems/WindowSystem.hpp>
 #include <systems/PhysicsSystem.hpp>
+#include <systems/TransformSystem.hpp>
 
 #include "Game.hpp"
 
@@ -39,6 +41,7 @@ int main(int argc, char** argv) {
 	Engine::getSystemsManager().getSystem<InputSystem>().setInputMapper(make_shared<FPSCameraInputMapper>());
 	Engine::getSystemsManager().registerSystem<FPSCameraMovementSystem>();
 	Engine::getSystemsManager().registerSystem<PhysicsSystem>();
+	Engine::getSystemsManager().registerSystem<TransformSystem>();
 	Engine::getSystemsManager().registerSystem<RenderSystem>();
 
 	std::string posX = "assets/textures/skybox/clouds1_east.bmp";
@@ -75,6 +78,14 @@ int main(int argc, char** argv) {
 	box->add(MeshFactory::createBox(50, 1, 200));
 	//box->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.8, 0.8, 0.8), 0, 0.2));
 	box->add(materialComponent);
+
+	auto wall = make_shared<NAISE::Engine::Entity>();
+	wall->add<TransformComponent>();
+	wall->component<TransformComponent>().position = vec3(0, 50, -100);
+	wall->add(RigidBodyFactory::createBox(50, 10, 1, 0, vec3(0, 5, -100)));
+	wall->add(MeshFactory::createBox(50, 10, 1));
+	wall->add(materialComponent);
+	wall->add<ParentComponent>(box->id);
 
 	auto camera = make_shared<NAISE::Engine::Entity>();
 	camera->add<TransformComponent>();
@@ -124,6 +135,7 @@ int main(int argc, char** argv) {
 	Engine::getEntityManager().addEntity(camera);
 	Engine::getEntityManager().addEntity(sphere);
 	Engine::getEntityManager().addEntity(box);
+	Engine::getEntityManager().addEntity(wall);
 
 //	engine.mainWindow->setResolution(1920, 1200);
 //	engine.mainWindow->setFullscreen(false);

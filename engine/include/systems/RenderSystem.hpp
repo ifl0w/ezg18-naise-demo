@@ -76,7 +76,7 @@ public:
 		  }
 		  renderEngine.geometryPass(*entity.component<MeshComponent>().mesh.get(),
 									material,
-									entity.component<TransformComponent>().calculateModelMatrix());
+									entity.component<TransformComponent>().getModelMatrix());
 		});
 		renderEngine.deactivateRenderState();
 
@@ -84,16 +84,14 @@ public:
 		em.filter(lightFilter, [=](Entity& entity) {
 		  auto& light = *entity.component<LightComponent>().light.get();
 		  auto transComp = entity.component<TransformComponent>();
+		  auto transform = transComp.getModelMatrix();
 
 		  if (entity.component<LightComponent>().isType<PointLight>()) {
 			  auto& l = dynamic_cast<PointLight&>(light);
 			  light.data.lightPosition = vec4(transComp.position, 1);
-			  light.data.lightPosition = vec4(transComp.position, 1);
 			  vec3 scale = vec3(l.calculateLightVolumeRadius());
-			  transComp.scale = scale;
+			  transform = glm::scale(transform, scale);
 		  }
-
-		  auto transform = transComp.calculateModelMatrix();
 
 		  renderEngine.renderLights(light, transform, *camera);
 		});
