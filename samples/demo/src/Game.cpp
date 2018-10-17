@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 	wall->component<TransformComponent>().position = vec3(0, 50, -100);
 	wall->add(RigidBodyFactory::createBox(50, 10, 1, 0, vec3(0, 5, -100)));
 	wall->add(MeshFactory::createBox(50, 10, 1));
-	wall->add(materialComponent);
+	wall->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.2, 0.2, 0.2), 0, 0.6));
 	wall->add<ParentComponent>(box->id);
 
 	auto camera = make_shared<NAISE::Engine::Entity>();
