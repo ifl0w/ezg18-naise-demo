@@ -60,3 +60,15 @@ void BulletDebugDrawer::drawContactPoint(const btVector3& PointOnB, const btVect
 	spdlog::get("logger")->warn("NAISE::ENGINE::BulletDebugDrawer::drawContactPoint(...) not implemented");
 }
 
+void BulletDebugDrawer::disableDebugging() {
+	for (auto& e: debugEntities) {
+		Engine::getEntityManager().removeEntity(e->id);
+	}
+}
+
+void BulletDebugDrawer::enableDebugging() {
+	for (auto& e: debugEntities) {
+		Engine::getEntityManager().addEntity(e);
+	}
+}
+

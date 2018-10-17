@@ -13,8 +13,6 @@
 #include <systems/SystemsManager.hpp>
 #include <Logger.hpp>
 
-using namespace std;
-
 namespace NAISE {
 namespace Engine {
 
@@ -44,7 +42,7 @@ public:
 		values[name] = std::move(value);
 	}
 
-	unordered_map<InputValueType, InputValue> values;
+	std::unordered_map<InputValueType, InputValue> values;
 };
 
 template<typename T>
@@ -71,7 +69,7 @@ T Input::get(const string& name) {
 
 class InputMapper {
 public:
-	virtual vector<Action> resolve(const SDL_Event& event) { return vector<Action>(); };
+	virtual std::vector<Action> resolve(const SDL_Event& event) { return vector<Action>(); };
 	virtual Input input(Action action, Input& input, const SDL_Event& event) { return input; };
 	virtual void handleEvent(const SDL_Event& event) { };
 };

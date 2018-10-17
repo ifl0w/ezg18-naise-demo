@@ -14,11 +14,11 @@ public:
 
 	void process(const EntityManager& em, microseconds deltaTime) override;
 
-	void setInputMapper(shared_ptr<InputMapper> inputMapper);
+	void addInputMapper(shared_ptr<InputMapper> inputMapper);
 
 private:
 	Filter inputFilter;
-	shared_ptr<InputMapper> _inputMapper;
+	std::vector<shared_ptr<InputMapper>> _inputMapper;
 
 	void _handleWindowEvents(SDL_Event& event);
 };

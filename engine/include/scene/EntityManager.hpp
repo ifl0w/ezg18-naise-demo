@@ -27,6 +27,13 @@ public:
 	void addEntity(shared_ptr<Entity> entity);
 
 	/**
+	 * Remove an entity and its component by its ID.
+	 *
+	 * @param id
+	 */
+	void removeEntity(EntityID id);
+
+	/**
 	 * Get the entity by its ID.
 	 * Returns a pointer to the entity or null if no such entity exists.
 	 *

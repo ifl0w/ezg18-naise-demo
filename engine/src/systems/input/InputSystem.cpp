@@ -5,7 +5,7 @@
 
 using namespace NAISE::Engine;
 
-InputSystem::InputSystem(): _inputMapper(make_shared<InputMapper>()) {
+InputSystem::InputSystem() {
 	inputFilter.requirement<InputComponent>();
 }
 
@@ -16,25 +16,27 @@ void InputSystem::process(const EntityManager& em, microseconds deltaTime) {
 		// handle window events (e.g. window close)
 		_handleWindowEvents(event);
 
-		_inputMapper->handleEvent(event);
+		for (const auto& mapper: _inputMapper) {
+			mapper->handleEvent(event);
 
-		auto actions = _inputMapper->resolve(event);
+			auto actions = mapper->resolve(event);
 
-		em.filter(inputFilter, [=](Entity& entity) {
-		  // handle remaining events
-		  auto& comp = entity.component<InputComponent>();
+			em.filter(inputFilter, [=](Entity& entity) {
+			  // handle remaining events
+			  auto& comp = entity.component<InputComponent>();
 
-		  for (auto& action: actions) {
-			  if (comp.hasAction(action)) {
-				  _inputMapper->input(action, comp.action(action), event);
+			  for (auto& action: actions) {
+				  if (comp.hasAction(action)) {
+					  mapper->input(action, comp.action(action), event);
+				  }
 			  }
-		  }
-		});
+			});
+		}
 	}
 }
 
-void InputSystem::setInputMapper(shared_ptr<InputMapper> inputMapper) {
-	_inputMapper = inputMapper;
+void InputSystem::addInputMapper(shared_ptr<InputMapper> inputMapper) {
+	_inputMapper.push_back(inputMapper);
 }
 
 void InputSystem::_handleWindowEvents(SDL_Event& event) {

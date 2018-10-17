@@ -13,6 +13,8 @@ add_executable(sample-performance-test
         ../common/FPSCameraSystem/FPSCameraInputMapper.hpp
         ../common/FPSCameraSystem/FPSCameraMovementSystem.cpp
         ../common/FPSCameraSystem/FPSCameraMovementSystem.hpp
+        ../common/VisualDebugging/VisualDebuggingInputMapper.cpp
+        ../common/VisualDebugging/VisualDebuggingInputMapper.hpp
         )
 
 add_dependencies(sample-performance-test engine)

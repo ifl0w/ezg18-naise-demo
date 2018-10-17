@@ -50,3 +50,9 @@ Entity* EntityManager::getEntity(EntityID id) {
 	return nullptr;
 }
 
+void EntityManager::removeEntity(EntityID id) {
+	entities.erase(remove_if(entities.begin(), entities.end(), [&](auto& ptr){
+		return ptr->id == id;
+	}), entities.end());
+}
+

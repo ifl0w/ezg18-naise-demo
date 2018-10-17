@@ -26,6 +26,7 @@
 
 #include "Game.hpp"
 
+#include "../../common/VisualDebugging/VisualDebuggingInputMapper.hpp"
 #include "../../common/FPSCameraSystem/FPSCameraInputMapper.hpp"
 #include "../../common/FPSCameraSystem/FPSCameraMovementSystem.hpp"
 
@@ -37,7 +38,8 @@ int main(int argc, char **argv) {
 	// initialize the systems of the engine
 	Engine::getSystemsManager().registerSystem<WindowSystem>();
 	Engine::getSystemsManager().registerSystem<InputSystem>();
-	Engine::getSystemsManager().getSystem<InputSystem>().setInputMapper(make_shared<FPSCameraInputMapper>());
+	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<FPSCameraInputMapper>());
+	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<VisualDebuggingInputMapper>());
 	Engine::getSystemsManager().registerSystem<FPSCameraMovementSystem>();
 	Engine::getSystemsManager().registerSystem<PhysicsSystem>();
 	Engine::getSystemsManager().registerSystem<TransformSystem>();

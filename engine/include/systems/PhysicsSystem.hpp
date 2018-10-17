@@ -20,6 +20,11 @@ public:
 	~PhysicsSystem();
 
 	void process(const EntityManager& em, microseconds deltaTime) override;
+
+	/**
+	 * Display the bounding boxes and states of objects in the physics world.
+	 */
+	void toggleVisualDebugging();
 private:
 	Filter rigidBodyFilter;
 

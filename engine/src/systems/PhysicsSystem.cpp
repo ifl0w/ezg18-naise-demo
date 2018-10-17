@@ -89,6 +89,16 @@ PhysicsSystem::~PhysicsSystem() {
 	rigidBodyEntities.clear();
 }
 
+void PhysicsSystem::toggleVisualDebugging() {
+	this->physicsDebugging = !physicsDebugging;
+
+	if (!physicsDebugging) {
+		debugDrawer->disableDebugging();
+	} else {
+		debugDrawer->enableDebugging();
+	}
+}
+
 glm::quat NAISE::Engine::btQuaternion3ToQuat(btQuaternion q) {
 	btScalar x = 0;
 	btScalar y = 0;

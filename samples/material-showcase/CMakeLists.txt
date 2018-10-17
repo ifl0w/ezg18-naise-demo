@@ -12,7 +12,7 @@ add_executable(material-showcase
         ../common/FPSCameraSystem/FPSCameraInputMapper.hpp
         ../common/FPSCameraSystem/FPSCameraMovementSystem.cpp
         ../common/FPSCameraSystem/FPSCameraMovementSystem.hpp
-        )
+        ../common/VisualDebugging/VisualDebuggingInputMapper.cpp ../common/VisualDebugging/VisualDebuggingInputMapper.hpp)
 
 add_dependencies(material-showcase engine)
 

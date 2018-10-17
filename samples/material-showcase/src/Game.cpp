@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
 	// initialize the systems of the engine
 	Engine::getSystemsManager().registerSystem<WindowSystem>();
 	Engine::getSystemsManager().registerSystem<InputSystem>();
-	Engine::getSystemsManager().getSystem<InputSystem>().setInputMapper(make_shared<FPSCameraInputMapper>());
+	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<FPSCameraInputMapper>());
 	Engine::getSystemsManager().registerSystem<FPSCameraMovementSystem>();
 	Engine::getSystemsManager().registerSystem<TransformSystem>();
 	Engine::getSystemsManager().registerSystem<RenderSystem>();

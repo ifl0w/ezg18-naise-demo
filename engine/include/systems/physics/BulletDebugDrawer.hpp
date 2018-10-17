@@ -42,6 +42,8 @@ public:
 
 	void beginDebugFrame();
 	void finishMeshes();
+	void enableDebugging();
+	void disableDebugging();
 
 protected:
 	int m_debugMode = 0;
