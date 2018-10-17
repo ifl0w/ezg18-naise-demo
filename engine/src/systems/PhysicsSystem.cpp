@@ -74,7 +74,7 @@ void PhysicsSystem::process(const EntityManager& em, microseconds deltaTime) {
 	  }
 	});
 
-	if (true || physicsDebugging) {
+	if (physicsDebugging) {
 		debugDrawer->beginDebugFrame();
 		dynamicsWorld->debugDrawWorld();
 		debugDrawer->finishMeshes();

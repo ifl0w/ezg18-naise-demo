@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 
 	auto box = make_shared<NAISE::Engine::Entity>();
 	box->add<TransformComponent>();
-	box->component<TransformComponent>().position = vec3(0, -2, -5);
+	box->component<TransformComponent>().position = vec3(0, -5, -5);
 	box->component<TransformComponent>().scale = vec3(1, 1, 1);
 	box->add(RigidBodyFactory::createBox(50, 1, 200, 0, vec3(0, -2, -5)));
 	box->add(MeshFactory::createBox(50, 1, 200));
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
 
 	auto wall = make_shared<NAISE::Engine::Entity>();
 	wall->add<TransformComponent>();
-	wall->component<TransformComponent>().position = vec3(0, 50, -100);
+	wall->component<TransformComponent>().position = vec3(0, 5, -100);
 	wall->add(RigidBodyFactory::createBox(50, 10, 1, 0, vec3(0, 5, -100)));
 	wall->add(MeshFactory::createBox(50, 10, 1));
 	wall->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.2, 0.2, 0.2), 0, 0.6));

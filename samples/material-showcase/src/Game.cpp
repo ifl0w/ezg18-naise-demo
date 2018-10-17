@@ -22,6 +22,7 @@
 #include <systems/RenderSystem.hpp>
 #include <systems/WindowSystem.hpp>
 #include <systems/PhysicsSystem.hpp>
+#include <systems/TransformSystem.hpp>
 
 #include "Game.hpp"
 
@@ -38,6 +39,7 @@ int main(int argc, char** argv) {
 	Engine::getSystemsManager().registerSystem<InputSystem>();
 	Engine::getSystemsManager().getSystem<InputSystem>().setInputMapper(make_shared<FPSCameraInputMapper>());
 	Engine::getSystemsManager().registerSystem<FPSCameraMovementSystem>();
+	Engine::getSystemsManager().registerSystem<TransformSystem>();
 	Engine::getSystemsManager().registerSystem<RenderSystem>();
 	
 	std::string posX = "assets/textures/skybox/right.png";
