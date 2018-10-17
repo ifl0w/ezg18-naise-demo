@@ -9,7 +9,7 @@ in vec2 TexCoords;
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoRoughness;
-uniform sampler2D gGlowMetallic;
+uniform sampler2D gEmissionMetallic;
 
 uniform sampler2DShadow shadowMap;
 uniform mat4 depthShadowProjection;
@@ -194,14 +194,14 @@ vec3 processLight(Light light, vec3 pos, vec3 norm, vec3 albedo, float roughness
 void main()
 {
 	vec2 resolution = vec2(viewportWidth, viewportHeight);
-	vec2 normalizedTexCoords = vec2(gl_FragCoord.xy / resolution);
+	vec2 normalizedTexCoords = vec2((vec2(gl_FragCoord.xy) + 0.5) / resolution);
 
     // retrieve data from G-buffer
     vec3 FragPos = texture(gPosition, normalizedTexCoords).rgb;
     vec3 Normal = normalize(texture(gNormal, normalizedTexCoords).rgb);
     vec3 Albedo = texture(gAlbedoRoughness, normalizedTexCoords).rgb;
     float Roughness = texture(gAlbedoRoughness, normalizedTexCoords).a;
-    float Metallic = texture(gGlowMetallic, normalizedTexCoords).a;
+    float Metallic = texture(gEmissionMetallic, normalizedTexCoords).a;
 
     // then calculate lighting as usual
     vec3 lighting = Albedo * light.ambient.rgb;

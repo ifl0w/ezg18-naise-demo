@@ -54,7 +54,7 @@ GLuint NAISE::Engine::createShaderProgram(std::string vertexShaderFile, std::str
 		//We don't need the shader anymore.
 		glDeleteShader(vertexShader);
 
-		throw std::runtime_error("Could not compile vertex shaders. " + std::string(infoLog.data()));
+		throw std::runtime_error("[" + vertexShaderFile + "] Could not compile vertex shaders. " + std::string(infoLog.data()));
 	}
 
 	//Create an empty fragment shader handle
@@ -85,7 +85,7 @@ GLuint NAISE::Engine::createShaderProgram(std::string vertexShaderFile, std::str
 		// loginfo to stdout.
 //		std::cout << std::string(infoLog.data()) << std::endl;
 
-		throw std::runtime_error("Could not compile fragment shaders." + std::string(infoLog.data()));
+		throw std::runtime_error("[" + fragmentShaderFile + "] Could not compile fragment shaders." + std::string(infoLog.data()));
 	}
 
 	//Vertex and fragment shaders are successfully compiled.

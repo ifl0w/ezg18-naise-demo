@@ -16,7 +16,8 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 		  viewportHeight(viewportHeight),
 		  _defaultMaterial(make_unique<PBRMaterial>(vec3(0.9, 0, 0.9), 0, 0.5)){
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
-//	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+
 	shadowMap = make_unique<ShadowMap>(1024 * 4, 1024 * 4);
 
 	// enable back face culling
@@ -261,7 +262,7 @@ void RenderEngine::displayDebugQuads() {
 
 	if (debugFlags & DEBUG_GLOW) {
 		textureDebugShader.useShader();
-		textureDebugShader.setMSTextureUnit(deferredTarget->gGlowMetallic);
+		textureDebugShader.setMSTextureUnit(deferredTarget->gEmissionMetallic);
 		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(+3, -2, 1)));
 		drawMeshDirect(quad);
 	}
@@ -395,70 +396,77 @@ void RenderEngine::shadowPass(const Entity& light, const Entity& camera, const v
 	// enable back face culling
 	glEnable(GL_CULL_FACE);
 }
-//
-//void RenderEngine::glowPass(const std::shared_ptr<Scene>& scene) {
-//
-//	glDisable(GL_DEPTH_TEST);
-//
-//	float scale = 1.0f;
-//	glm::mat4 scaleMatrix = glm::scale(mat4(), vec3(scale, scale, 1));
-//
-//	/** BLUR STEPS **/
-//	postProcessingTarget->use();
-//	GLenum attachmentpoints[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-//
-//	 first blur step (horizontal)
-//	 reading from gGlowMetallic and writing to ping (GL_COLOR_ATTACHMENT0)
-//	glowShader.useShader();
-//	glowShader.setHorizontalUnit(true);
-//	glowShader.setMSTextureUnit(deferredTarget->gGlowMetallic);
-//	glowShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0, 0)));
-//	quad.draw();
-//
-//	 second blur step (vertical)
-//	 reading from ping and writing to pong (GL_COLOR_ATTACHMENT1)
-//	glDrawBuffer(attachmentpoints[1]);
-//	glowShader.useShader();
-//	glowShader.setHorizontalUnit(false);
-//	glowShader.setMSTextureUnit(postProcessingTarget->ping);
-//	glowShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0, 0)));
-//	quad.draw();
-//
-///*		// third blur step (horizontal)
-//		 reading from gGlowMetallic and writing to ping (GL_COLOR_ATTACHMENT0)
-//		glDrawBuffer (attachmentpoints[0]);
-//		glowShader.useShader();
-//		glowShader.setHorizontalUnit(true);
-//		glowShader.setMSTextureUnit(postProcessingTarget->pong);
-//		glowShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0,0)));
-//		quad.draw();
-//
-//		 fourth blur step (vertical)
-//		 reading from ping and writing to pong (GL_COLOR_ATTACHMENT1)
-//		glDrawBuffer (attachmentpoints[1]);
-//		glowShader.useShader();
-//		glowShader.setHorizontalUnit(false);
-//		glowShader.setMSTextureUnit(postProcessingTarget->ping);
-//		glowShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0,0)));
-//		quad.draw();*/
-//
-//	 bind ping
-//	glDrawBuffer(attachmentpoints[0]);
-//
-//	/** DRAW STEP **/
-//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//	glBlendFunc(GL_ONE, GL_ONE);
-//	glEnable(GL_BLEND);
-//	glBlendEquation(GL_FUNC_ADD);
-//
-//	textureDebugShader.useShader();
-//	textureDebugShader.setMSTextureUnit(postProcessingTarget->pong);
-//	textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0, 0)));
-//	quad.draw();
-//
-//	glDisable(GL_BLEND);
-//	glEnable(GL_DEPTH_TEST);
-//}
+
+
+void RenderEngine::glowPass() {
+
+	glDisable(GL_DEPTH_TEST);
+
+	float scale = 1.0f;
+	glm::mat4 scaleMatrix = glm::scale(mat4(), vec3(scale, scale, 1));
+
+	/** BLUR STEPS **/
+	postProcessingTarget->use();
+	GLenum attachmentpoints[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+
+	//first blur step (horizontal)
+	//reading from gEmissionMetallic and writing to ping (GL_COLOR_ATTACHMENT0)
+	glowShader.useShader();
+	glowShader.setHorizontalUnit(true);
+	glowShader.setTextureUnit(deferredTarget->gEmissionMetallic);
+	//glowShader.setMSTextureUnit(deferredTarget->gEmissionMetallic);
+	glowShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0, 0)));
+	drawMeshDirect(quad);
+	//quad.draw();
+
+	//second blur step (vertical)
+	//reading from ping and writing to pong (GL_COLOR_ATTACHMENT1)
+	glDrawBuffer(attachmentpoints[1]);
+	glowShader.useShader();
+	glowShader.setHorizontalUnit(false);
+	glowShader.setTextureUnit(postProcessingTarget->ping);
+	//glowShader.setMSTextureUnit(postProcessingTarget->ping);
+	glowShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0, 0)));
+	drawMeshDirect(quad);
+	//quad.draw();
+
+		// third blur step (horizontal)
+		// reading from gEmissionMetallic and writing to ping (GL_COLOR_ATTACHMENT0)
+		glDrawBuffer (attachmentpoints[0]);
+		glowShader.useShader();
+		glowShader.setHorizontalUnit(true);
+	glowShader.setTextureUnit(postProcessingTarget->pong);
+		glowShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0,0)));
+	drawMeshDirect(quad);
+
+		 //fourth blur step (vertical)
+		 //reading from ping and writing to pong (GL_COLOR_ATTACHMENT1)
+		glDrawBuffer (attachmentpoints[1]);
+		glowShader.useShader();
+		glowShader.setHorizontalUnit(false);
+	glowShader.setTextureUnit(postProcessingTarget->ping);
+		glowShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0,0)));
+	drawMeshDirect(quad);
+
+	//bind ping
+	glDrawBuffer(attachmentpoints[0]);
+
+	/** DRAW STEP **/
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBlendFunc(GL_ONE, GL_ONE);
+	//glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+
+	textureDebugShader.useShader();
+	textureDebugShader.setTextureUnit(postProcessingTarget->pong);
+	//textureDebugShader.setMSTextureUnit(postProcessingTarget->pong);
+	textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0, 0)));
+	//quad.draw();
+	drawMeshDirect(quad);
+
+	glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+}
 //
 //void RenderEngine::textPass(const std::shared_ptr<Scene>& scene) {
 //

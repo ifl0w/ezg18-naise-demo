@@ -41,12 +41,12 @@ DeferredRenderTarget::DeferredRenderTarget(int width, int height, int samples)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoRoughness, 0);
 
-	glGenTextures(1, &gGlowMetallic);
-	glBindTexture(GL_TEXTURE_2D, gGlowMetallic);
+	glGenTextures(1, &gEmissionMetallic);
+	glBindTexture(GL_TEXTURE_2D, gEmissionMetallic);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, nullptr); //TODO 16F
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gGlowMetallic, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gEmissionMetallic, 0);
 
 	glGenRenderbuffers(1, &depth_rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, depth_rbo);
@@ -71,7 +71,7 @@ DeferredRenderTarget::~DeferredRenderTarget() {
 	glDeleteTextures(1, &gPosition);
 	glDeleteTextures(1, &gNormal);
 	glDeleteTextures(1, &gAlbedoRoughness);
-	glDeleteTextures(1, &gGlowMetallic);
+	glDeleteTextures(1, &gEmissionMetallic);
 }
 
 void DeferredRenderTarget::use() {
@@ -93,7 +93,7 @@ void DeferredRenderTarget::setTextureUnits(const LightShader& lightShader) {
 
 	glUniform1i(lightShader.emissionMetallicBufferLocation, 4);
 	glActiveTexture(lightShader.glowBufferUnit);
-	glBindTexture(GL_TEXTURE_2D, gGlowMetallic);
+	glBindTexture(GL_TEXTURE_2D, gEmissionMetallic);
 }
 
 void DeferredRenderTarget::retrieveDepthBuffer() {

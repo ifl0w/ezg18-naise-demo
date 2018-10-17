@@ -99,8 +99,11 @@ public:
 		});
 		renderEngine.cleanupLightPass();
 
-		//TODO
+		//SKYBOX
 		renderEngine.skyboxPass();
+
+		//GLOW
+		renderEngine.glowPass();
 
 //		renderEngine.activateRenderState();
 		em.filter(debugDrawFilter, [&](Entity& entity) {

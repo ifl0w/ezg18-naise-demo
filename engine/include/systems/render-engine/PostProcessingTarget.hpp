@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RenderTarget.hpp"
-#include "systems/render-engine/shaders/glow_shader/GlowShader.hpp"
+#include "systems/render-engine/shaders/GlowShader.hpp"
 #include "PingPongTarget.hpp"
 
 namespace NAISE {

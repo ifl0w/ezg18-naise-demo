@@ -72,7 +72,13 @@ int main(int argc, char **argv) {
 	box->component<TransformComponent>().scale = vec3(1, 1, 1);
 	box->add(RigidBodyFactory::createBox(50, 1, 200, 0, vec3(0, -2, -5)));
 	box->add(MeshFactory::createBox(50, 1, 200));
-	box->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.2, 0.2, 0.2), 0, 0.6));
+	//box->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.2, 0.2, 0.2), 0, 0.6));
+	auto materialComponent = make_shared<MaterialComponent>();
+	auto material = make_shared<PBRMaterial>(vec3(0.2, 0.2, 0.2), 0, 0.6);
+	material->displayGlowTexture = true;
+	material->emissionTexture = Resources::loadTexture("glow", "assets/textures/skybox/clouds1_south.bmp");
+	materialComponent->material = material;
+	box->add(materialComponent);
 
 	auto wall = make_shared<NAISE::Engine::Entity>();
 	wall->add<TransformComponent>();

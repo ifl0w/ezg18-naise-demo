@@ -1,22 +1,21 @@
-#version 430 core
-
+#version 430
 //out vec4 fragColor;
 
 layout (location = 0) out vec4 pingpong;
 
 in vec2 TexCoords;
 
-uniform bool isMultiSampled;
+//uniform bool isMultiSampled;
 
 uniform sampler2D debugTexture;
-uniform sampler2DMS debugTextureMS;
+//uniform sampler2DMS debugTextureMS;
 
 layout(std140, binding = 0) uniform screenData
 {
-    int viewportWidth;
-    int viewportHeight;
-    int multiSampling;
-    float brightnessFactor;
+	int viewportWidth;
+	int viewportHeight;
+	int multiSampling;
+	float brightnessFactor;
 };
 
 uniform bool horizontal;
@@ -37,34 +36,41 @@ vec4 gaussianBlur() {
 */
 
     vec2 resolution = vec2(viewportWidth, viewportHeight);
+	vec2 normalizedTexCoords = vec2(gl_FragCoord.xy / resolution);
+    vec3 result = texture(debugTexture, normalizedTexCoords).rgb;
+    // retrieve data from G-buffer
+
+
+ /*   vec2 resolution = vec2(viewportWidth, viewportHeight);
     ivec2 denormalizedTexCoords = ivec2(TexCoords * resolution);
 	ivec2 tmpdenormalizedTexCoords = denormalizedTexCoords;
-    vec3 result = texelFetch(debugTextureMS, denormalizedTexCoords, 0).rgb * weight[0]; // current fragment's contribution * weight[0]
-
+    vec3 result = texelFetch(debugTexture, denormalizedTexCoords, 0).rgb * weight[0]; // current fragment's contribution * weight[0]
+*/
     if(horizontal){
         for(int i = 1; i < newKernelSize; ++i)
         {
-            tmpdenormalizedTexCoords = denormalizedTexCoords;
-            tmpdenormalizedTexCoords.x = tmpdenormalizedTexCoords.x + 1 * i;
-            result += texelFetch(debugTextureMS, tmpdenormalizedTexCoords, 0).rgb * weight[i];
+            vec2 tmp_normalizedTexCoords = normalizedTexCoords;
+            tmp_normalizedTexCoords.x = tmp_normalizedTexCoords.x + 1 * i;
+            result += texture(debugTexture, tmp_normalizedTexCoords).rgb * weight[i];
 
-            tmpdenormalizedTexCoords = denormalizedTexCoords;
-            tmpdenormalizedTexCoords.x = tmpdenormalizedTexCoords.x - 1 * i;
-            result += texelFetch(debugTextureMS, tmpdenormalizedTexCoords, 0).rgb * weight[i];
+            tmp_normalizedTexCoords = normalizedTexCoords;
+            tmp_normalizedTexCoords.x = tmp_normalizedTexCoords.x - 1 * i;
+            result += texture(debugTexture, tmp_normalizedTexCoords).rgb * weight[i];
         }
     } else {
         for(int i = 1; i < newKernelSize; ++i)
         {
-            tmpdenormalizedTexCoords = denormalizedTexCoords;
-            tmpdenormalizedTexCoords.y = tmpdenormalizedTexCoords.y + 1 * i;
-            result += texelFetch(debugTextureMS, tmpdenormalizedTexCoords, 0).rgb * weight[i];
+            vec2 tmp_normalizedTexCoords = normalizedTexCoords;
+            tmp_normalizedTexCoords = normalizedTexCoords;
+            tmp_normalizedTexCoords.y = tmp_normalizedTexCoords.y + 1 * i;
+            result += texture(debugTexture, tmp_normalizedTexCoords).rgb * weight[i];
 
-            tmpdenormalizedTexCoords = denormalizedTexCoords;
-            tmpdenormalizedTexCoords.y = tmpdenormalizedTexCoords.y - 1 * i;
-            result += texelFetch(debugTextureMS, tmpdenormalizedTexCoords, 0).rgb * weight[i];
+            tmp_normalizedTexCoords = normalizedTexCoords;
+            tmp_normalizedTexCoords.y = tmp_normalizedTexCoords.y - 1 * i;
+            result += texture(debugTexture, tmp_normalizedTexCoords).rgb * weight[i];
         }
     }
-    return vec4(result, debugTextureMS.a);
+    return vec4(result, 0.0);
 }
 
 void main()

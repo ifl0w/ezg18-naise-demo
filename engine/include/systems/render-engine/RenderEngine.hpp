@@ -14,6 +14,7 @@
 //#include "../meshes/Mesh.h"
 
 #include "DeferredRenderTarget.hpp"
+#include "PostProcessingTarget.hpp"
 
 #include "shaders/TextureDebugShader.hpp"
 #include "shaders/PointLightShader.hpp"
@@ -26,8 +27,7 @@
 
 #include "shadow-map/ShadowMap.hpp"
 #include "shadow-map/ShadowShader.hpp"
-//#include "shaders/glow_shader/GlowShader.hpp"
-//#include "PostProcessingTarget.hpp"
+#include "shaders/GlowShader.hpp"
 //#include "../text/Text.h"
 
 #define BIT(x) (1<<(x))
@@ -98,8 +98,8 @@ public:
 	uint8_t debugFlags = 0;
 private:
 	std::unique_ptr<DeferredRenderTarget> deferredTarget;
+	std::unique_ptr<PostProcessingTarget> postProcessingTarget;
 
-//	std::unique_ptr<PostProcessingTarget> postProcessingTarget;
 	std::unique_ptr<ShadowMap> shadowMap;
 	ShadowShader shadowShader;
 	PointLightShader plShader;
@@ -107,8 +107,8 @@ private:
 	NullShader nullShader;
 	TextureDebugShader textureDebugShader;
 	SolidColorShader solidColorShader; // used for debugging
+	GlowShader glowShader;
 
-//	GlowShader glowShader;
 	Sphere sphereLightVolume = Sphere(1.0f, 16, 8);
 
 	Plane quad = Plane(2.0f, 2.0f);
@@ -140,7 +140,7 @@ private:
 
 	void renderLights(const Light& light, mat4 transform, const Entity& camera);
 //	void forwardPass(const std::shared_ptr<Scene>& scene);
-//	void glowPass(const std::shared_ptr<Scene>& scene);
+	void glowPass();
 //	void textPass(const std::shared_ptr<Scene>& scene);
 //	void skyboxPass(const std::shared_ptr<Scene>& scene);
 

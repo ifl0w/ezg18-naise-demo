@@ -21,7 +21,7 @@ public:
 
 	void retrieveDepthBuffer();
 
-	GLuint gGlowMetallic;
+	GLuint gEmissionMetallic;
 	GLuint gPosition;
 	GLuint gNormal;
 	GLuint gAlbedoRoughness;

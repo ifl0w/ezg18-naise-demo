@@ -3,7 +3,7 @@
 layout (location = 0) out vec3 gPosition;
 layout (location = 1) out vec3 gNormal;
 layout (location = 2) out vec4 gAlbedoRoughness;
-layout (location = 3) out vec4 gGlowMetallic;
+layout (location = 3) out vec4 gEmissionMetallic;
 
 in vec3 vNorm;
 in vec3 vPos;
@@ -73,10 +73,10 @@ void main() {
         gAlbedoRoughness.rgb *= texture(albedoTexture, vUV).rgb; // set diffuse to 1 if direct texture is desired
     }
 
-    // metallic in gGlowMetallic's alpha component
-    gGlowMetallic.a = material.metallic;
+    // metallic in gEmissionMetallic's alpha component
+    gEmissionMetallic.a = material.metallic;
     if (useMetallicRoughnessTexture) {
-        gGlowMetallic.a = texture(metallicRoughnessTexture, vUV).r;
+        gEmissionMetallic.a = texture(metallicRoughnessTexture, vUV).r;
     }
 
     // roughness in gAlbedoRoughness's alpha component
@@ -86,19 +86,25 @@ void main() {
     }
 
     // GLOW
-    gGlowMetallic.rgb = material.emission;
+    gEmissionMetallic.rgb = material.emission;
     if (useEmissionTexture) {
-        gGlowMetallic.rgb = texture(emissionTexture, vUV).rgb;
-        gGlowMetallic.a = 1.0;
-        if(gGlowMetallic.rgb == vec3(0.0)){
-            gGlowMetallic = vec4(0.0, 0.0, 0.0, 0.0);
-        }
+        gEmissionMetallic.rgb = texture(emissionTexture, vUV).rgb;
     }
+
+    //BLOOM in new pass after everything is rendered
+    // check whether fragment output is higher than threshold, if so output as brightness color
+    /*float brightness = dot(gAlbedoRoughness.rgb, vec3(0.2126, 0.7152, 0.0722));
+    if(brightness > 0.5)
+        // gGlow = vec4(gAlbedoRoughness.rgb + 1, 1.0);
+        gGlow = vec4(1.0);
+    else
+        gGlow = vec4(0.0, 0.0, 0.0, 0.0);*/
+
 
     //Cubemap Reflections (only glossy)
     if (useSkyboxTexture) {
         float roughnessFactor = gAlbedoRoughness.a;
-        float metalicFactor = gGlowMetallic.a;
+        float metalicFactor = gEmissionMetallic.a;
 
         int mipmapCount = textureQueryLevels(skyboxTexture);
         int mipmapLevel = int(roughnessFactor * mipmapCount);
@@ -115,13 +121,4 @@ void main() {
 
         gAlbedoRoughness.rgb *= reflectionColor;
     }
-
-    //BLOOM
-    // check whether fragment output is higher than threshold, if so output as brightness color
-    /*float brightness = dot(gAlbedoRoughness.rgb, vec3(0.2126, 0.7152, 0.0722));
-    if(brightness > 0.5)
-        // gGlow = vec4(gAlbedoRoughness.rgb + 1, 1.0);
-        gGlow = vec4(1.0);
-    else
-        gGlow = vec4(0.0, 0.0, 0.0, 0.0);*/
 }

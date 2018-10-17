@@ -9,7 +9,7 @@ in vec2 TexCoords;
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoRoughness;
-uniform sampler2D gGlowMetallic;
+uniform sampler2D gEmissionMetallic;
 
 layout(std140, binding = 0) uniform screenData
 {
@@ -210,7 +210,7 @@ void main()
     vec3 Normal = normalize(texture(gNormal, normalizedTexCoords).rgb);
     vec3 Albedo = texture(gAlbedoRoughness, normalizedTexCoords).rgb;
     float Roughness = texture(gAlbedoRoughness, normalizedTexCoords).a;
-    float Metallic = texture(gGlowMetallic, normalizedTexCoords).a;
+    float Metallic = texture(gEmissionMetallic, normalizedTexCoords).a;
 
     // then calculate lighting as usual
     vec3 lighting = Albedo * light.ambient.rgb;

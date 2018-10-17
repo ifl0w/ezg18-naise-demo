@@ -24,8 +24,8 @@ file(GLOB_RECURSE SRC_FILES
         src/Resources.cpp
         src/systems/render-engine/DeferredRenderTarget.cpp
         src/systems/render-engine/RenderEngine.cpp
-        #        src/systems/render-engine/PingPongTarget.cpp
-        #        src/systems/render-engine/PostProcessingTarget.cpp
+        src/systems/render-engine/PingPongTarget.cpp
+        src/systems/render-engine/PostProcessingTarget.cpp
         src/systems/render-engine/RenderTarget.cpp
         src/systems/render-engine/lights/PointLight.cpp
         src/systems/render-engine/lights/DirectionalLight.cpp
@@ -49,8 +49,8 @@ file(GLOB_RECURSE SRC_FILES
         include/Resources.hpp
         include/systems/render-engine/DeferredRenderTarget.hpp
         include/systems/render-engine/RenderEngine.hpp
-        #        include/systems/render-engine/PingPongTarget.hpp
-        #        include/systems/render-engine/PostProcessingTarget.hpp
+        include/systems/render-engine/PingPongTarget.hpp
+        include/systems/render-engine/PostProcessingTarget.hpp
         include/systems/render-engine/RenderTarget.hpp
         include/systems/render-engine/lights/DirectionalLight.hpp
         include/systems/render-engine/lights/PointLight.hpp
