@@ -194,7 +194,7 @@ vec3 processLight(Light light, vec3 pos, vec3 norm, vec3 albedo, float roughness
 void main()
 {
 	vec2 resolution = vec2(viewportWidth, viewportHeight);
-	vec2 normalizedTexCoords = vec2((vec2(gl_FragCoord.xy) + 0.5) / resolution);
+	vec2 normalizedTexCoords = vec2(gl_FragCoord.xy / resolution);
 
     // retrieve data from G-buffer
     vec3 FragPos = texture(gPosition, normalizedTexCoords).rgb;

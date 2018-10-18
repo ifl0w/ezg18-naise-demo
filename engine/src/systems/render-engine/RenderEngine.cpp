@@ -400,10 +400,8 @@ void RenderEngine::shadowPass(const Entity& light, const Entity& camera, const v
 
 void RenderEngine::glowPass() {
 
+	//TODO don't write into depth buffer
 	glDisable(GL_DEPTH_TEST);
-
-	float scale = 1.0f;
-	glm::mat4 scaleMatrix = glm::scale(mat4(), vec3(scale, scale, 1));
 
 	/** BLUR STEPS **/
 	postProcessingTarget->use();
@@ -414,10 +412,8 @@ void RenderEngine::glowPass() {
 	glowShader.useShader();
 	glowShader.setHorizontalUnit(true);
 	glowShader.setTextureUnit(deferredTarget->gEmissionMetallic);
-	//glowShader.setMSTextureUnit(deferredTarget->gEmissionMetallic);
-	glowShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0, 0)));
+	glowShader.setModelMatrix(mat4(1.0));
 	drawMeshDirect(quad);
-	//quad.draw();
 
 	//second blur step (vertical)
 	//reading from ping and writing to pong (GL_COLOR_ATTACHMENT1)
@@ -425,27 +421,7 @@ void RenderEngine::glowPass() {
 	glowShader.useShader();
 	glowShader.setHorizontalUnit(false);
 	glowShader.setTextureUnit(postProcessingTarget->ping);
-	//glowShader.setMSTextureUnit(postProcessingTarget->ping);
-	glowShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0, 0)));
-	drawMeshDirect(quad);
-	//quad.draw();
-
-		// third blur step (horizontal)
-		// reading from gEmissionMetallic and writing to ping (GL_COLOR_ATTACHMENT0)
-		glDrawBuffer (attachmentpoints[0]);
-		glowShader.useShader();
-		glowShader.setHorizontalUnit(true);
-	glowShader.setTextureUnit(postProcessingTarget->pong);
-		glowShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0,0)));
-	drawMeshDirect(quad);
-
-		 //fourth blur step (vertical)
-		 //reading from ping and writing to pong (GL_COLOR_ATTACHMENT1)
-		glDrawBuffer (attachmentpoints[1]);
-		glowShader.useShader();
-		glowShader.setHorizontalUnit(false);
-	glowShader.setTextureUnit(postProcessingTarget->ping);
-		glowShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0,0)));
+	glowShader.setModelMatrix(mat4(1.0));
 	drawMeshDirect(quad);
 
 	//bind ping
@@ -454,14 +430,12 @@ void RenderEngine::glowPass() {
 	/** DRAW STEP **/
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBlendFunc(GL_ONE, GL_ONE);
-	//glEnable(GL_BLEND);
+	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
 
 	textureDebugShader.useShader();
 	textureDebugShader.setTextureUnit(postProcessingTarget->pong);
-	//textureDebugShader.setMSTextureUnit(postProcessingTarget->pong);
-	textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(0, 0, 0)));
-	//quad.draw();
+	textureDebugShader.setModelMatrix(mat4(1));
 	drawMeshDirect(quad);
 
 	glDisable(GL_BLEND);

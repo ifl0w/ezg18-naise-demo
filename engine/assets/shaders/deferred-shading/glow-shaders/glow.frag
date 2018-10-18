@@ -1,14 +1,11 @@
 #version 430
-//out vec4 fragColor;
 
 layout (location = 0) out vec4 pingpong;
 
 in vec2 TexCoords;
 
-//uniform bool isMultiSampled;
-
-uniform sampler2D debugTexture;
-//uniform sampler2DMS debugTextureMS;
+uniform sampler2D emissionInput;
+uniform bool horizontal;
 
 layout(std140, binding = 0) uniform screenData
 {
@@ -18,8 +15,6 @@ layout(std140, binding = 0) uniform screenData
 	float brightnessFactor;
 };
 
-uniform bool horizontal;
-
 //uniform float weight[5] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
 //uniform float weight[11] = float[] (0.0093,	0.028002,	0.065984,	0.121703,	0.175713,	0.198596,	0.175713,	0.121703,	0.065984,	0.028002,	0.0093);
 
@@ -27,7 +22,6 @@ vec4 gaussianBlur() {
     // kernel size = 7, sigma = 0.75
     int newKernelSize = 4;
     float weight[4] = {	0.495016, 0.229743, 0.022321, 0.000428 };
-
 /*
     int newKernelSize = 6;
     float weight[6] = {0.141836, 0.13424, 0.113806, 0.086425, 0.05879, 0.035822};
@@ -37,37 +31,18 @@ vec4 gaussianBlur() {
 
     vec2 resolution = vec2(viewportWidth, viewportHeight);
 	vec2 normalizedTexCoords = vec2(gl_FragCoord.xy / resolution);
-    vec3 result = texture(debugTexture, normalizedTexCoords).rgb;
+    vec3 result = texture(emissionInput, normalizedTexCoords).rgb * weight[0];
     // retrieve data from G-buffer
 
-
- /*   vec2 resolution = vec2(viewportWidth, viewportHeight);
-    ivec2 denormalizedTexCoords = ivec2(TexCoords * resolution);
-	ivec2 tmpdenormalizedTexCoords = denormalizedTexCoords;
-    vec3 result = texelFetch(debugTexture, denormalizedTexCoords, 0).rgb * weight[0]; // current fragment's contribution * weight[0]
-*/
     if(horizontal){
-        for(int i = 1; i < newKernelSize; ++i)
-        {
-            vec2 tmp_normalizedTexCoords = normalizedTexCoords;
-            tmp_normalizedTexCoords.x = tmp_normalizedTexCoords.x + 1 * i;
-            result += texture(debugTexture, tmp_normalizedTexCoords).rgb * weight[i];
-
-            tmp_normalizedTexCoords = normalizedTexCoords;
-            tmp_normalizedTexCoords.x = tmp_normalizedTexCoords.x - 1 * i;
-            result += texture(debugTexture, tmp_normalizedTexCoords).rgb * weight[i];
+        for(int i = 1; i < newKernelSize; ++i) {
+            result += texture(emissionInput, vec2(normalizedTexCoords.x + 1 * i, normalizedTexCoords.y)).rgb * weight[i];
+            result += texture(emissionInput, vec2(normalizedTexCoords.x - 1 * i, normalizedTexCoords.y)).rgb * weight[i];
         }
     } else {
-        for(int i = 1; i < newKernelSize; ++i)
-        {
-            vec2 tmp_normalizedTexCoords = normalizedTexCoords;
-            tmp_normalizedTexCoords = normalizedTexCoords;
-            tmp_normalizedTexCoords.y = tmp_normalizedTexCoords.y + 1 * i;
-            result += texture(debugTexture, tmp_normalizedTexCoords).rgb * weight[i];
-
-            tmp_normalizedTexCoords = normalizedTexCoords;
-            tmp_normalizedTexCoords.y = tmp_normalizedTexCoords.y - 1 * i;
-            result += texture(debugTexture, tmp_normalizedTexCoords).rgb * weight[i];
+        for(int i = 1; i < newKernelSize; ++i) {
+            result += texture(emissionInput, vec2(normalizedTexCoords.x, normalizedTexCoords.y + 1 * i)).rgb * weight[i];
+            result += texture(emissionInput, vec2(normalizedTexCoords.x, normalizedTexCoords.y - 1 * i)).rgb * weight[i];
         }
     }
     return vec4(result, 0.0);
