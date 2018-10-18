@@ -18,9 +18,9 @@ public:
 	GLuint ping;
 	GLuint pong;
 
+	const int width;
+	const int height;
 private:
-	int width;
-	int height;
 	int samples;
 };
 

@@ -37,6 +37,7 @@ void main()
     if (isMultiSampled) {
         fragColor = renderMultisampled();
     } else {
-        fragColor = texture(debugTexture, TexCoords);
+    vec2 resolution = vec2(viewportWidth, viewportHeight);
+        fragColor = texture(debugTexture, gl_FragCoord.xy / resolution);
     }
 }

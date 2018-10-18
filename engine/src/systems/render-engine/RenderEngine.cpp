@@ -16,7 +16,21 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 		  viewportHeight(viewportHeight),
 		  _defaultMaterial(make_unique<PBRMaterial>(vec3(0.9, 0, 0.9), 0, 0.5)){
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
-	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+
+	//TODO refactor glow, separate into own classes
+	float aspectRatio = viewportWidth / viewportHeight;
+	float glowTextureHeight;
+	float glowTextureWidth;
+	float glowTextureMaxSize = 512;
+	if(viewportWidth >= viewportHeight){
+		glowTextureHeight = glowTextureMaxSize / aspectRatio;
+		glowTextureWidth = glowTextureMaxSize;
+	} else {
+		glowTextureHeight = glowTextureMaxSize;
+		glowTextureWidth = glowTextureMaxSize / aspectRatio;
+	}
+
+	postProcessingTarget = make_unique<PostProcessingTarget>(glowTextureWidth, glowTextureHeight, multiSampling);
 
 	shadowMap = make_unique<ShadowMap>(1024 * 4, 1024 * 4);
 
@@ -402,6 +416,13 @@ void RenderEngine::glowPass() {
 
 	//TODO don't write into depth buffer
 	glDisable(GL_DEPTH_TEST);
+	glViewport(0, 0, postProcessingTarget->width, postProcessingTarget->height);
+	//TODO set uniformbuffer opject for glowTexture-size in glowShader instead of setting it by overwriting the viewport
+	int tmpViewportWidth = viewportWidth;
+	int tmpViewportHeight = viewportHeight;
+	viewportWidth = postProcessingTarget->width;
+	viewportHeight = postProcessingTarget->height;
+	setScreenData();
 
 	/** BLUR STEPS **/
 	postProcessingTarget->use();
@@ -424,6 +445,24 @@ void RenderEngine::glowPass() {
 	glowShader.setModelMatrix(mat4(1.0));
 	drawMeshDirect(quad);
 
+	//second blur step (vertical)
+	//reading from ping and writing to pong (GL_COLOR_ATTACHMENT1)
+	glDrawBuffer(attachmentpoints[0]);
+	glowShader.useShader();
+	glowShader.setHorizontalUnit(true);
+	glowShader.setTextureUnit(postProcessingTarget->pong);
+	glowShader.setModelMatrix(mat4(1.0));
+	drawMeshDirect(quad);
+
+	//second blur step (vertical)
+	//reading from ping and writing to pong (GL_COLOR_ATTACHMENT1)
+	glDrawBuffer(attachmentpoints[1]);
+	glowShader.useShader();
+	glowShader.setHorizontalUnit(false);
+	glowShader.setTextureUnit(postProcessingTarget->ping);
+	glowShader.setModelMatrix(mat4(1.0));
+	drawMeshDirect(quad);
+
 	//bind ping
 	glDrawBuffer(attachmentpoints[0]);
 
@@ -433,6 +472,11 @@ void RenderEngine::glowPass() {
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
 
+	//TODO: use a blend shader instead of misusing the old debug shader
+	viewportWidth = tmpViewportWidth;
+	viewportHeight = tmpViewportHeight;
+	setScreenData();
+	glViewport(0, 0, viewportWidth, viewportHeight);
 	textureDebugShader.useShader();
 	textureDebugShader.setTextureUnit(postProcessingTarget->pong);
 	textureDebugShader.setModelMatrix(mat4(1));
