@@ -9,6 +9,7 @@ struct MoveForward {};
 struct MoveBackward {};
 struct MoveLeft {};
 struct MoveRight {};
+struct Sprint {};
 struct MouseMotion {};
 struct MouseGrab {};
 struct SetFullscreen {};

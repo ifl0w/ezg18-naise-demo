@@ -16,6 +16,8 @@ vector<Action> FPSCameraInputMapper::resolve(const SDL_Event& event) {
 			return {make_action<Actions::MoveLeft>()};
 		case SDLK_d:
 			return {make_action<Actions::MoveRight>()};
+		case SDLK_LSHIFT:
+			return {make_action<Actions::Sprint>()};
 		case SDLK_F11:
 			return {make_action<Actions::SetFullscreen>()};
 		default:
@@ -58,6 +60,10 @@ Input FPSCameraInputMapper::input(Action action, Input& inp, const SDL_Event& ev
 			|| is_action<Actions::MoveBackward>(action)
 			|| is_action<Actions::MoveLeft>(action)
 			|| is_action<Actions::MoveRight>(action)) {
+		inp.set("active", event.type == SDL_KEYDOWN);
+	}
+
+	if (is_action<Actions::Sprint>(action)) {
 		inp.set("active", event.type == SDL_KEYDOWN);
 	}
 

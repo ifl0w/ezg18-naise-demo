@@ -62,7 +62,8 @@ vector<vec4> Frustum::getBoundingVolume(double maxDistance) const {
 }
 
 void Frustum::recalculate(mat4 invViewMatrix) {
-	invViewMat = invViewMatrix;
+	// ingore scaling of matrix. The scale should not influence the frustum size.
+	invViewMat = mat4(normalize(invViewMatrix[0]), normalize(invViewMatrix[1]), normalize(invViewMatrix[2]), invViewMatrix[3]);
 
 	dvec3 X = normalize(vec3(invViewMat * vec4(1, 0, 0, 0)));
 	dvec3 Y = normalize(vec3(invViewMat * vec4(0, 1, 0, 0)));

@@ -12,11 +12,20 @@ void FPSCameraMovementSystem::process(const NAISE::Engine::EntityManager& em, mi
 	em.filter(movementFilter, [=](Entity& entity) {
 	  std::chrono::duration<float> sec = deltaTime;
 
-	  float moveSpeed = 10;
-	  float mouseSpeed = 0.1;
-
 	  auto& inputComponent = entity.component<InputComponent>();
 	  auto& transform = entity.component<TransformComponent>();
+
+	  float moveSpeed = _moveSpeed;
+	  float mouseSpeed = _mouseSpeed;
+
+	  if (inputComponent.hasAction<Actions::Sprint>()) {
+		  auto& inp = inputComponent.action<Actions::Sprint>();
+		  bool active = inp.get<bool>("active");
+
+		  if (active) {
+			  moveSpeed = _moveSpeed * _sprintMultiplier;
+		  }
+	  }
 
 	  if (inputComponent.hasAction<Actions::MoveForward>()) {
 		  auto& inp = inputComponent.action<Actions::MoveForward>();
@@ -24,7 +33,7 @@ void FPSCameraMovementSystem::process(const NAISE::Engine::EntityManager& em, mi
 
 		  if (active) {
 			  vec3 orientationAxis = axis(transform.rotation);
-			  vec3 movement = vec3(0, 0, -moveSpeed * sec.count());
+			  vec3 movement = vec3(0, 0, -moveSpeed * sec.count()) / transform.globalScale;
 			  transform.position += rotate(movement, angle(transform.rotation), orientationAxis);
 		  }
 	  }
@@ -35,7 +44,7 @@ void FPSCameraMovementSystem::process(const NAISE::Engine::EntityManager& em, mi
 
 		  if (active) {
 			  vec3 orientationAxis = axis(transform.rotation);
-			  vec3 movement = vec3(0, 0, moveSpeed * sec.count());
+			  vec3 movement = vec3(0, 0, moveSpeed * sec.count()) / transform.globalScale;
 			  transform.position += rotate(movement, angle(transform.rotation), orientationAxis);
 		  }
 	  }
@@ -46,7 +55,7 @@ void FPSCameraMovementSystem::process(const NAISE::Engine::EntityManager& em, mi
 
 		  if (active) {
 			  vec3 orientationAxis = axis(transform.rotation);
-			  vec3 movement = vec3(-moveSpeed * sec.count(), 0, 0);
+			  vec3 movement = vec3(-moveSpeed * sec.count(), 0, 0) / transform.globalScale;
 			  transform.position += rotate(movement, angle(transform.rotation), orientationAxis);
 		  }
 	  }
@@ -57,7 +66,7 @@ void FPSCameraMovementSystem::process(const NAISE::Engine::EntityManager& em, mi
 
 		  if (active) {
 			  vec3 orientationAxis = axis(transform.rotation);
-			  vec3 movement = vec3(moveSpeed * sec.count(), 0, 0);
+			  vec3 movement = vec3(moveSpeed * sec.count(), 0, 0) / transform.globalScale;
 			  transform.position += rotate(movement, angle(transform.rotation), orientationAxis);
 		  }
 	  }
@@ -104,9 +113,9 @@ void FPSCameraMovementSystem::process(const NAISE::Engine::EntityManager& em, mi
 		  inp.set("delta_y", 0);
 	  }
 
-	  // TODO: Move to camera system
-	  auto positionMatrix = glm::mat4(transform.getModelMatrix());
-	  entity.component<CameraComponent>().frustum.recalculate(positionMatrix);
+	  // Recalculate camera frustum.
+	  // This has to be done always after camera movement.
+	  entity.component<CameraComponent>().frustum.recalculate(transform.getModelMatrix());
 
 	});
 }

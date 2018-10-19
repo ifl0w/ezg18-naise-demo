@@ -96,6 +96,7 @@ int main(int argc, char **argv) {
 	camera->component<InputComponent>().add<Actions::MoveBackward>();
 	camera->component<InputComponent>().add<Actions::MoveLeft>();
 	camera->component<InputComponent>().add<Actions::MoveRight>();
+	camera->component<InputComponent>().add<Actions::Sprint>();
 	camera->component<InputComponent>().add<Actions::MouseMotion>();
 	camera->component<InputComponent>().add<Actions::MouseGrab>();
 
@@ -111,7 +112,7 @@ int main(int argc, char **argv) {
 		pointLight->component<TransformComponent>().position = vec3(0, 0, -i * 20);
 		pointLight->add(LightFactory::createLight<PointLight>());
 		pointLight->component<LightComponent>().light->data.diffuse = vec4(30, 30, 30, 1);
-//		Engine::getEntityManager().addEntity(pointLight);
+		Engine::getEntityManager().addEntity(pointLight);
 
 		auto tunnelSegment = Resources::loadModel("resources/models/tunnel-segment/tunnel_segment.gltf");
 		for (int j = 0; j < tunnelSegment.size(); ++j) {
@@ -134,6 +135,11 @@ int main(int argc, char **argv) {
 		light->add<TransformComponent>();
 		light->component<TransformComponent>().position = vec3(0, 5, -9);
 		light->add<ParentComponent>(t->id);
+
+		// attach camera to space ship
+		camera->add<ParentComponent>(t->id);
+		camera->component<TransformComponent>().position = vec3(0, 20, -100);
+		camera->component<TransformComponent>().rotation = quat(vec3(-glm::half_pi<float>()/8, glm::pi<float>(), 0));
 
 		Engine::getEntityManager().addEntity(light);
 		Engine::getEntityManager().addEntity(t);

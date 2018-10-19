@@ -17,4 +17,8 @@ public:
 
 private:
 	Filter movementFilter;
+
+	float _moveSpeed = 5;
+	float _sprintMultiplier = 5;
+	float _mouseSpeed = 0.1;
 };

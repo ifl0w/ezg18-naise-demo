@@ -13,8 +13,9 @@ TransformSystem::TransformSystem() {
 }
 
 void TransformSystem::process(const EntityManager& em, microseconds deltaTime) {
+	// calculate all local model matrices
 	em.filter(transformFilter, [&](Entity& entity) {
-	  entity.component<TransformComponent>().calculateModelMatrix();
+	  entity.component<TransformComponent>().calculateLocalModelMatrix();
 	});
 
 	// reset evaluated flags
@@ -32,7 +33,7 @@ mat4 TransformSystem::evaluateNode(Entity& entity) {
 
 	if (!entity.has<ParentComponent>()) {
 		if (entity.has<TransformComponent>()) {
-			ret = entity.component<TransformComponent>().getModelMatrix();
+			ret = entity.component<TransformComponent>().getLocalTransform();
 		}
 
 		return ret;
@@ -44,14 +45,18 @@ mat4 TransformSystem::evaluateNode(Entity& entity) {
 
 	if (!pc.evaluated) {
 		ret = evaluateNode(parent);
+		pc.cachedParentTransform = ret;
 	} else {
-		ret = pc.cachedTransform;
+		ret = pc.cachedParentTransform;
 	}
 
 	if (entity.has<TransformComponent>()) {
 		auto& tc = entity.component<TransformComponent>();
-		ret *= tc.transform;
-		tc.transform = ret;
+		tc.parentTransform = ret;
+		ret *= tc.localTransform;
+		tc.globalTransform = ret;
+
+		tc.updateGlobalValues();
 	}
 
 	pc.evaluated = true;

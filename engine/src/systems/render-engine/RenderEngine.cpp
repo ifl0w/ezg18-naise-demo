@@ -65,8 +65,9 @@ void RenderEngine::initFrame(const CameraComponent& cameraComponent, const Trans
 	glEnable(GL_DEPTH_TEST);
 	deferredTarget->use();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	setProjectionData(cameraComponent.getProjectionMatrix(), glm::inverse(transform.getModelMatrix()),
-					  transform.position);
+					  transform.globalPosition);
 }
 
 void RenderEngine::render(const shared_ptr<Scene>& scene) {
@@ -182,6 +183,9 @@ void RenderEngine::setScreenData() {
 }
 
 void RenderEngine::setProjectionData(const mat4 projectionMatrix, const mat4 viewMatrix, const vec3 cameraPosition) {
+	// Ignore scale for the view matrix. It should not influence the
+	//viewMatrix = mat4(normalize(viewMatrix[0]), normalize(viewMatrix[1]), normalize(viewMatrix[2]), viewMatrix[3]);
+
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboProjectionData);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionData);

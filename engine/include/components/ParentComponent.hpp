@@ -21,7 +21,7 @@ public:
 
 private:
 	bool evaluated = false;
-	glm::mat4 cachedTransform = glm::mat4(1);
+	glm::mat4 cachedParentTransform = glm::mat4(1);
 };
 
 }
