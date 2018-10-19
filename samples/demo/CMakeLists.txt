@@ -22,8 +22,6 @@ add_dependencies(sample-demo engine)
 target_link_libraries(sample-demo engine)
 
 ######## COPY ENGINE SHADERS ########
-# Collect list of shader files.
-
 set(NAISE_ENGINE_PATH "${CMAKE_SOURCE_DIR}")
 set(NAISE_RESOURCE_PATH "${CMAKE_SOURCE_DIR}/engine/resources")
 NAISE_COPY_RESOURCE_DIR(${NAISE_ENGINE_PATH} ${NAISE_RESOURCE_PATH})

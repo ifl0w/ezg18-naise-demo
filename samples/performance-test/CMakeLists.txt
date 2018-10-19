@@ -22,19 +22,9 @@ add_dependencies(sample-performance-test engine)
 target_link_libraries(sample-performance-test engine)
 
 ######## COPY ENGINE SHADERS ########
-# Collect list of shader files.
-file(GLOB_RECURSE shader_files
-        RELATIVE ${CMAKE_BINARY_DIR}
-        ${CMAKE_BINARY_DIR}/engine/shaders/**/*.*
-        ${CMAKE_BINARY_DIR}/engine/shaders/*.*)
-
-# This will contain full paths to files in binary directory.
-set(binary_files_list)
-foreach(file ${shader_files})
-    set(source_file ${CMAKE_BINARY_DIR}/${file})
-    set(binary_file ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${file})
-    configure_file(${source_file} ${binary_file} COPYONLY)
-endforeach()
+set(NAISE_ENGINE_PATH "${CMAKE_SOURCE_DIR}")
+set(NAISE_RESOURCE_PATH "${CMAKE_SOURCE_DIR}/engine/resources")
+NAISE_COPY_RESOURCE_DIR(${NAISE_ENGINE_PATH} ${NAISE_RESOURCE_PATH})
 
 ######## COPY ASSETS ########
 # Collect list of asset files.

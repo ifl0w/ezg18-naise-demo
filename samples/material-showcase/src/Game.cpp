@@ -99,6 +99,7 @@ int main(int argc, char** argv) {
 	camera->component<InputComponent>().add<Actions::MoveBackward>();
 	camera->component<InputComponent>().add<Actions::MoveLeft>();
 	camera->component<InputComponent>().add<Actions::MoveRight>();
+	camera->component<InputComponent>().add<Actions::Sprint>();
 	camera->component<InputComponent>().add<Actions::MouseMotion>();
 	camera->component<InputComponent>().add<Actions::MouseGrab>();
 
