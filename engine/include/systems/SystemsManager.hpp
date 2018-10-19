@@ -30,6 +30,10 @@ public:
 
 	void cleanup();
 private:
+
+	std::chrono::microseconds _deltaTime = std::chrono::microseconds(0);
+	std::chrono::steady_clock::time_point _beginTime;
+
 	std::unordered_map<std::type_index, std::shared_ptr<System>> systems;
 };
 
