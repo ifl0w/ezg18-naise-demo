@@ -53,6 +53,6 @@ double CameraComponent::getFovY()const {
 	return fov * ((double) viewportHeight / (double) viewportWidth);
 }
 
-//AABB Camera::calculateViewFrustrum() {
-//	return AABB(frustum.getBoundingVolume());
-//}
+AABB CameraComponent::calculateViewFrustrum() {
+	return AABB(frustum.getBoundingVolume());
+}

@@ -91,3 +91,7 @@ void AABB::transform(mat4 transform) {
 
 	values = pair<vec3, vec3>(glm::vec3(minX, minY, minZ), glm::vec3(maxX, maxY, maxZ));
 }
+
+bool AABB::intersect(const AABB& other) {
+	return AABB::intersect(*this, other);
+}

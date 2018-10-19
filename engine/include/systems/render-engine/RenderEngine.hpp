@@ -96,6 +96,7 @@ public:
 	void skyboxPass();
 
 	uint8_t debugFlags = 0;
+	uint32_t drawCallCount = 0;
 private:
 	std::unique_ptr<DeferredRenderTarget> deferredTarget;
 	std::unique_ptr<PostProcessingTarget> postProcessingTarget;

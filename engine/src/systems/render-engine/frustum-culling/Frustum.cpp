@@ -175,6 +175,6 @@ Frustum::Frustum(AABB aabb, mat4 invViewMatrix, float extend) {
 	planes[Planes::TOP_PLANE] = pair(-Y, Y * maxY);
 	planes[Planes::BOTTOM_PLANE] = pair(Y, Y * minY);
 
-	planes[Planes::LEFT_PLANE] = pair(-X, X * maxX);
-	planes[Planes::RIGHT_PLANE] = pair(X, X * minX);
+	planes[Planes::LEFT_PLANE] = pair(X, X * maxX);
+	planes[Planes::RIGHT_PLANE] = pair(-X, X * minX);
 }

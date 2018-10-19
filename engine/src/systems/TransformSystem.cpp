@@ -1,15 +1,19 @@
 #include <systems/TransformSystem.hpp>
 
+#include <Engine.hpp>
 #include <components/ParentComponent.hpp>
 #include <components/TransformComponent.hpp>
 #include <components/LightComponent.hpp>
-#include <Engine.hpp>
+#include <components/AABBComponent.hpp>
 
 using namespace NAISE::Engine;
 
 TransformSystem::TransformSystem() {
 	parentFilter.requirement<ParentComponent>();
 	transformFilter.requirement<TransformComponent>();
+
+	boundingBoxFilter.requirement<TransformComponent>();
+	boundingBoxFilter.requirement<AABBComponent>();
 }
 
 void TransformSystem::process(const EntityManager& em, microseconds deltaTime) {
@@ -25,6 +29,13 @@ void TransformSystem::process(const EntityManager& em, microseconds deltaTime) {
 
 	em.filter(parentFilter, [&](Entity& entity) {
 	  evaluateNode(entity);
+	});
+
+	em.filter(boundingBoxFilter, [&](Entity& entity) {
+	  auto& tc = entity.component<TransformComponent>();
+	  auto& aabb = entity.component<AABBComponent>().aabb;
+
+	  aabb.transform(tc.getModelMatrix());
 	});
 }
 

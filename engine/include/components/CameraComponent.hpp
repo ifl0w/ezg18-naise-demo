@@ -27,6 +27,8 @@ public:
 
 	Frustum frustum;
 
+	AABB calculateViewFrustrum();
+
 protected:
 	double fov;
 	double near;
@@ -46,8 +48,6 @@ protected:
 	 * @return
 	 */
 	double getFovY() const;
-
-//	AABB calculateViewFrustrum();
 };
 
 }

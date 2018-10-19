@@ -6,6 +6,7 @@
 #include <components/MaterialComponent.hpp>
 #include <components/InputComponent.hpp>
 #include <components/LightComponent.hpp>
+#include <components/AABBComponent.hpp>
 
 #include <systems/render-engine/materials/PBRMaterial.hpp>
 #include <systems/render-engine/lights/DirectionalLight.hpp>
@@ -56,8 +57,9 @@ int main(int argc, char** argv) {
 	camera->add<TransformComponent>();
 	camera->component<TransformComponent>().position = vec3(0, 1.6, 0);
 	camera->add<CameraComponent>();
+	camera->add<AABBComponent>();
+	camera->component<AABBComponent>().aabb = camera->component<CameraComponent>().calculateViewFrustrum();
 	camera->add<InputComponent>();
-	camera->add(RigidBodyFactory::createSphere(1, 0, vec3(0,0,0), true));
 	camera->component<InputComponent>().add<Actions::MoveForward>();
 	camera->component<InputComponent>().add<Actions::MoveBackward>();
 	camera->component<InputComponent>().add<Actions::MoveLeft>();
@@ -65,6 +67,7 @@ int main(int argc, char** argv) {
 	camera->component<InputComponent>().add<Actions::Sprint>();
 	camera->component<InputComponent>().add<Actions::MouseMotion>();
 	camera->component<InputComponent>().add<Actions::MouseGrab>();
+	camera->add(RigidBodyFactory::createSphere(1, 0, vec3(0,0,0), true));
 
 	auto sun = make_shared<NAISE::Engine::Entity>();
 	sun->add<TransformComponent>();
@@ -77,7 +80,7 @@ int main(int argc, char** argv) {
 	Engine::getEntityManager().addEntity(floorEntity);
 
 	int amount = 10;
-	float gapSize = 2;
+	float gapSize = 0.01;
 	float radius = 1;
 	vec3 cubeSize = vec3(amount * (radius * 2 + gapSize));
 	vec3 positionOffset = vec3(0, cubeSize.z / 2.0 + 10, -(cubeSize.z / 2.0 + 50));
@@ -90,10 +93,12 @@ int main(int argc, char** argv) {
 
 				sphere->add<TransformComponent>();
 				sphere->component<TransformComponent>().position = position;
-				sphere->add(RigidBodyFactory::createSphere(radius, 10, position));
-				sphere->add(MeshFactory::create<Sphere>(radius));
+				sphere->add(RigidBodyFactory::createBox(radius, radius, radius, 10, position));
+				sphere->add(MeshFactory::createBox(radius,radius,radius));
 				sphere->add<MaterialComponent>();
 				sphere->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.8, 0, 0.8), 0, 0.2));
+				sphere->add<AABBComponent>();
+				sphere->component<AABBComponent>().aabb = AABB(sphere->component<MeshComponent>().mesh->vertices);
 
 				Engine::getEntityManager().addEntity(sphere);
 			}

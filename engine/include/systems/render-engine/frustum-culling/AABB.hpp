@@ -18,6 +18,7 @@ public:
 
 	void transform(mat4 transform);
 
+	bool intersect(const AABB& other);
 	static bool intersect(const AABB& aabb1, const AABB& aabb2);
 
 	/**

@@ -19,6 +19,7 @@ private:
 
 	Filter parentFilter;
 	Filter transformFilter;
+	Filter boundingBoxFilter;
 };
 
 }

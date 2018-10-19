@@ -3,6 +3,7 @@
 
 #include <components/MaterialComponent.hpp>
 #include <components/LightComponent.hpp>
+#include <components/AABBComponent.hpp>
 
 using namespace NAISE::Engine;
 using namespace std;
@@ -400,6 +401,20 @@ void RenderEngine::shadowPass(const Entity& light, const Entity& camera, const v
 	glDisable(GL_CULL_FACE);
 	glViewport(0, 0, shadowMap->width, shadowMap->height);
 	for (auto const& e: entities) {
+
+		// TODO fix shadow frustum culling
+//		if (e->has<AABBComponent>()) {
+//			auto& entityAABB = e->component<AABBComponent>().aabb;
+//			auto aabb = AABB(c.frustum.getBoundingVolume(20));
+//			auto f = Frustum(aabb, glm::inverse(l.getShadowMatrix()), 500);
+//
+//			if (!f.intersect(entityAABB)) {
+//				continue;
+//			} else {
+//				continue;
+//			}
+//		}
+
 		auto& mesh = *e->component<MeshComponent>().mesh.get();
 
 		Material* material = nullptr;
@@ -536,6 +551,7 @@ void RenderEngine::drawMeshDirect(const Mesh& mesh) {
 	glBindVertexArray(mesh.vao);
 
 	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
+	drawCallCount++;
 }
 
 void RenderEngine::drawMesh(const Mesh& mesh, const Material* material, mat4 transform) {
