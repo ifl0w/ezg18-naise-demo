@@ -2,6 +2,7 @@
 
 #include <components/ParentComponent.hpp>
 #include <components/TransformComponent.hpp>
+#include <components/LightComponent.hpp>
 #include <Engine.hpp>
 
 using namespace NAISE::Engine;
@@ -12,15 +13,16 @@ TransformSystem::TransformSystem() {
 }
 
 void TransformSystem::process(const EntityManager& em, microseconds deltaTime) {
-	em.filter(transformFilter, [&](Entity& entity){
+	em.filter(transformFilter, [&](Entity& entity) {
 	  entity.component<TransformComponent>().calculateModelMatrix();
 	});
 
-	em.filter(parentFilter, [&](Entity& entity){
+	// reset evaluated flags
+	em.filter(parentFilter, [&](Entity& entity) {
 	  entity.component<ParentComponent>().evaluated = false;
 	});
 
-	em.filter(parentFilter, [&](Entity& entity){
+	em.filter(parentFilter, [&](Entity& entity) {
 	  evaluateNode(entity);
 	});
 }
@@ -40,7 +42,7 @@ mat4 TransformSystem::evaluateNode(Entity& entity) {
 	EntityID parentId = pc.parent;
 	Entity& parent = *Engine::getEntityManager().getEntity(parentId);
 
-	if (!pc.evaluated){
+	if (!pc.evaluated) {
 		ret = evaluateNode(parent);
 	} else {
 		ret = pc.cachedTransform;

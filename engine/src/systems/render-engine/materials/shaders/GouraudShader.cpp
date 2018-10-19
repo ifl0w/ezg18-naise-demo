@@ -3,6 +3,6 @@
 using namespace NAISE::Engine;
 
 GouraudShader::GouraudShader()
-		: Shader("engine/shaders/gouraud_vertex_shader.glsl", "engine/shaders/gouraud_fragment_shader.glsl") {
+		: Shader("engine/resources/shaders/gouraud_vertex_shader.glsl", "engine/resources/shaders/gouraud_fragment_shader.glsl") {
 }
 

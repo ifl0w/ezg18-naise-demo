@@ -8,7 +8,7 @@ namespace Engine {
 class SkyboxShader :
 		public Shader {
 public:
-	SkyboxShader(): Shader("engine/shaders/skybox/skybox.vert", "engine/shaders/skybox/skybox.frag") {
+	SkyboxShader(): Shader("engine/resources/shaders/skybox/skybox.vert", "engine/resources/shaders/skybox/skybox.frag") {
 		//this->backgroundColorLocation = uniformLocation(this->shaderID, "backgroundColor");
 	//	this->useSkyboxTextureLocation = uniformLocation(this->shaderID, "useSkyboxTexture");
 		//this->skyboxTextureLocation = uniformLocation(this->shaderID, "skyboxTexture");

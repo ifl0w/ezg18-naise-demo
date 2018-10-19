@@ -90,7 +90,7 @@ public:
 
 		  if (entity.component<LightComponent>().isType<PointLight>()) {
 			  auto& l = dynamic_cast<PointLight&>(light);
-			  light.data.lightPosition = vec4(transComp.position, 1);
+			  light.data.lightPosition = vec4(glm::vec3(transform[3]), 1); // write back position
 			  vec3 scale = vec3(l.calculateLightVolumeRadius());
 			  transform = glm::scale(transform, scale);
 		  }

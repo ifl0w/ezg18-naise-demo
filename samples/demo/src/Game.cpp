@@ -45,12 +45,12 @@ int main(int argc, char **argv) {
 	Engine::getSystemsManager().registerSystem<TransformSystem>();
 	Engine::getSystemsManager().registerSystem<RenderSystem>();
 
-	std::string posX = "assets/textures/skybox/clouds1_east.bmp";
-	std::string negX = "assets/textures/skybox/clouds1_west.bmp";
-	std::string posY = "assets/textures/skybox/clouds1_up.bmp";
-	std::string negY = "assets/textures/skybox/clouds1_down.bmp";
-	std::string posZ = "assets/textures/skybox/clouds1_north.bmp";
-	std::string negZ = "assets/textures/skybox/clouds1_south.bmp";
+	std::string posX = "resources/textures/skybox/clouds1_east.bmp";
+	std::string negX = "resources/textures/skybox/clouds1_west.bmp";
+	std::string posY = "resources/textures/skybox/clouds1_up.bmp";
+	std::string negY = "resources/textures/skybox/clouds1_down.bmp";
+	std::string posZ = "resources/textures/skybox/clouds1_north.bmp";
+	std::string negZ = "resources/textures/skybox/clouds1_south.bmp";
 	string identifier = "clouds1";
 
 	std::vector<std::string> paths = {posX, negX, posY, negY, posZ, negZ};
@@ -111,9 +111,9 @@ int main(int argc, char **argv) {
 		pointLight->component<TransformComponent>().position = vec3(0, 0, -i * 20);
 		pointLight->add(LightFactory::createLight<PointLight>());
 		pointLight->component<LightComponent>().light->data.diffuse = vec4(30, 30, 30, 1);
-		Engine::getEntityManager().addEntity(pointLight);
+//		Engine::getEntityManager().addEntity(pointLight);
 
-		auto tunnelSegment = Resources::loadModel("assets/models/tunnel-segment/tunnel_segment.gltf");
+		auto tunnelSegment = Resources::loadModel("resources/models/tunnel-segment/tunnel_segment.gltf");
 		for (int j = 0; j < tunnelSegment.size(); ++j) {
 			auto &t = tunnelSegment[j];
 			t->component<TransformComponent>().position = vec3(0, 0, -i * 20);
@@ -122,11 +122,20 @@ int main(int argc, char **argv) {
 
 	}
 
-	auto luminarisScene = Resources::loadModel("assets/models/luminaris/luminaris.gltf");
+	auto luminarisScene = Resources::loadModel("resources/models/luminaris/luminaris.gltf");
 	for (int j = 0; j < luminarisScene.size(); ++j) {
-		auto &t = luminarisScene[j];
-		t->component<TransformComponent>().position = vec3(0, 0, 25);
+		auto& t = luminarisScene[j];
+		t->component<TransformComponent>().position = vec3(0, 0, 0);
+		t->component<TransformComponent>().rotation = quat(vec3(0, glm::pi<float>(), 0));
 		t->component<TransformComponent>().scale = vec3(0.2);
+
+		auto light = make_shared<NAISE::Engine::Entity>();
+		light->add(LightFactory::createLight<PointLight>(vec3(0, 0, 0), vec3(0, 5, 30)));
+		light->add<TransformComponent>();
+		light->component<TransformComponent>().position = vec3(0, 5, -9);
+		light->add<ParentComponent>(t->id);
+
+		Engine::getEntityManager().addEntity(light);
 		Engine::getEntityManager().addEntity(t);
 	}
 

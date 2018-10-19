@@ -130,6 +130,7 @@ void RenderEngine::prepareLightPass() {
 	deferredTarget->retrieveDepthBuffer();
 
 	// do not write to the depth buffer
+	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
 
 	glBlendFunc(GL_ONE, GL_ONE);

@@ -3,7 +3,7 @@
 using namespace NAISE::Engine;
 
 SolidColorShader::SolidColorShader()
-		: Shader("engine/shaders/simple_vertex_shader.glsl", "engine/shaders/color_fragment_shader.glsl") {
+		: Shader("engine/resources/shaders/simple_vertex_shader.glsl", "engine/resources/shaders/color_fragment_shader.glsl") {
 	colorLocation = uniformLocation(shaderID, "color");
 }
 

@@ -40,8 +40,8 @@ endforeach()
 # Collect list of asset files.
 file(GLOB_RECURSE asset_files
         RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/assets/**/*.*
-        ${CMAKE_CURRENT_SOURCE_DIR}/assets/*.*)
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources/**/*.*
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources/*.*)
 
 # This will contain full paths to files in binary directory.
 set(binary_files_list)

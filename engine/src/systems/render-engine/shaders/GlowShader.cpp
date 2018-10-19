@@ -3,8 +3,8 @@
 using namespace NAISE::Engine;
 
 GlowShader::GlowShader()
-		: Shader("engine/shaders/deferred-shading/glow-shaders/glow.vert",
-				 "engine/shaders/deferred-shading/glow-shaders/glow.frag") {
+		: Shader("engine/resources/shaders/deferred-shading/glow-shaders/glow.vert",
+				 "engine/resources/shaders/deferred-shading/glow-shaders/glow.frag") {
 
 	this->debugTexturePosition = uniformLocation(this->shaderID, "emissionInput");
 	this->horizontalLocation = uniformLocation(this->shaderID, "horizontal");

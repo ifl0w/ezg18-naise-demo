@@ -3,7 +3,7 @@
 using namespace NAISE::Engine;
 
 TextureDebugShader::TextureDebugShader()
-		: Shader("engine/shaders/deferred-shading/ds_debug.vert", "engine/shaders/deferred-shading/ds_debug.frag") {
+		: Shader("engine/resources/shaders/deferred-shading/ds_debug.vert", "engine/resources/shaders/deferred-shading/ds_debug.frag") {
 	this->isMultiSampledLocation = uniformLocation(shaderID, "isMultiSampled");
 	this->debugTexturePosition = uniformLocation(shaderID, "debugTexture");
 	this->debugTextureMSLocation = uniformLocation(shaderID, "debugTextureMS");

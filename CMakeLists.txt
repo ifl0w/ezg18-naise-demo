@@ -30,9 +30,34 @@ subdirs(engine samples)
 
 # This function sets up a post build command that copies the required resources to the
 # build folder of the software that is using this engine.
-function(COPY_NAISE_ENGINE_RESOURCES target)
+function(NAISE_COPY_RESOURCES_POST_BUILD target)
     add_custom_command(TARGET ${target} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             $<TARGET_FILE_DIR:engine>/engine
             $<TARGET_FILE_DIR:${target}>/engine)
-endfunction(COPY_NAISE_ENGINE_RESOURCES PARENT_SCOPE)
+endfunction(NAISE_COPY_RESOURCES_POST_BUILD PARENT_SCOPE)
+
+function(NAISE_COPY_RESOURCE_DIR NAISE_ENGINE_PATH NAISE_RESOURCE_PATH)
+    NAISE_BUILD_LOG("NAISE >> Engine base path: ${NAISE_ENGINE_PATH}")
+    NAISE_BUILD_LOG("Resource path: ${NAISE_RESOURCE_PATH}")
+
+    file(GLOB_RECURSE shader_files
+            RELATIVE ${NAISE_ENGINE_PATH}
+            ${NAISE_RESOURCE_PATH}/**/*.*
+            ${NAISE_RESOURCE_PATH}*.*)
+
+    # This will contain full paths to files in binary directory.
+    set(binary_files_list)
+    foreach(file ${shader_files})
+        set(source_file ${NAISE_ENGINE_PATH}/${file})
+        set(binary_file ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${file})
+        configure_file(${source_file} ${binary_file} COPYONLY)
+    endforeach()
+
+    NAISE_BUILD_LOG("Copied engine resources!")
+
+endfunction(NAISE_COPY_RESOURCE_DIR PARENT_SCOPE)
+
+function(NAISE_BUILD_LOG message)
+    message("NAISE Engine >> ${message}")
+endfunction(NAISE_BUILD_LOG PARENT_SCOPE)

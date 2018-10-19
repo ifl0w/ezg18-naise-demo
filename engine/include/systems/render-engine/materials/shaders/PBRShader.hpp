@@ -8,7 +8,7 @@ namespace Engine {
 class PBRShader :
 		public Shader {
 public:
-	PBRShader(): Shader("engine/shaders/deferred-shading/pbr.vert", "engine/shaders/deferred-shading/pbr.frag") {};
+	PBRShader(): Shader("engine/resources/shaders/deferred-shading/pbr.vert", "engine/resources/shaders/deferred-shading/pbr.frag") {};
 
 };
 

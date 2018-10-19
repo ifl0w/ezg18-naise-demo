@@ -3,5 +3,5 @@
 using namespace NAISE::Engine;
 
 PhongShader::PhongShader()
-		: Shader("engine/shaders/deferred-shading/phong.vert", "engine/shaders/deferred-shading/phong.frag") {
+		: Shader("engine/resources/shaders/deferred-shading/phong.vert", "engine/resources/shaders/deferred-shading/phong.frag") {
 }

@@ -42,12 +42,12 @@ int main(int argc, char** argv) {
 	Engine::getSystemsManager().registerSystem<TransformSystem>();
 	Engine::getSystemsManager().registerSystem<RenderSystem>();
 	
-	std::string posX = "assets/textures/skybox/right.png";
-	std::string negX = "assets/textures/skybox/left.png";
-	std::string posY = "assets/textures/skybox/top.png";
-	std::string negY = "assets/textures/skybox/bottom.png";
-	std::string posZ = "assets/textures/skybox/front.png";
-	std::string negZ = "assets/textures/skybox/back.png";
+	std::string posX = "resources/textures/skybox/right.png";
+	std::string negX = "resources/textures/skybox/left.png";
+	std::string posY = "resources/textures/skybox/top.png";
+	std::string negY = "resources/textures/skybox/bottom.png";
+	std::string posZ = "resources/textures/skybox/front.png";
+	std::string negZ = "resources/textures/skybox/back.png";
  	string identifier = "house";
 
 	std::vector<std::string> paths = {posX, negX, posY, negY, posZ, negZ};
@@ -79,14 +79,14 @@ int main(int argc, char** argv) {
 
 	auto materialComponent = make_shared<MaterialComponent>();
 	auto material = make_shared<PBRMaterial>(vec3(0.2, 0.2, 0.2), 0, 0.6);
-/*	material->albedoTexture = Resources::loadTexture("bla4", "assets/textures/cb7lf-1haxn.dds");
-	material->albedoTexture = Resources::loadTexture("bla3", "assets/textures/clouds1_west.bmp");
-	material->albedoTexture = Resources::loadTexture("bla2", "assets/textures/skybox/top.png");
-	material->albedoTexture = Resources::loadTexture("bla5", "assets/textures/horizontalSkyBox.png");
+/*	material->albedoTexture = Resources::loadTexture("bla4", "resources/textures/cb7lf-1haxn.dds");
+	material->albedoTexture = Resources::loadTexture("bla3", "resources/textures/clouds1_west.bmp");
+	material->albedoTexture = Resources::loadTexture("bla2", "resources/textures/skybox/top.png");
+	material->albedoTexture = Resources::loadTexture("bla5", "resources/textures/horizontalSkyBox.png");
 
-	material->albedoTexture = Resources::loadTexture("color", "assets/textures/Metal_Panel_005_COLOR.jpg");
-	material->normalTexture = Resources::loadTexture("norm", "assets/textures/Metal_Panel_005_NORM.jpg");
-	material->metallicRoughnessTexture = Resources::loadTexture("rough", "assets/textures/Metal_Panel_005_ROUGH.jpg");*/
+	material->albedoTexture = Resources::loadTexture("color", "resources/textures/Metal_Panel_005_COLOR.jpg");
+	material->normalTexture = Resources::loadTexture("norm", "resources/textures/Metal_Panel_005_NORM.jpg");
+	material->metallicRoughnessTexture = Resources::loadTexture("rough", "resources/textures/Metal_Panel_005_ROUGH.jpg");*/
 	materialComponent->material = material;
 	box->add(materialComponent);
 

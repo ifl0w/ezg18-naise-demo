@@ -8,7 +8,7 @@ CameraComponent::CameraComponent() {
 	// Load video-settings.ini
 	/* --------------------------------------------- */
 	// init reader for ini files
-	//INIReader videoIniReader("assets/video-settings.ini");
+	//INIReader videoIniReader("resources/video-settings.ini");
 
 	// load window values from ini file
 	// first param: section [window], second param: property name, third param: default value

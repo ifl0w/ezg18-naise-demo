@@ -6,7 +6,7 @@
 using namespace NAISE::Engine;
 
 ShadowShader::ShadowShader()
-		: Shader("engine/shaders/shadows/shadow-map.vert",
-				 "engine/shaders/shadows/shadow-map.frag") {
+		: Shader("engine/resources/shaders/shadows/shadow-map.vert",
+				 "engine/resources/shaders/shadows/shadow-map.frag") {
 }
 
