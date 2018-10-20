@@ -6,7 +6,7 @@
 using namespace NAISE::Engine;
 
 InputSystem::InputSystem() {
-	inputFilter.requirement<InputComponent>();
+	Engine::getEntityManager().addSignature<InputSignature>();
 }
 
 void InputSystem::process(const EntityManager& em, microseconds deltaTime) {
@@ -21,16 +21,16 @@ void InputSystem::process(const EntityManager& em, microseconds deltaTime) {
 
 			auto actions = mapper->resolve(event);
 
-			em.filter(inputFilter, [=](Entity& entity) {
-			  // handle remaining events
-			  auto& comp = entity.component<InputComponent>();
+			for (auto entity: Engine::getEntityManager().getSignature<InputSignature>()->entities) {
+				// handle remaining events
+				auto& comp = entity->component<InputComponent>();
 
-			  for (auto& action: actions) {
-				  if (comp.hasAction(action)) {
-					  mapper->input(action, comp.action(action), event);
-				  }
-			  }
-			});
+				for (auto& action: actions) {
+					if (comp.hasAction(action)) {
+						mapper->input(action, comp.action(action), event);
+					}
+				}
+			}
 		}
 	}
 }

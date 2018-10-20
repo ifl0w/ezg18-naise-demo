@@ -37,13 +37,13 @@ int main(int argc, char** argv) {
 
 	// initialize the systems of the engine
 	Engine::getSystemsManager().registerSystem<WindowSystem>();
-	Engine::getSystemsManager().registerSystem<InputSystem>(); // TODO use signatures
+	Engine::getSystemsManager().registerSystem<InputSystem>();
 	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<FPSCameraInputMapper>());
 	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<VisualDebuggingInputMapper>());
-	Engine::getSystemsManager().registerSystem<FPSCameraMovementSystem>(); // TODO use signatures
+	Engine::getSystemsManager().registerSystem<FPSCameraMovementSystem>();
 	Engine::getSystemsManager().registerSystem<PhysicsSystem>();
 	Engine::getSystemsManager().registerSystem<TransformSystem>();
-	Engine::getSystemsManager().registerSystem<RenderSystem>(); // TODO use signatures
+	Engine::getSystemsManager().registerSystem<RenderSystem>();
 
 	auto floorEntity = make_shared<NAISE::Engine::Entity>();
 	floorEntity->add<TransformComponent>();

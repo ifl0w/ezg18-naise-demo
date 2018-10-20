@@ -6,18 +6,15 @@
 
 using namespace NAISE::Engine;
 
+struct MovementSignature: public Signature<InputComponent, TransformComponent> {};
+
 class FPSCameraMovementSystem : public System {
 public:
-	FPSCameraMovementSystem() {
-		movementFilter.requirement<InputComponent>();
-		movementFilter.requirement<TransformComponent>();
-	}
+	FPSCameraMovementSystem();
 
 	void process(const EntityManager& em, microseconds deltaTime) override;
 
 private:
-	Filter movementFilter;
-
 	float _moveSpeed = 5;
 	float _sprintMultiplier = 5;
 	float _mouseSpeed = 0.1;

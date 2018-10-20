@@ -12,7 +12,6 @@ void SystemsManager::process(const EntityManager& em, std::chrono::microseconds 
 
 		system.second->process(em, deltaTime);
 
-		// fps calculation
 		_deltaTime = duration_cast<microseconds>(steady_clock::now() - _beginTime);
 //		NAISE_DEBUG_CONSOL("{} :: Processing took {}ms", system.first.name(), duration_cast<milliseconds>(_deltaTime).count());
 	}

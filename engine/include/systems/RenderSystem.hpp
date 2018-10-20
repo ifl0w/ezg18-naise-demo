@@ -19,26 +19,16 @@
 namespace NAISE {
 namespace Engine {
 
+struct SunSignature: public Signature<LightComponent> {};
+struct LightSignature: public Signature<LightComponent, TransformComponent> {};
+struct GeometrySignature: public Signature<TransformComponent, MeshComponent> {};
+struct CameraSignature: public Signature<CameraComponent, TransformComponent> {};
+struct DebugDrawSignature: public Signature<PhysicsDebugComponent> {};
+
 class RenderSystem : public System {
 public:
 
-	RenderSystem() {
-		sunFilter.requirement<LightComponent>();
-
-		shadowFilter.requirement<TransformComponent>();
-		shadowFilter.requirement<MeshComponent>();
-
-		cameraFilter.requirement<CameraComponent>();
-		cameraFilter.requirement<TransformComponent>();
-
-		geometryFilter.requirement<MeshComponent>();
-		geometryFilter.requirement<TransformComponent>();
-
-		lightFilter.requirement<TransformComponent>();
-		lightFilter.requirement<LightComponent>();
-
-		debugDrawFilter.requirement<PhysicsDebugComponent>();
-	}
+	RenderSystem();
 
 	void process(const EntityManager& em, microseconds deltaTime) override;
 
@@ -47,15 +37,7 @@ public:
 	}
 
 private:
-
 	bool cullEntity(Entity& camera, Entity& entity);
-
-	Filter sunFilter;
-	Filter shadowFilter;
-	Filter cameraFilter;
-	Filter geometryFilter;
-	Filter lightFilter;
-	Filter debugDrawFilter;
 
 	RenderEngine renderEngine;
 
