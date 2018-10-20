@@ -15,14 +15,29 @@ namespace Engine {
 
 struct SignatureBase {
   virtual bool match(Entity& entity) { return false; };
+
+  virtual void update(Entity* entity) { };
   vector<Entity*> entities;
 };
 
-template <typename ... ComponentTypes>
-struct Signature: public SignatureBase {
+template<typename ... ComponentTypes>
+struct Signature : public SignatureBase {
   bool match(Entity& entity) override {
-	bool x = (entity.has<ComponentTypes>() && ...);
-  	return x;
+	  bool x = (entity.has<ComponentTypes>() && ...);
+	  return x;
+  }
+
+  void update(Entity* entity) override {
+	  auto it = find_if(entities.begin(), entities.end(), [=](auto e) { return e->id == entity->id; });
+
+	  // not matching and contained (remove)
+	  if (!match(*entity) && it != entities.end()) {
+		  entities.erase(it);
+	  }
+	  // matching and not contained (insert)
+	  if (match(*entity) && it == entities.end()) {
+		  entities.push_back(entity);
+	  }
   }
 };
 
@@ -56,18 +71,25 @@ public:
 	 */
 	Entity* getEntity(EntityID id);
 
-	void filter(Filter filter, function<void (Entity&)> filterCallback) const;
-	void filter(Filter filter, function<void (Entity*)> filterCallback) const;
-	void filter(Filter filter, function<void (vector<Entity*>)> filterCallback) const;
+	void filter(Filter filter, function<void(Entity&)> filterCallback) const;
+	void filter(Filter filter, function<void(Entity*)> filterCallback) const;
+	void filter(Filter filter, function<void(vector<Entity*>)> filterCallback) const;
 
 	void cleanup();
 
-	template <typename T>
+	/**
+	 * Update all signatures if the components of a given Entity changed.
+	 *
+	 * @param id
+	 */
+	void updateSignatures(EntityID id);
+
+	template<typename T>
 	void addSignature() {
 		signatures.insert(pair(type_index(typeid(T)), make_unique<T>()));
 	}
 
-	template <typename T>
+	template<typename T>
 	T* getSignature() {
 		return static_cast<T*>(signatures[type_index(typeid(T))].get());
 	}

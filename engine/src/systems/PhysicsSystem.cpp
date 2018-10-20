@@ -43,6 +43,8 @@ PhysicsSystem::PhysicsSystem() {
 		  dynamicsWorld->addRigidBody(rigidBody);
 	  }
 	});
+
+	// TODO: handle component removed and entity removed events.
 }
 
 void PhysicsSystem::process(const EntityManager& em, microseconds deltaTime) {

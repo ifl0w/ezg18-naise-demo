@@ -86,3 +86,15 @@ void EntityManager::cleanup() {
 	}
 }
 
+void EntityManager::updateSignatures(EntityID id) {
+	auto it = entityMap.find(id);
+
+	if (it == entityMap.end()) {
+		return;
+	}
+
+	for (auto& s: signatures) {
+		s.second->update(it->second);
+	}
+}
+

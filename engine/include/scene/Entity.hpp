@@ -46,16 +46,19 @@ private:
 	unordered_map<type_index, shared_ptr<Component>> components;
 
 	static EntityID _lastID;
+
+	void notifyEntityManager();
 };
 
 template<class T>
 void Entity::add(shared_ptr<T> component) {
 	components[type_index(typeid(T))] = component;
+	notifyEntityManager();
 }
 
 template<class T, typename... Args>
 void Entity::add(Args&& ... args) {
-	components[type_index(typeid(T))] = make_shared<T>(args...);
+	add(make_shared<T>(args...));
 }
 
 template<class T>
@@ -73,6 +76,7 @@ T& Entity::component() const {
 template<class T>
 void Entity::removeComponent() {
 	components.erase(type_index(typeid(T)));
+	notifyEntityManager();
 }
 
 template<class T>

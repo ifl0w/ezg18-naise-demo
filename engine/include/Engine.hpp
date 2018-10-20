@@ -1,13 +1,14 @@
 #pragma once
 
-#include <scene/EntityManager.hpp>
 
 #include <memory>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <systems/System.hpp>
 #include <systems/input/InputSystem.hpp>
+
 #include <systems/EventManager.hpp>
+#include <scene/EntityManager.hpp>
 
 using namespace std;
 
