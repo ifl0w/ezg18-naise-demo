@@ -9,8 +9,7 @@
 using namespace NAISE::Engine;
 
 PhysicsSystem::PhysicsSystem() {
-	rigidBodyFilter.requirement<RigidBodyComponent>();
-	rigidBodyFilter.requirement<TransformComponent>();
+	Engine::getEntityManager().addSignature<RigidBodySignature>();
 
 	// Build the broadphase
 	broadphase = std::make_unique<btDbvtBroadphase>();
@@ -50,29 +49,30 @@ void PhysicsSystem::process(const EntityManager& em, microseconds deltaTime) {
 	std::chrono::duration<float> sec = deltaTime;
 	dynamicsWorld->stepSimulation(sec.count(), PHYSICS_SUBSTEPS, 1.0f / 60.0f); // timeStep < substeps * fixedTime
 
-	em.filter(rigidBodyFilter, [&](Entity& entity) {
-	  auto rigidBody = entity.component<RigidBodyComponent>().rigidBody.get();
+	auto& rgd = Engine::getEntityManager().getSignature<RigidBodySignature>()->entities;
+	for (auto& entity: rgd) {
+		auto rigidBody = entity->component<RigidBodyComponent>().rigidBody.get();
 
-	  if (!rigidBody->isStaticOrKinematicObject()) {
-		  auto& transform = entity.component<TransformComponent>();
-		  auto rigidTransform = rigidBody->getWorldTransform();
+		if (!rigidBody->isStaticOrKinematicObject()) {
+			auto& transform = entity->component<TransformComponent>();
+			auto rigidTransform = rigidBody->getWorldTransform();
 
-		  transform.rotation = btQuaternion3ToQuat(rigidTransform.getRotation());
-		  transform.position = btVector3ToVec3(rigidTransform.getOrigin());
-	  } else {
-		  // TODO: this branch should probably be executed before the simulation. Investigate!
-		  auto& transform = entity.component<TransformComponent>();
+			transform.rotation = btQuaternion3ToQuat(rigidTransform.getRotation());
+			transform.position = btVector3ToVec3(rigidTransform.getOrigin());
+		} else {
+			// TODO: this branch should probably be executed before the simulation. Investigate!
+			auto& transform = entity->component<TransformComponent>();
 
-		  btTransform newWorldTransform;
-		  newWorldTransform.setFromOpenGLMatrix(glm::value_ptr(transform.getModelMatrix()));
+			btTransform newWorldTransform;
+			newWorldTransform.setFromOpenGLMatrix(glm::value_ptr(transform.getModelMatrix()));
 
-		  if (rigidBody->isKinematicObject()) {
-			  rigidBody->getMotionState()->setWorldTransform(newWorldTransform);
-		  } else {
-			  rigidBody->setWorldTransform(newWorldTransform);
-		  }
-	  }
-	});
+			if (rigidBody->isKinematicObject()) {
+				rigidBody->getMotionState()->setWorldTransform(newWorldTransform);
+			} else {
+				rigidBody->setWorldTransform(newWorldTransform);
+			}
+		}
+	}
 
 	if (physicsDebugging) {
 		debugDrawer->beginDebugFrame();

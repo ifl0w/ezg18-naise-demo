@@ -4,8 +4,49 @@
 using namespace NAISE::Engine;
 
 void EntityManager::addEntity(shared_ptr<Entity> entity) {
+	// add to entity list
 	entities.push_back(entity);
+	// add to EntityID map
+	entityMap.insert(pair(entity->id, entity.get()));
+
+	// add to signatures
+	for (auto& signature: signatures) {
+		if (signature.second->match(*entity.get())) {
+			signature.second->entities.push_back(entity.get());
+		}
+	}
+
 	Engine::getEventManager().event<RuntimeEvents::EntityAdded>().emit(entity->id);
+}
+
+Entity* EntityManager::getEntity(EntityID id) {
+	auto it = entityMap.find(id);
+
+	if (it != entityMap.end()) {
+		return it->second;
+	}
+
+	return nullptr;
+}
+
+void EntityManager::removeEntity(EntityID id) {
+	// remove from signatures
+	for (auto& signature: signatures) {
+		auto& s = signature.second;
+		if (s->match(*entityMap[id])) {
+			s->entities.erase(remove_if(s->entities.begin(), s->entities.end(), [&](auto ptr){
+			  return ptr->id == id;
+			}), s->entities.end());
+		}
+	}
+
+	// remove from EntityID map
+	entityMap.erase(id);
+
+	// remove from entity list
+	entities.erase(remove_if(entities.begin(), entities.end(), [&](auto& ptr){
+	  return ptr->id == id;
+	}), entities.end());
 }
 
 void EntityManager::filter(Filter filter, function<void(Entity&)> filterCallback) const {
@@ -38,21 +79,10 @@ void EntityManager::filter(Filter filter, function<void(vector<Entity*>)> filter
 
 void EntityManager::cleanup() {
 	entities.clear();
-}
+	entityMap.clear();
 
-Entity* EntityManager::getEntity(EntityID id) {
-	for (auto entity: entities) {
-		if (entity->id == id) {
-			return entity.get();
-		}
+	for (auto& s: signatures) {
+		s.second->entities.clear();
 	}
-
-	return nullptr;
-}
-
-void EntityManager::removeEntity(EntityID id) {
-	entities.erase(remove_if(entities.begin(), entities.end(), [&](auto& ptr){
-		return ptr->id == id;
-	}), entities.end());
 }
 

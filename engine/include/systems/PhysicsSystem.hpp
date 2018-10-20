@@ -7,12 +7,17 @@
 #include <LinearMath/btDefaultMotionState.h>
 #include <glm/glm.hpp>
 
+#include <components/RigidBodyComponent.hpp>
+#include <components/TransformComponent.hpp>
+
 #include "physics/BulletDebugDrawer.hpp"
 
 #define PHYSICS_SUBSTEPS 4
 
 namespace NAISE {
 namespace Engine {
+
+struct RigidBodySignature: public Signature<RigidBodyComponent, TransformComponent> {};
 
 class PhysicsSystem: public System {
 public:
@@ -25,9 +30,8 @@ public:
 	 * Display the bounding boxes and states of objects in the physics world.
 	 */
 	void toggleVisualDebugging();
-private:
-	Filter rigidBodyFilter;
 
+private:
 	/* Physic properties */
 	std::unique_ptr<btDiscreteDynamicsWorld> dynamicsWorld;
 	std::unique_ptr<btBroadphaseInterface> broadphase;

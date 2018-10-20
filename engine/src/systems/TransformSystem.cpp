@@ -9,34 +9,35 @@
 using namespace NAISE::Engine;
 
 TransformSystem::TransformSystem() {
-	parentFilter.requirement<ParentComponent>();
-	transformFilter.requirement<TransformComponent>();
-
-	boundingBoxFilter.requirement<TransformComponent>();
-	boundingBoxFilter.requirement<AABBComponent>();
+	Engine::getEntityManager().addSignature<TransformSignature>();
+	Engine::getEntityManager().addSignature<ParentSignature>();
+	Engine::getEntityManager().addSignature<AABBSignature>();
 }
 
 void TransformSystem::process(const EntityManager& em, microseconds deltaTime) {
+
 	// calculate all local model matrices
-	em.filter(transformFilter, [&](Entity& entity) {
-	  entity.component<TransformComponent>().calculateLocalModelMatrix();
-	});
+	auto& t = Engine::getEntityManager().getSignature<TransformSignature>()->entities;
+	for (auto& e: t) {
+		e->component<TransformComponent>().calculateLocalModelMatrix();
+	}
 
+	auto& p = Engine::getEntityManager().getSignature<ParentSignature>()->entities;
 	// reset evaluated flags
-	em.filter(parentFilter, [&](Entity& entity) {
-	  entity.component<ParentComponent>().evaluated = false;
-	});
+	for (auto& e: p) {
+		e->component<ParentComponent>().evaluated = false;
+	}
+	for (auto& e: p) {
+		evaluateNode(*e);
+	}
 
-	em.filter(parentFilter, [&](Entity& entity) {
-	  evaluateNode(entity);
-	});
+	auto& b = Engine::getEntityManager().getSignature<AABBSignature>()->entities;
+	for (auto& e: b) {
+		auto& tc = e->component<TransformComponent>();
+		auto& aabb = e->component<AABBComponent>().aabb;
 
-	em.filter(boundingBoxFilter, [&](Entity& entity) {
-	  auto& tc = entity.component<TransformComponent>();
-	  auto& aabb = entity.component<AABBComponent>().aabb;
-
-	  aabb.transform(tc.getModelMatrix());
-	});
+		aabb.transform(tc.getModelMatrix());
+	}
 }
 
 mat4 TransformSystem::evaluateNode(Entity& entity) {
