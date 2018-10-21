@@ -91,7 +91,15 @@ public:
 
 	template<typename T>
 	T* getSignature() {
-		return static_cast<T*>(signatures[type_index(typeid(T))].get());
+		T* tmp;
+
+		try {
+			tmp = static_cast<T*>(signatures.at(type_index(typeid(T))).get());
+		} catch (const std::out_of_range& e) {
+			throw std::invalid_argument("Signature not registered.");
+		}
+
+		return tmp;
 	}
 
 private:
