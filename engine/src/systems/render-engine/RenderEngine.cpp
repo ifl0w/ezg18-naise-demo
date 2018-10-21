@@ -57,6 +57,11 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboLightData);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(LightData) * 1000, nullptr, GL_STATIC_DRAW);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	glGenBuffers(1, &ssboInstanceTransforms);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboInstanceTransforms);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(mat4) * maxInstanceCount, nullptr, GL_STATIC_DRAW);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 void RenderEngine::initFrame(const CameraComponent& cameraComponent, const TransformComponent& transform) {
@@ -385,7 +390,7 @@ void RenderEngine::renderLights(const Light& light, mat4 transform, const Entity
 	glDisable(GL_STENCIL_TEST);
 }
 
-void RenderEngine::shadowPass(const Entity& light, const Entity& camera, const vector<Entity*> entities) {
+void RenderEngine::activateShadowPass(const Entity& light, const Entity& camera) {
 	shadowMap->use();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	shadowShader.useShader();
@@ -400,6 +405,15 @@ void RenderEngine::shadowPass(const Entity& light, const Entity& camera, const v
 	// disable back face culling
 	glDisable(GL_CULL_FACE);
 	glViewport(0, 0, shadowMap->width, shadowMap->height);
+}
+
+void RenderEngine::deactivateShadowPass() {
+	glViewport(0, 0, viewportWidth, viewportHeight);
+	// enable back face culling
+	glEnable(GL_CULL_FACE);
+}
+
+void RenderEngine::shadowPass( const vector<Entity*> entities) {
 	for (auto const& e: entities) {
 
 		// TODO fix shadow frustum culling
@@ -426,9 +440,6 @@ void RenderEngine::shadowPass(const Entity& light, const Entity& camera, const v
 
 		drawMesh(mesh, material, transform);
 	}
-	glViewport(0, 0, viewportWidth, viewportHeight);
-	// enable back face culling
-	glEnable(GL_CULL_FACE);
 }
 
 
@@ -554,6 +565,29 @@ void RenderEngine::drawMeshDirect(const Mesh& mesh) {
 	drawCallCount++;
 }
 
+void RenderEngine::drawMeshInstanced(const Mesh& mesh, const Material* material, vector<mat4> transforms) {
+	// material-shader
+	if (material == nullptr) {
+		material = _defaultMaterial.get();
+	}
+
+	if (material->shader->shaderID != Shader::activeShader) {
+		material->shader->useShader();
+	}
+
+	_skybox->applyToShader(material->shader);
+
+	material->useMaterial();
+
+	if (wireframe) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	} else {
+		glPolygonMode(GL_FRONT_AND_BACK, material->polygonMode);
+	}
+
+	drawMeshInstancedDirect(mesh, transforms);
+}
+
 void RenderEngine::drawMesh(const Mesh& mesh, const Material* material, mat4 transform) {
 	// material-shader
 	if (material == nullptr) {
@@ -603,4 +637,19 @@ void RenderEngine::skyboxPass() {
 
 void RenderEngine::setSkybox(Skybox *skybox) {
 	_skybox = skybox;
+}
+
+void RenderEngine::drawMeshInstancedDirect(const Mesh& mesh, vector<mat4> transforms) {
+	glUniform1i(glGetUniformLocation(static_cast<GLuint>(Shader::activeShader), "useInstancing"), true);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssboInstanceTransformsBindingIndex, ssboInstanceTransforms);
+	glNamedBufferSubData(ssboInstanceTransforms, 0, transforms.size() * sizeof(mat4), transforms.data());
+
+	glBindVertexArray(mesh.vao);
+	glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_INT, nullptr,
+							static_cast<GLsizei>(transforms.size()));
+	glBindVertexArray(0);
+
+	glUniform1i(glGetUniformLocation(static_cast<GLuint>(Shader::activeShader), "useInstancing"), false);
+
+	drawCallCount++;
 }

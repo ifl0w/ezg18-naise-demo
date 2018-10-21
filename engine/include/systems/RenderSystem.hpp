@@ -25,6 +25,8 @@ struct GeometrySignature: public Signature<TransformComponent, MeshComponent> {}
 struct CameraSignature: public Signature<CameraComponent, TransformComponent> {};
 struct DebugDrawSignature: public Signature<PhysicsDebugComponent> {};
 
+using InstanceID = std::pair<Mesh*, Material*>;
+
 class RenderSystem : public System {
 public:
 
@@ -42,6 +44,9 @@ private:
 	RenderEngine renderEngine;
 
 	Skybox skybox = Skybox(glm::vec3(0.3,0.3,0.3));
+
+	map<Mesh*, vector<glm::mat4>> shadowMeshInstances;
+	map<InstanceID, vector<glm::mat4>> meshInstances;
 };
 
 }

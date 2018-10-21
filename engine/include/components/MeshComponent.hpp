@@ -1,3 +1,5 @@
+#include <utility>
+
 #pragma once
 
 #include "Component.hpp"
@@ -21,9 +23,9 @@ class MeshComponent: public Component {
 public:
 	MeshComponent(): mesh(make_shared<Mesh>()) {};
 
-	shared_ptr<Mesh> mesh;
+	explicit MeshComponent(shared_ptr<Mesh> mesh): mesh(std::move(mesh)) {};
 
-	// AABB aabb;
+	shared_ptr<Mesh> mesh;
 };
 
 }

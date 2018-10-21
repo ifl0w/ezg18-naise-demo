@@ -133,7 +133,9 @@ private:
 	bool lightVolumeDebugging = false;
 	void geometryPass(const Mesh& mesh, const Material* material, mat4 transform);
 
-	void shadowPass(const Entity& light, const Entity& camera, vector<Entity*> entities);
+	void activateShadowPass(const Entity& light, const Entity& camera);
+	void shadowPass(vector<Entity*> entities);
+	void deactivateShadowPass();
 	void prepareLightPass();
 	void lightPass(const Light& light);
 
@@ -159,9 +161,16 @@ private:
 	unique_ptr<Material>  _defaultMaterial;
 	Skybox* _skybox;
 
+	// instancing properties
+	GLuint maxInstanceCount = 100000;
+	GLuint ssboInstanceTransformsBindingIndex = 0;
+	GLuint ssboInstanceTransforms;
+
 	// command functions
-	void drawMeshDirect(const Mesh& mesh);
+	void drawMeshInstanced(const Mesh& mesh, const Material* material, vector<mat4> transforms);
+	void drawMeshInstancedDirect(const Mesh& mesh, vector<mat4> transforms);
 	void drawMesh(const Mesh& mesh, const Material* material = nullptr, mat4 transform = mat4(1));
+	void drawMeshDirect(const Mesh& mesh);
 	void drawDebugMesh(const Mesh& mesh, glm::vec3 color);
 };
 

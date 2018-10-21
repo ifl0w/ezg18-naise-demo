@@ -2,7 +2,6 @@
 #include <components/AABBComponent.hpp>
 
 #include <Engine.hpp>
-#include <Logger.hpp>
 
 using namespace NAISE::Engine;
 
@@ -13,7 +12,6 @@ RenderSystem::RenderSystem() {
 	Engine::getEntityManager().addSignature<CameraSignature>();
 	Engine::getEntityManager().addSignature<DebugDrawSignature>();
 }
-
 
 void RenderSystem::process(const EntityManager& em, microseconds deltaTime) {
 	Entity* camera = nullptr;
@@ -42,16 +40,14 @@ void RenderSystem::process(const EntityManager& em, microseconds deltaTime) {
 	}
 
 	auto& geometryEntities = Engine::getEntityManager().getSignature<GeometrySignature>()->entities;
-	if (sun != nullptr) {
-		renderEngine.shadowPass(*sun, *camera, geometryEntities);
-	}
-
-	renderEngine.initFrame(camera->component<CameraComponent>(), camera->component<TransformComponent>());
-
-//		renderEngine.wireframe = true;
-//		renderEngine.backfaceCulling = false;
-	renderEngine.activateRenderState();
+	for (auto& instanceID: meshInstances) {	instanceID.second.clear(); } // clear instances
+	for (auto& instanceID: shadowMeshInstances) {	instanceID.second.clear(); } // clear instances
 	for (auto entity: geometryEntities) {
+		Mesh* mesh = entity->component<MeshComponent>().mesh.get();
+
+		// TODO: cull shadow meshes
+		shadowMeshInstances[mesh].push_back(entity->component<TransformComponent>().getModelMatrix());
+
 		if (cullEntity(*camera, *entity)) {
 			continue;
 		}
@@ -60,9 +56,27 @@ void RenderSystem::process(const EntityManager& em, microseconds deltaTime) {
 		if (entity->has<MaterialComponent>()) {
 			material = entity->component<MaterialComponent>().material.get();
 		}
-		renderEngine.geometryPass(*entity->component<MeshComponent>().mesh.get(),
-								  material,
-								  entity->component<TransformComponent>().getModelMatrix());
+
+		InstanceID instanceID(mesh, material);
+
+		meshInstances[instanceID].push_back(entity->component<TransformComponent>().getModelMatrix());
+	}
+
+	if (sun != nullptr) {
+		renderEngine.activateShadowPass(*sun, *camera);
+		for (auto& instance: shadowMeshInstances) {
+			renderEngine.drawMeshInstancedDirect(*instance.first, instance.second);
+		}
+		renderEngine.deactivateShadowPass();
+	}
+
+	renderEngine.initFrame(camera->component<CameraComponent>(), camera->component<TransformComponent>());
+
+//		renderEngine.wireframe = true;
+//		renderEngine.backfaceCulling = false;
+	renderEngine.activateRenderState();
+	for (auto& instanceID: meshInstances) {
+		renderEngine.drawMeshInstanced(*instanceID.first.first, instanceID.first.second, instanceID.second);
 	}
 	renderEngine.deactivateRenderState();
 

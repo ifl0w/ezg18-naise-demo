@@ -8,9 +8,9 @@ layout(location = 2) in vec2 uv;
 layout(location = 3) in vec3 tangent;
 
 uniform bool useInstancing = false;
-layout(std430, binding = 4) buffer particleTransformations
+layout(std430, binding = 0) buffer InstanceTransforms
 {
-    mat4 instanceTransformations[];
+    mat4 instanceTransforms[];
 };
 
 layout(std140, binding = 1) uniform projectionData
@@ -103,7 +103,7 @@ void main() {
     mat4 mMatrix = modelMatrix;
 
     if(useInstancing) {
-        mMatrix = instanceTransformations[gl_InstanceID];
+        mMatrix = instanceTransforms[gl_InstanceID];
     }
 
     TBN = mat3(0);
