@@ -36,10 +36,11 @@ PhysicsSystem::PhysicsSystem() {
 
 	Engine::getEventManager().event<RuntimeEvents::EntityAdded>().subscribe([&](EntityID id) {
 	  Entity* newEntity = Engine::getEntityManager().getEntity(id);
+	  if (!newEntity) { return; }
 
-	  if (newEntity && newEntity->has<RigidBodyComponent>()) {
+	  if (auto* rigidBodyComponent = newEntity->get<RigidBodyComponent>()) {
 		  rigidBodyEntities.push_back(newEntity);
-		  auto rigidBody = newEntity->component<RigidBodyComponent>().rigidBody.get();
+		  auto rigidBody = rigidBodyComponent->rigidBody.get();
 		  rigidBody->setUserIndex(id);
 		  rigidBody->activate(true);
 		  dynamicsWorld->addRigidBody(rigidBody);
@@ -122,16 +123,16 @@ void PhysicsSystem::evaluateCollisions() {
 				const btVector3& ptB = pt.getPositionWorldOnB();
 				const btVector3& normalOnB = pt.m_normalWorldOnB;
 
-				if (enitiyA->has<CollisionComponent>()) {
-					enitiyA->component<CollisionComponent>().collisionPoints.push_back(btVector3ToVec3(ptA));
-					enitiyA->component<CollisionComponent>().collisionNormals.push_back(btVector3ToVec3(-normalOnB));
-					enitiyA->component<CollisionComponent>().collisionEntities.push_back(enitiyB->id);
+				if (auto* cc = enitiyA->get<CollisionComponent>()) {
+					cc->collisionPoints.push_back(btVector3ToVec3(ptA));
+					cc->collisionNormals.push_back(btVector3ToVec3(-normalOnB));
+					cc->collisionEntities.push_back(enitiyB->id);
 				}
 
-				if (enitiyB->has<CollisionComponent>()) {
-					enitiyB->component<CollisionComponent>().collisionPoints.push_back(btVector3ToVec3(ptB));
-					enitiyB->component<CollisionComponent>().collisionNormals.push_back(btVector3ToVec3(normalOnB));
-					enitiyB->component<CollisionComponent>().collisionEntities.push_back(enitiyA->id);
+				if (auto* cc = enitiyA->get<CollisionComponent>()) {
+					cc->collisionPoints.push_back(btVector3ToVec3(ptB));
+					cc->collisionNormals.push_back(btVector3ToVec3(normalOnB));
+					cc->collisionEntities.push_back(enitiyA->id);
 				}
 			}
 		}

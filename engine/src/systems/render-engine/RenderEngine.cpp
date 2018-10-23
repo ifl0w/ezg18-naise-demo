@@ -432,8 +432,8 @@ void RenderEngine::shadowPass( const vector<Entity*> entities) {
 		auto& mesh = *e->component<MeshComponent>().mesh.get();
 
 		Material* material = nullptr;
-		if (e->has<MaterialComponent>()) {
-			material = e->component<MaterialComponent>().material.get();
+		if (auto matComp = e->get<MaterialComponent>()) {
+			material = matComp->material.get();
 		}
 
 		auto transform = e->component<TransformComponent>().getModelMatrix();

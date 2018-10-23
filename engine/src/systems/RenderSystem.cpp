@@ -53,8 +53,8 @@ void RenderSystem::process(const EntityManager& em, microseconds deltaTime) {
 		}
 
 		Material* material = nullptr;
-		if (entity->has<MaterialComponent>()) {
-			material = entity->component<MaterialComponent>().material.get();
+		if (auto* matComp = entity->get<MaterialComponent>()) {
+			material = matComp->material.get();
 		}
 
 		InstanceID instanceID(mesh, material);
@@ -116,9 +116,11 @@ void RenderSystem::process(const EntityManager& em, microseconds deltaTime) {
 }
 
 bool RenderSystem::cullEntity(Entity& camera, Entity& entity) {
-	if (camera.has<CameraComponent>() && entity.has<AABBComponent>()) {
-		auto entityAABB = entity.component<AABBComponent>().aabb;
-		auto& cameraFrustum = camera.component<CameraComponent>().frustum;
+	auto* camComp = camera.get<CameraComponent>();
+	auto* aabbComp = entity.get<AABBComponent>();
+	if (camComp && aabbComp) {
+		auto entityAABB = aabbComp->aabb;
+		auto& cameraFrustum = camComp->frustum;
 
 		return !cameraFrustum.intersect(entityAABB);
 	}

@@ -35,6 +35,14 @@ public:
 	template <class T>
 	T& component() const;
 
+	/**
+	 * Return a pointer to the requested component or nullptr if the entity does not contain the component.
+	 * @tparam T
+	 * @return
+	 */
+	template <class T>
+	T* get() const;
+
 	template <class T>
 	bool has() const;
 
@@ -85,6 +93,18 @@ bool Entity::has() const {
 	return it != components.end();
 }
 
+template<class T>
+T* Entity::get() const {
+	T* tmp = nullptr;
+
+	try {
+		tmp = static_cast<T*>(components.at(type_index(typeid(T))).get());
+	} catch (std::out_of_range& e) {
+		// swallow
+	}
+
+	return tmp;
+}
 
 }
 }

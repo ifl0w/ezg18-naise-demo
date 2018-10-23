@@ -44,8 +44,8 @@ mat4 TransformSystem::evaluateNode(Entity& entity) {
 	mat4 ret = mat4(1);
 
 	if (!entity.has<ParentComponent>()) {
-		if (entity.has<TransformComponent>()) {
-			ret = entity.component<TransformComponent>().getLocalTransform();
+		if (auto* transComp = entity.get<TransformComponent>()) {
+			ret = transComp->getLocalTransform();
 		}
 
 		return ret;
@@ -62,13 +62,12 @@ mat4 TransformSystem::evaluateNode(Entity& entity) {
 		ret = pc.cachedParentTransform;
 	}
 
-	if (entity.has<TransformComponent>()) {
-		auto& tc = entity.component<TransformComponent>();
-		tc.parentTransform = ret;
-		ret *= tc.localTransform;
-		tc.globalTransform = ret;
+	if (auto tc = entity.get<TransformComponent>()) {
+		tc->parentTransform = ret;
+		ret *= tc->localTransform;
+		tc->globalTransform = ret;
 
-		tc.updateGlobalValues();
+		tc->updateGlobalValues();
 	}
 
 	pc.evaluated = true;
