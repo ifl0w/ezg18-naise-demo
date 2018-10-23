@@ -9,6 +9,7 @@
 
 #include <components/RigidBodyComponent.hpp>
 #include <components/TransformComponent.hpp>
+#include <components/CollisionComponent.hpp>
 
 #include "physics/BulletDebugDrawer.hpp"
 
@@ -18,6 +19,7 @@ namespace NAISE {
 namespace Engine {
 
 struct RigidBodySignature: public Signature<RigidBodyComponent, TransformComponent> {};
+struct CollisionSignature: public Signature<RigidBodyComponent, CollisionComponent, TransformComponent> {};
 
 class PhysicsSystem: public System {
 public:
@@ -44,6 +46,8 @@ private:
 	std::vector<Entity*> rigidBodyEntities;
 
 	bool physicsDebugging = false;
+
+	void evaluateCollisions();
 };
 
 /**

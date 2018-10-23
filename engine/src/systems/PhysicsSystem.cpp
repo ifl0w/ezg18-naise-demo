@@ -10,6 +10,7 @@ using namespace NAISE::Engine;
 
 PhysicsSystem::PhysicsSystem() {
 	Engine::getEntityManager().addSignature<RigidBodySignature>();
+	Engine::getEntityManager().addSignature<CollisionSignature>();
 
 	// Build the broadphase
 	broadphase = std::make_unique<btDbvtBroadphase>();
@@ -39,6 +40,7 @@ PhysicsSystem::PhysicsSystem() {
 	  if (newEntity && newEntity->has<RigidBodyComponent>()) {
 		  rigidBodyEntities.push_back(newEntity);
 		  auto rigidBody = newEntity->component<RigidBodyComponent>().rigidBody.get();
+		  rigidBody->setUserIndex(id);
 		  rigidBody->activate(true);
 		  dynamicsWorld->addRigidBody(rigidBody);
 	  }
@@ -76,6 +78,15 @@ void PhysicsSystem::process(const EntityManager& em, microseconds deltaTime) {
 		}
 	}
 
+	// clear collision components
+	for (auto e: Engine::getEntityManager().getSignature<CollisionSignature>()->entities) {
+		e->component<CollisionComponent>().collisionEntities.clear();
+		e->component<CollisionComponent>().collisionNormals.clear();
+		e->component<CollisionComponent>().collisionPoints.clear();
+	}
+	// add collision data to collision components
+	evaluateCollisions();
+
 	if (physicsDebugging) {
 		debugDrawer->beginDebugFrame();
 		dynamicsWorld->debugDrawWorld();
@@ -89,6 +100,43 @@ PhysicsSystem::~PhysicsSystem() {
 	}
 
 	rigidBodyEntities.clear();
+}
+
+void PhysicsSystem::evaluateCollisions() {
+	int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+	for (int i=0;i<numManifolds;i++)
+	{
+		btPersistentManifold* contactManifold =  dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+		auto* obA = contactManifold->getBody0();
+		Entity* enitiyA = Engine::getEntityManager().getEntity(static_cast<EntityID>(obA->getUserIndex()));
+		auto* obB = contactManifold->getBody1();
+		Entity* enitiyB = Engine::getEntityManager().getEntity(static_cast<EntityID>(obB->getUserIndex()));
+
+		int numContacts = contactManifold->getNumContacts();
+		for (int j=0;j<numContacts;j++)
+		{
+			btManifoldPoint& pt = contactManifold->getContactPoint(j);
+			if (pt.getDistance()<0.f)
+			{
+				const btVector3& ptA = pt.getPositionWorldOnA();
+				const btVector3& ptB = pt.getPositionWorldOnB();
+				const btVector3& normalOnB = pt.m_normalWorldOnB;
+
+				if (enitiyA->has<CollisionComponent>()) {
+					enitiyA->component<CollisionComponent>().collisionPoints.push_back(btVector3ToVec3(ptA));
+					enitiyA->component<CollisionComponent>().collisionNormals.push_back(btVector3ToVec3(-normalOnB));
+					enitiyA->component<CollisionComponent>().collisionEntities.push_back(enitiyB->id);
+				}
+
+				if (enitiyB->has<CollisionComponent>()) {
+					enitiyB->component<CollisionComponent>().collisionPoints.push_back(btVector3ToVec3(ptB));
+					enitiyB->component<CollisionComponent>().collisionNormals.push_back(btVector3ToVec3(normalOnB));
+					enitiyB->component<CollisionComponent>().collisionEntities.push_back(enitiyA->id);
+				}
+			}
+		}
+	}
+
 }
 
 void PhysicsSystem::toggleVisualDebugging() {
