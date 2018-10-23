@@ -23,10 +23,10 @@ void RenderSystem::process(const EntityManager& em, microseconds deltaTime) {
 
 	renderEngine.setSkybox(&skybox);
 
-	auto& cameraEntities = Engine::getEntityManager().getSignature<CameraSignature>()->entities;
+	auto& cameraEntities = Engine::getEntityManager().getEntities<CameraSignature>();
 	for (auto entity: cameraEntities) { camera = entity; }
 
-	auto& sunEntities = Engine::getEntityManager().getSignature<SunSignature>()->entities;
+	auto& sunEntities = Engine::getEntityManager().getEntities<SunSignature>();
 	for (auto entity: sunEntities) {
 		if (entity->component<LightComponent>().light->data.directional) {
 			sun = entity;
@@ -39,7 +39,7 @@ void RenderSystem::process(const EntityManager& em, microseconds deltaTime) {
 		return;
 	}
 
-	auto& geometryEntities = Engine::getEntityManager().getSignature<GeometrySignature>()->entities;
+	auto& geometryEntities = Engine::getEntityManager().getEntities<GeometrySignature>();
 	for (auto& instanceID: meshInstances) {	instanceID.second.clear(); } // clear instances
 	for (auto& instanceID: shadowMeshInstances) {	instanceID.second.clear(); } // clear instances
 	for (auto entity: geometryEntities) {
@@ -82,7 +82,7 @@ void RenderSystem::process(const EntityManager& em, microseconds deltaTime) {
 
 //	NAISE_DEBUG_CONSOL("Draw calls: {}", renderEngine.drawCallCount)
 
-	auto& lightEntities = Engine::getEntityManager().getSignature<LightSignature>()->entities;
+	auto& lightEntities = Engine::getEntityManager().getEntities<LightSignature>();
 	renderEngine.prepareLightPass();
 	for (auto entity: lightEntities) {
 		auto& light = *entity->component<LightComponent>().light.get();
@@ -106,7 +106,7 @@ void RenderSystem::process(const EntityManager& em, microseconds deltaTime) {
 	//GLOW
 	renderEngine.glowPass();
 
-	auto& debugDrawEntities = Engine::getEntityManager().getSignature<DebugDrawSignature>()->entities;
+	auto& debugDrawEntities = Engine::getEntityManager().getEntities<DebugDrawSignature>();
 //		renderEngine.activateRenderState();
 	for (auto& entity: debugDrawEntities) {
 		auto& p = entity->component<PhysicsDebugComponent>();

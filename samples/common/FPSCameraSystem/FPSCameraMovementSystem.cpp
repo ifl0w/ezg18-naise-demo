@@ -14,7 +14,7 @@ FPSCameraMovementSystem::FPSCameraMovementSystem() {
 
 void FPSCameraMovementSystem::process(const NAISE::Engine::EntityManager& em, microseconds deltaTime) {
 
-	for (auto entity: Engine::getEntityManager().getSignature<MovementSignature>()->entities) {
+	for (auto entity: Engine::getEntityManager().getEntities<MovementSignature>()) {
 		std::chrono::duration<float> sec = deltaTime;
 
 		auto& inputComponent = entity->component<InputComponent>();

@@ -102,6 +102,11 @@ public:
 		return tmp;
 	}
 
+	template<typename T>
+	vector<Entity*>& getEntities() {
+		return getSignature<T>()->entities;
+	}
+
 private:
 	vector<shared_ptr<Entity>> entities;
 	unordered_map<EntityID, Entity*> entityMap;

@@ -17,12 +17,12 @@ TransformSystem::TransformSystem() {
 void TransformSystem::process(const EntityManager& em, microseconds deltaTime) {
 
 	// calculate all local model matrices
-	auto& t = Engine::getEntityManager().getSignature<TransformSignature>()->entities;
+	auto& t = Engine::getEntityManager().getEntities<TransformSignature>();
 	for (auto e: t) {
 		e->component<TransformComponent>().calculateLocalModelMatrix();
 	}
 
-	auto& p = Engine::getEntityManager().getSignature<ParentSignature>()->entities;
+	auto& p = Engine::getEntityManager().getEntities<ParentSignature>();
 	// reset evaluated flags
 	for (auto e: p) {
 		e->component<ParentComponent>().evaluated = false;
@@ -31,7 +31,7 @@ void TransformSystem::process(const EntityManager& em, microseconds deltaTime) {
 		evaluateNode(*e);
 	}
 
-	auto& b = Engine::getEntityManager().getSignature<AABBSignature>()->entities;
+	auto& b = Engine::getEntityManager().getEntities<AABBSignature>();
 	for (auto e: b) {
 		auto& tc = e->component<TransformComponent>();
 		auto& aabb = e->component<AABBComponent>().aabb;

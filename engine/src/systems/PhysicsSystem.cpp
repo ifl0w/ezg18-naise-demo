@@ -54,7 +54,7 @@ void PhysicsSystem::process(const EntityManager& em, microseconds deltaTime) {
 	std::chrono::duration<float> sec = deltaTime;
 	dynamicsWorld->stepSimulation(sec.count(), PHYSICS_SUBSTEPS, 1.0f / 60.0f); // timeStep < substeps * fixedTime
 
-	auto& rgd = Engine::getEntityManager().getSignature<RigidBodySignature>()->entities;
+	auto& rgd = Engine::getEntityManager().getEntities<RigidBodySignature>();
 	for (auto& entity: rgd) {
 		auto rigidBody = entity->component<RigidBodyComponent>().rigidBody.get();
 
@@ -80,7 +80,7 @@ void PhysicsSystem::process(const EntityManager& em, microseconds deltaTime) {
 	}
 
 	// clear collision components
-	for (auto e: Engine::getEntityManager().getSignature<CollisionSignature>()->entities) {
+	for (auto e: Engine::getEntityManager().getEntities<CollisionSignature>()) {
 		e->component<CollisionComponent>().collisionEntities.clear();
 		e->component<CollisionComponent>().collisionNormals.clear();
 		e->component<CollisionComponent>().collisionPoints.clear();

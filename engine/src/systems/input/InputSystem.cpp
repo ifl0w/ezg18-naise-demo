@@ -21,7 +21,7 @@ void InputSystem::process(const EntityManager& em, microseconds deltaTime) {
 
 			auto actions = mapper->resolve(event);
 
-			for (auto entity: Engine::getEntityManager().getSignature<InputSignature>()->entities) {
+			for (auto entity: Engine::getEntityManager().getEntities<InputSignature>()) {
 				// handle remaining events
 				auto& comp = entity->component<InputComponent>();
 
