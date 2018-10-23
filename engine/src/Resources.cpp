@@ -17,6 +17,8 @@
 #include <tiny_gltf.h>
 
 #include <components/TransformComponent.hpp>
+#include <components/ParentComponent.hpp>
+#include <components/TagComponent.hpp>
 
 #include <systems/render-engine/textures/SkyboxTexture.hpp>
 #include <Logger.hpp>
@@ -232,6 +234,7 @@ vector<shared_ptr<Entity>> Resources::entityFromGLTFNode(const std::string& idPr
 
 	auto entity = make_shared<Entity>();
 	entity->add<TransformComponent>();
+	entity->add<TagComponent>(node.name);
 
 	string id = idPrefix + "->" + node.name;
 
@@ -242,8 +245,18 @@ vector<shared_ptr<Entity>> Resources::entityFromGLTFNode(const std::string& idPr
 		entity->component<MeshComponent>().mesh = getMesh<Mesh>(id, mesh, model);
 
 		if (node.translation.size() > 0) {
-			auto pos = vec3(node.translation[0], node.translation[1], node.translation[3]);
+			auto pos = vec3(node.translation[0], node.translation[1], node.translation[2]);
 			entity->component<TransformComponent>().position = pos;
+		}
+
+		if (node.scale.size() > 0) {
+			auto scale = vec3(node.scale[0], node.scale[1], node.scale[2]);
+			entity->component<TransformComponent>().scale = scale;
+		}
+
+		if (node.rotation.size() > 0) {
+			auto rot = quat( node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
+			entity->component<TransformComponent>().rotation = rot;
 		}
 
 		/* load material */
@@ -253,12 +266,12 @@ vector<shared_ptr<Entity>> Resources::entityFromGLTFNode(const std::string& idPr
 			entity->add<MaterialComponent>();
 			entity->component<MaterialComponent>().material = getMaterial<PBRMaterial>(id, gltfMaterial, model);
 		}
-
-		ret.push_back(entity);
 	}
+	ret.push_back(entity);
 
 	for (const auto& child: node.children) {
 		auto children = entityFromGLTFNode(id, model.nodes[child], model);
+		children[0]->add<ParentComponent>(entity->id);
 		ret.insert(ret.end(), children.begin(), children.end());
 	}
 
