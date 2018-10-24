@@ -1,4 +1,5 @@
 #include <systems/RenderSystem.hpp>
+#include <systems/WindowSystem.hpp>
 #include <components/AABBComponent.hpp>
 
 #include <Engine.hpp>
@@ -11,6 +12,10 @@ RenderSystem::RenderSystem() {
 	Engine::getEntityManager().addSignature<GeometrySignature>();
 	Engine::getEntityManager().addSignature<CameraSignature>();
 	Engine::getEntityManager().addSignature<DebugDrawSignature>();
+
+	Engine::getEventManager().event<WindowEvents::SetResolution>().subscribe([&](uint32_t width, uint32_t height){
+	  renderEngine.setResolution(width, height);
+	});
 }
 
 void RenderSystem::process(const EntityManager& em, microseconds deltaTime) {

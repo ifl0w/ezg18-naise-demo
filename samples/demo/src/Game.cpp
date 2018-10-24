@@ -150,7 +150,7 @@ int main(int argc, char **argv) {
 	Engine::getEntityManager().addEntity(box);
 	Engine::getEntityManager().addEntity(wall);
 
-//	engine.mainWindow->setResolution(1920, 1200);
+//	Engine::getEventManager().event<WindowEvents::SetResolution>().emit(1920, 1200);
 //	engine.mainWindow->setFullscreen(false);
 	engine.run();
 

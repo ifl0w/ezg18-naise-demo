@@ -60,6 +60,10 @@ WindowSystem::WindowSystem() {
 	Engine::getEventManager().event<WindowEvents::SetFullscreen>().subscribe([&](bool fullscreen){
 	  setFullscreen(fullscreen);
 	});
+
+	Engine::getEventManager().event<WindowEvents::SetResolution>().subscribe([&](uint32_t width, uint32_t height){
+	  setResolution(width, height);
+	});
 }
 
 ProcAddress NAISE::Engine::getProcAddress(const char* name) {
