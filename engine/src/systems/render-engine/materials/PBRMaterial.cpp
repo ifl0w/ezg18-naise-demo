@@ -83,7 +83,7 @@ PBRMaterial::PBRMaterial(const tinygltf::Material& material, const tinygltf::Mod
 		auto color = baseColorFactor.ColorFactor();
 		albedo = vec3(color[0], color[1], color[2]);
 	} catch (std::out_of_range& e) {
-		// swollow
+		albedo = vec3(1);
 	}
 
 	try {

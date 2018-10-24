@@ -109,16 +109,15 @@ int main(int argc, char **argv) {
 	for (int i = 0; i < 5; ++i) {
 		auto pointLight = make_shared<NAISE::Engine::Entity>();
 		pointLight->add<TransformComponent>();
-		pointLight->component<TransformComponent>().position = vec3(0, 0, -i * 20);
+		pointLight->component<TransformComponent>().position = vec3(0, 2, -i * 20);
 		pointLight->add(LightFactory::createLight<PointLight>());
 		pointLight->component<LightComponent>().light->data.diffuse = vec4(30, 30, 30, 1);
 		Engine::getEntityManager().addEntity(pointLight);
 
 		auto tunnelSegment = Resources::loadModel("resources/models/tunnel-segment/tunnel_segment.gltf");
+		tunnelSegment[0]->component<TransformComponent>().position = vec3(0, 0, -i * 20);
 		for (int j = 0; j < tunnelSegment.size(); ++j) {
-			auto &t = tunnelSegment[j];
-			t->component<TransformComponent>().position = vec3(0, 0, -i * 20);
-			Engine::getEntityManager().addEntity(t);
+			Engine::getEntityManager().addEntity(tunnelSegment[j]);
 		}
 
 	}

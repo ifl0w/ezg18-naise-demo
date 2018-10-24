@@ -285,6 +285,10 @@
     ],
     "images" : [
         {
+            "name" : "tunnel_emission",
+            "uri" : "tunnel_emission.jpg"
+        },
+        {
             "name" : "tunnel_albedo",
             "uri" : "tunnel_albedo.jpg"
         }
@@ -294,31 +298,39 @@
             "name" : "FloorGrill",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    0.5,
-                    0.5,
-                    0.5,
+                    0.20000000298023224,
+                    0.20000000298023224,
+                    0.20000000298023224,
                     1.0
                 ],
-                "roughnessFactor" : 0.6996337175369263
+                "roughnessFactor" : 0.20000000298023224
             }
         },
         {
             "name" : "pipe",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    0.5,
-                    0.5,
-                    0.5,
+                    0.20000000298023224,
+                    0.20000000298023224,
+                    0.20000000298023224,
                     1.0
                 ],
-                "roughnessFactor" : 0.3809524178504944
+                "roughnessFactor" : 0.20000000298023224
             }
         },
         {
+            "emissiveFactor" : [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "emissiveTexture" : {
+                "index" : 0
+            },
             "name" : "wall_tunnel",
             "pbrMetallicRoughness" : {
                 "baseColorTexture" : {
-                    "index" : 0
+                    "index" : 1
                 },
                 "metallicFactor" : 0.0,
                 "roughnessFactor" : 0.4000000059604645
@@ -415,6 +427,10 @@
         {
             "sampler" : 0,
             "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 1
         }
     ]
 }
