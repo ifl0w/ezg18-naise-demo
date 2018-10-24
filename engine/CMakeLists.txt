@@ -189,4 +189,4 @@ endif ()
 add_custom_command(TARGET engine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders
-        $<TARGET_FILE_DIR:engine>/engine/shaders)
+        $<TARGET_FILE_DIR:engine>/engine/resources/shaders)
