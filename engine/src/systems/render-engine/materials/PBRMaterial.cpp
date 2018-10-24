@@ -121,8 +121,7 @@ PBRMaterial::PBRMaterial(const tinygltf::Material& material, const tinygltf::Mod
 			metallicRoughnessTexture = Resources::loadTexture(model.textures[texID], model);
 		}
 	} catch (std::out_of_range& e) {
-		metallic = 1.0;
-		roughness = 1.0;
+		// swollow
 	}
 
 	try {

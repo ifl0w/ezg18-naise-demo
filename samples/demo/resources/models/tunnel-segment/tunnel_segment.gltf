@@ -5,7 +5,7 @@
             "componentType" : 5123,
             "count" : 18240,
             "max" : [
-                10759
+                6655
             ],
             "min" : [
                 0
@@ -15,7 +15,7 @@
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 10760,
+            "count" : 6656,
             "max" : [
                 4.789215087890625,
                 10.968006134033203,
@@ -31,23 +31,23 @@
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 10760,
+            "count" : 6656,
             "max" : [
-                0.995186984539032,
                 1.0,
-                0.9951846599578857
+                1.0,
+                1.0
             ],
             "min" : [
-                -0.995186984539032,
                 -1.0,
-                -0.9951846599578857
+                -1.0,
+                -1.0
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 3,
             "componentType" : 5126,
-            "count" : 10760,
+            "count" : 6656,
             "max" : [
                 1.0,
                 1.0
@@ -206,80 +206,80 @@
         },
         {
             "buffer" : 0,
-            "byteLength" : 129120,
+            "byteLength" : 79872,
             "byteOffset" : 36480,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 129120,
-            "byteOffset" : 165600,
+            "byteLength" : 79872,
+            "byteOffset" : 116352,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 86080,
-            "byteOffset" : 294720,
+            "byteLength" : 53248,
+            "byteOffset" : 196224,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 54576,
-            "byteOffset" : 380800,
+            "byteOffset" : 249472,
             "target" : 34963
         },
         {
             "buffer" : 0,
             "byteLength" : 202560,
-            "byteOffset" : 435376,
+            "byteOffset" : 304048,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 202560,
-            "byteOffset" : 637936,
+            "byteOffset" : 506608,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 135040,
-            "byteOffset" : 840496,
+            "byteOffset" : 709168,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 1920000,
-            "byteOffset" : 975536,
+            "byteOffset" : 844208,
             "target" : 34963
         },
         {
             "buffer" : 0,
             "byteLength" : 3213756,
-            "byteOffset" : 2895536,
+            "byteOffset" : 2764208,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 3213756,
-            "byteOffset" : 6109292,
+            "byteOffset" : 5977964,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 4285008,
-            "byteOffset" : 9323048,
+            "byteOffset" : 9191720,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 2142504,
-            "byteOffset" : 13608056,
+            "byteOffset" : 13476728,
             "target" : 34962
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 15750560,
+            "byteLength" : 15619232,
             "uri" : "tunnel_segment.bin"
         }
     ],
@@ -293,12 +293,24 @@
         {
             "name" : "FloorGrill",
             "pbrMetallicRoughness" : {
+                "baseColorFactor" : [
+                    0.5,
+                    0.5,
+                    0.5,
+                    1.0
+                ],
                 "roughnessFactor" : 0.6996337175369263
             }
         },
         {
             "name" : "pipe",
             "pbrMetallicRoughness" : {
+                "baseColorFactor" : [
+                    0.5,
+                    0.5,
+                    0.5,
+                    1.0
+                ],
                 "roughnessFactor" : 0.3809524178504944
             }
         },
@@ -309,7 +321,7 @@
                     "index" : 0
                 },
                 "metallicFactor" : 0.0,
-                "roughnessFactor" : 0.30000001192092896
+                "roughnessFactor" : 0.4000000059604645
             }
         }
     ],
@@ -383,10 +395,6 @@
                 0,
                 1
             ],
-            "mesh" : 1,
-            "name" : "Tunnel"
-        },
-        {
             "mesh" : 1,
             "name" : "Tunnel"
         }
