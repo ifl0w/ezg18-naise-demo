@@ -26,7 +26,7 @@ public:
 	PhysicsSystem();
 	~PhysicsSystem();
 
-	void process(const EntityManager& em, microseconds deltaTime) override;
+	void process(microseconds deltaTime) override;
 
 	/**
 	 * Display the bounding boxes and states of objects in the physics world.

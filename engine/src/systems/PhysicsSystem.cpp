@@ -50,7 +50,7 @@ PhysicsSystem::PhysicsSystem() {
 	// TODO: handle component removed and entity removed events.
 }
 
-void PhysicsSystem::process(const EntityManager& em, microseconds deltaTime) {
+void PhysicsSystem::process(microseconds deltaTime) {
 	std::chrono::duration<float> sec = deltaTime;
 	dynamicsWorld->stepSimulation(sec.count(), PHYSICS_SUBSTEPS, 1.0f / 60.0f); // timeStep < substeps * fixedTime
 

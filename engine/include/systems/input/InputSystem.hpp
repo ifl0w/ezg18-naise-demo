@@ -16,7 +16,7 @@ class InputSystem : public System {
 public:
 	InputSystem();
 
-	void process(const EntityManager& em, microseconds deltaTime) override;
+	void process(microseconds deltaTime) override;
 
 	void addInputMapper(shared_ptr<InputMapper> inputMapper);
 

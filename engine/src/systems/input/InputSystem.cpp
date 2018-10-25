@@ -9,7 +9,7 @@ InputSystem::InputSystem() {
 	Engine::getEntityManager().addSignature<InputSignature>();
 }
 
-void InputSystem::process(const EntityManager& em, microseconds deltaTime) {
+void InputSystem::process(microseconds deltaTime) {
 	SDL_Event event; /* Event structure */
 
 	while (SDL_PollEvent(&event)) {

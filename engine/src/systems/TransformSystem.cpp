@@ -14,7 +14,7 @@ TransformSystem::TransformSystem() {
 	Engine::getEntityManager().addSignature<AABBSignature>();
 }
 
-void TransformSystem::process(const EntityManager& em, microseconds deltaTime) {
+void TransformSystem::process(microseconds deltaTime) {
 
 	// calculate all local model matrices
 	auto& t = Engine::getEntityManager().getEntities<TransformSignature>();

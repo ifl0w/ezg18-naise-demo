@@ -14,7 +14,7 @@ class System {
 public:
 	~System() { }
 
-	virtual void process(const EntityManager& em, microseconds deltaTime) = 0;
+	virtual void process(microseconds deltaTime) = 0;
 };
 
 

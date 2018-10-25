@@ -19,7 +19,7 @@ class TransformSystem: public System {
 public:
 	TransformSystem();
 
-	void process(const EntityManager& em, microseconds deltaTime) override;
+	void process(microseconds deltaTime) override;
 
 private:
 

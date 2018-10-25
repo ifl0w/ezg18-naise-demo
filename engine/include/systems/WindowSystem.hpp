@@ -23,7 +23,7 @@ public:
 	WindowSystem();
 	~WindowSystem();
 
-	void process(const EntityManager& em, microseconds deltaTime) override {
+	void process(microseconds deltaTime) override {
 		SDL_GL_SwapWindow(window);
 	};
 

@@ -18,7 +18,7 @@ RenderSystem::RenderSystem() {
 	});
 }
 
-void RenderSystem::process(const EntityManager& em, microseconds deltaTime) {
+void RenderSystem::process(microseconds deltaTime) {
 	Entity* camera = nullptr;
 	Entity* sun = nullptr;
 

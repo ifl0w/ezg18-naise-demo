@@ -32,7 +32,7 @@ public:
 
 	RenderSystem();
 
-	void process(const EntityManager& em, microseconds deltaTime) override;
+	void process(microseconds deltaTime) override;
 
 	void setSkybox(Skybox& skybox){
 		this->skybox = skybox;

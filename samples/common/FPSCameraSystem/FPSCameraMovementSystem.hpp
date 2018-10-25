@@ -12,7 +12,7 @@ class FPSCameraMovementSystem : public System {
 public:
 	FPSCameraMovementSystem();
 
-	void process(const EntityManager& em, microseconds deltaTime) override;
+	void process(microseconds deltaTime) override;
 
 private:
 	float _moveSpeed = 5;
