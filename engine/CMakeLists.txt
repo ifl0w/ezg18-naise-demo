@@ -163,7 +163,8 @@ add_library(engine STATIC ${SRC_FILES}
         include/systems/render-engine/shaders/SkyboxShader.hpp src/Skybox.cpp include/Skybox.hpp
         src/systems/TransformSystem.cpp include/systems/TransformSystem.hpp
         include/components/ParentComponent.hpp include/components/AABBComponent.hpp
-        include/components/CollisionComponent.hpp include/components/TagComponent.hpp)
+        include/components/CollisionComponent.hpp include/components/TagComponent.hpp
+        include/resource-loader/ModelLoaderAdapter.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include

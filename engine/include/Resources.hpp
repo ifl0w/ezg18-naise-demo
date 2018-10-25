@@ -11,6 +11,7 @@
 #include <scene/Entity.hpp>
 
 #include <factories/MeshFactory.hpp>
+#include <resource-loader/ModelLoaderAdapter.hpp>
 
 using namespace NAISE::RenderCore;
 
@@ -22,16 +23,16 @@ namespace Engine {
  * source: https://oroboro.com/image-format-magic-bytes/
  */
 enum ImageFileType {
-	IMAGE_FILE_JPG,
-	IMAGE_FILE_PNG,
-	IMAGE_FILE_DDS,
-	IMAGE_FILE_GIF,
-	IMAGE_FILE_BMP,
-	IMAGE_FILE_TGA,
-	IMAGE_FILE_PSD,
-	IMAGE_FILE_HDR,
-	IMAGE_FILE_PIC,
-	IMAGE_FILE_INVALID,  // unidentified image types.
+  IMAGE_FILE_JPG,
+  IMAGE_FILE_PNG,
+  IMAGE_FILE_DDS,
+  IMAGE_FILE_GIF,
+  IMAGE_FILE_BMP,
+  IMAGE_FILE_TGA,
+  IMAGE_FILE_PSD,
+  IMAGE_FILE_HDR,
+  IMAGE_FILE_PIC,
+  IMAGE_FILE_INVALID,  // unidentified image types.
 };
 
 class Resources {
@@ -43,12 +44,21 @@ public:
 	static void freeAll();
 
 	/**
-	 * Load a model from a gltf source and return it as entity.
+	 * Load a model from a gltf source and return all resulting entities as vector.
 	 * The models will be cached and identified by the path.
 	 * @param path
 	 * @return
 	 */
 	static vector<shared_ptr<Entity>> loadModel(const std::string& path);
+
+	/**
+	 * Load a model from a gltf source with a given adapter and return all resulting entities as vector.
+	 * The model will be cached and identified by the path.
+	 *
+	 * @param path
+	 * @return
+	 */
+	static vector<shared_ptr<Entity>> loadModel(const ModelLoaderAdapter* adapter, const std::string& path);
 
 	/**
 	 * Returns a shader object for the template type
@@ -68,7 +78,7 @@ public:
 	 * @return
 	 */
 	template<class T, class... Args>
-	static std::shared_ptr<Mesh> getMesh(const std::string& identifier, Args&&... args);
+	static std::shared_ptr<Mesh> getMesh(const std::string& identifier, Args&& ... args);
 
 	/**
 	 * Returns a material object for the template type, identifier.
@@ -78,7 +88,7 @@ public:
 	 * @return
 	 */
 	template<class T, class... Args>
-	static std::shared_ptr<Material> getMaterial(const std::string& identifier, Args&&... args);
+	static std::shared_ptr<Material> getMaterial(const std::string& identifier, Args&& ... args);
 
 	/**
 	 * Load a texture by path. The path will be used as identifier. (same as loadTexture(path, path))
@@ -112,7 +122,8 @@ public:
 	 * @param paths
 	 * @return
 	 */
-	static std::shared_ptr<Texture> loadSkyboxTexture(const std::string& identifier, const std::vector<std::string> paths);
+	static std::shared_ptr<Texture> loadSkyboxTexture(const std::string& identifier,
+													  const std::vector<std::string> paths);
 
 	/**
 	 * Retrieve a texture by an identifier.
@@ -137,16 +148,19 @@ private:
 	static std::map<pair<type_index, std::string>, std::shared_ptr<Mesh>> meshes;
 	static std::map<pair<type_index, std::string>, std::shared_ptr<Material>> materials;
 	static std::map<std::string, tinygltf::Model> models;
+
 	/**
-	 * Creates an entity for every node in the loaded scene.
+	 * Creates an entity for every node in the loaded scene with the given adapter.
 	 *
 	 * @param idPrefix
 	 * @param node
 	 * @param model
 	 * @return
 	 */
-	static vector<shared_ptr<Entity>> entityFromGLTFNode(const std::string& idPrefix, const tinygltf::Node& node,
-												 const tinygltf::Model& model);
+	static vector<shared_ptr<Entity>> entityFromGLTFNode(const ModelLoaderAdapter* adapter,
+														 const std::string& idPrefix, const tinygltf::Node& node,
+														 const tinygltf::Model& model,
+														 shared_ptr<Entity> parent);
 
 	/**
 	 * Loads textures with stbi_load

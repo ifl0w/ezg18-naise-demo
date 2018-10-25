@@ -4,11 +4,11 @@
 #include <systems/render-engine/textures/GLTFTexture.hpp>
 
 #include <components/MaterialComponent.hpp>
-#include <components/MeshComponent.hpp>
 #include <systems/render-engine/materials/PBRMaterial.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+
 #undef STB_IMAGE_IMPLEMENTATION
 
 // defining tinygltf macros
@@ -26,22 +26,23 @@
 using namespace NAISE::Engine;
 
 struct Image {
-	ImageFileType imageFileType;
-	std::string magic_mnemonic;
-	int magic_mnemonicBytes;
-	std::string magic_signature;
-	int magic_signaturBytes;
+  ImageFileType imageFileType;
+  std::string magic_mnemonic;
+  int magic_mnemonicBytes;
+  std::string magic_signature;
+  int magic_signaturBytes;
 };
 
 //source: https://en.wikipedia.org/wiki/List_of_file_signatures || https://blog.netspi.com/magic-bytes-identifying-common-file-formats-at-a-glance/
 //TODO test filetypes
-struct Image JPG {IMAGE_FILE_JPG, "ÿØÿÛ", 8, "\xFF\xD8\xFF", 3};
-struct Image PNG {IMAGE_FILE_PNG, "\x89PNG", 4, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8}; //"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A""\x50\x89\x47\x4E\x0A\x0D\x0A\x1A"
-struct Image DDS {IMAGE_FILE_DDS, "DDS", 3, "\x44\x44\x53\x20", 4};
-struct Image BMP {IMAGE_FILE_BMP, "BM", 2, "\x42\x4D", 2};
+struct Image JPG{IMAGE_FILE_JPG, "ÿØÿÛ", 8, "\xFF\xD8\xFF", 3};
+struct Image PNG{IMAGE_FILE_PNG, "\x89PNG", 4, "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A",
+				 8}; //"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A""\x50\x89\x47\x4E\x0A\x0D\x0A\x1A"
+struct Image DDS{IMAGE_FILE_DDS, "DDS", 3, "\x44\x44\x53\x20", 4};
+struct Image BMP{IMAGE_FILE_BMP, "BM", 2, "\x42\x4D", 2};
 
-struct Image GIF {IMAGE_FILE_GIF, "GIF8", 4, "\x47\x49\x46\x38", 6};
-struct Image PSD {IMAGE_FILE_PSD, "8BPS", 4, "\x38\x42\x50\x53", 4};
+struct Image GIF{IMAGE_FILE_GIF, "GIF8", 4, "\x47\x49\x46\x38", 6};
+struct Image PSD{IMAGE_FILE_PSD, "8BPS", 4, "\x38\x42\x50\x53", 4};
 /*struct Image HDR {IMAGE_FILE_HDR, };
 struct Image PIC {IMAGE_FILE_PIC, };
 struct Image TGA {IMAGE_FILE_TGA, };*/
@@ -73,42 +74,42 @@ std::shared_ptr<Texture> Resources::loadTexture(const std::string& identifier, c
 	auto it = Resources::textures.find(key);
 
 	if (it != Resources::textures.end()) {
-	return it->second;
+		return it->second;
 	}
 
 	ImageFileType imageFileType = getImageTypeByMagic(path);
-	switch (imageFileType){
-		case(IMAGE_FILE_INVALID):
-			break;
-		case(IMAGE_FILE_JPG):
-			Resources::textures[key] = loadWithSTB(path);
-			break;
-		case(IMAGE_FILE_PNG):
-			Resources::textures[key] = loadWithSTB(path);
-			break;
-		case(IMAGE_FILE_BMP):
-			Resources::textures[key] = loadWithSTB(path);
-			break;
-		case(IMAGE_FILE_TGA):
-			Resources::textures[key] = loadWithSTB(path);
-			break;
-		case(IMAGE_FILE_PSD):
-			Resources::textures[key] = loadWithSTB(path);
-			break;
-		case(IMAGE_FILE_GIF):
-			Resources::textures[key] = loadWithSTB(path);
-			break;
-		case(IMAGE_FILE_HDR):
-			Resources::textures[key] = loadWithSTB(path);
-			break;
-		case(IMAGE_FILE_PIC):
-			Resources::textures[key] = loadWithSTB(path);
-			break;
-		case(IMAGE_FILE_DDS):
-			//TODO function should move to resources
-			Resources::textures[key] = std::make_shared<ImageTexture>(ImageTexture::loadDDS(path.c_str()));
-			break;
-			//TODO add other formatloader
+	switch (imageFileType) {
+	case (IMAGE_FILE_INVALID):
+		break;
+	case (IMAGE_FILE_JPG):
+		Resources::textures[key] = loadWithSTB(path);
+		break;
+	case (IMAGE_FILE_PNG):
+		Resources::textures[key] = loadWithSTB(path);
+		break;
+	case (IMAGE_FILE_BMP):
+		Resources::textures[key] = loadWithSTB(path);
+		break;
+	case (IMAGE_FILE_TGA):
+		Resources::textures[key] = loadWithSTB(path);
+		break;
+	case (IMAGE_FILE_PSD):
+		Resources::textures[key] = loadWithSTB(path);
+		break;
+	case (IMAGE_FILE_GIF):
+		Resources::textures[key] = loadWithSTB(path);
+		break;
+	case (IMAGE_FILE_HDR):
+		Resources::textures[key] = loadWithSTB(path);
+		break;
+	case (IMAGE_FILE_PIC):
+		Resources::textures[key] = loadWithSTB(path);
+		break;
+	case (IMAGE_FILE_DDS):
+		//TODO function should move to resources
+		Resources::textures[key] = std::make_shared<ImageTexture>(ImageTexture::loadDDS(path.c_str()));
+		break;
+		//TODO add other formatloader
 	}
 
 	return Resources::textures[key];
@@ -128,8 +129,7 @@ std::shared_ptr<Texture> Resources::loadSkyboxTexture(const std::string& identif
 	std::vector<SkyboxImageData> skyboxImages;
 
 	int width, height, nrChannels;
-	for (unsigned int i = 0; i < paths.size(); i++)
-	{
+	for (unsigned int i = 0; i < paths.size(); i++) {
 		SkyboxImageData data;
 		data.data = stbi_load(paths[i].c_str(), &width, &height, &nrChannels, 0);
 		data.width = width;
@@ -144,7 +144,7 @@ std::shared_ptr<Texture> Resources::loadSkyboxTexture(const std::string& identif
 	}
 
 	Resources::textures[key] = std::make_shared<SkyboxTexture>(skyboxImages);
-	for (auto& d: skyboxImages){
+	for (auto& d: skyboxImages) {
 		stbi_image_free(d.data);
 	}
 	return Resources::textures[key];
@@ -189,6 +189,10 @@ std::shared_ptr<Texture> Resources::getTexture(const std::string& identifier) {
 //}
 
 vector<shared_ptr<Entity>> Resources::loadModel(const std::string& path) {
+	return loadModel(nullptr, path);
+}
+
+vector<shared_ptr<Entity>> Resources::loadModel(const ModelLoaderAdapter* adapter, const std::string& path) {
 	vector<shared_ptr<Entity>> ret;
 
 	const auto& key = path;
@@ -215,7 +219,7 @@ vector<shared_ptr<Entity>> Resources::loadModel(const std::string& path) {
 	}
 
 	for (const auto nodeIdx: model.scenes[model.defaultScene].nodes) {
-		auto result = entityFromGLTFNode(path, model.nodes[nodeIdx], model);
+		auto result = entityFromGLTFNode(adapter, path, model.nodes[nodeIdx], model, nullptr);
 		ret.insert(ret.end(), result.begin(), result.end());
 	}
 
@@ -228,8 +232,10 @@ vector<shared_ptr<Entity>> Resources::loadModel(const std::string& path) {
 	return ret;
 }
 
-vector<shared_ptr<Entity>> Resources::entityFromGLTFNode(const std::string& idPrefix, const tinygltf::Node& node,
-												 const tinygltf::Model& model) {
+vector<shared_ptr<Entity>> Resources::entityFromGLTFNode(const ModelLoaderAdapter* adapter,
+														const std::string& idPrefix, const tinygltf::Node& node,
+														const tinygltf::Model& model,
+														shared_ptr<Entity> parent) {
 	vector<shared_ptr<Entity>> ret;
 
 	auto entity = make_shared<Entity>();
@@ -244,21 +250,6 @@ vector<shared_ptr<Entity>> Resources::entityFromGLTFNode(const std::string& idPr
 		entity->add<MeshComponent>();
 		entity->component<MeshComponent>().mesh = getMesh<Mesh>(id, mesh, model);
 
-		if (node.translation.size() > 0) {
-			auto pos = vec3(node.translation[0], node.translation[1], node.translation[2]);
-			entity->component<TransformComponent>().position = pos;
-		}
-
-		if (node.scale.size() > 0) {
-			auto scale = vec3(node.scale[0], node.scale[1], node.scale[2]);
-			entity->component<TransformComponent>().scale = scale;
-		}
-
-		if (node.rotation.size() > 0) {
-			auto rot = quat( node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
-			entity->component<TransformComponent>().rotation = rot;
-		}
-
 		/* load material */
 		if (mesh.primitives[0].material >= 0) {
 			// TODO: support for more than a single material per object (iflow: probable not soon)
@@ -267,11 +258,38 @@ vector<shared_ptr<Entity>> Resources::entityFromGLTFNode(const std::string& idPr
 			entity->component<MaterialComponent>().material = getMaterial<PBRMaterial>(id, gltfMaterial, model);
 		}
 	}
+
+	if (!node.translation.empty()) {
+		auto pos = vec3(node.translation[0], node.translation[1], node.translation[2]);
+		entity->component<TransformComponent>().position = pos;
+	}
+
+	if (!node.scale.empty()) {
+		auto scale = vec3(node.scale[0], node.scale[1], node.scale[2]);
+		entity->component<TransformComponent>().scale = scale;
+	}
+
+	if (!node.rotation.empty()) {
+		auto rot = quat(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
+		entity->component<TransformComponent>().rotation = rot;
+	}
+
+	if (adapter != nullptr) {
+		bool stopEvaluation = adapter->adapt(entity, parent, node, model);
+
+		if (stopEvaluation) {
+			return ret;
+		}
+	}
+
 	ret.push_back(entity);
 
+	if (parent != nullptr) {
+		entity->add<ParentComponent>(parent->id);
+	}
+
 	for (const auto& child: node.children) {
-		auto children = entityFromGLTFNode(id, model.nodes[child], model);
-		children[0]->add<ParentComponent>(entity->id);
+		auto children = entityFromGLTFNode(adapter, id, model.nodes[child], model, entity);
 		ret.insert(ret.end(), children.begin(), children.end());
 	}
 
@@ -291,30 +309,29 @@ ImageFileType Resources::getImageTypeByMagic(const std::string& path) {
 	// to read 'magic' out of file
 	ifstream input(path);
 
-	if (input.good())
-	{
+	if (input.good()) {
 		string firstLine;
-		char * buffer = new char [20];
+		char* buffer = new char[20];
 
 		input.read(buffer, 20);
 		getline(input, firstLine);
 
-		if(strncmp(buffer, JPG.magic_signature.c_str(), JPG.magic_signaturBytes) == 0){
+		if (strncmp(buffer, JPG.magic_signature.c_str(), JPG.magic_signaturBytes) == 0) {
 			NAISE_DEBUG_CONSOL("ITS A JPG");
 			return JPG.imageFileType;
 		}
 		//TODO test different pngs
-		if(strncmp(buffer, PNG.magic_signature.c_str(), PNG.magic_signaturBytes) == 0 ||
-						strncmp(firstLine.c_str(), PNG.magic_mnemonic.c_str(), PNG.magic_mnemonicBytes) == 0){
+		if (strncmp(buffer, PNG.magic_signature.c_str(), PNG.magic_signaturBytes) == 0 ||
+				strncmp(firstLine.c_str(), PNG.magic_mnemonic.c_str(), PNG.magic_mnemonicBytes) == 0) {
 			NAISE_DEBUG_CONSOL("ITS A PNG");
 			return PNG.imageFileType;
 		}
 		//TODO test dds
-		if(strncmp(buffer, DDS.magic_signature.c_str(), DDS.magic_signaturBytes) == 0){
+		if (strncmp(buffer, DDS.magic_signature.c_str(), DDS.magic_signaturBytes) == 0) {
 			NAISE_DEBUG_CONSOL("ITS A DDS");
 			return DDS.imageFileType;
 		}
-		if(strncmp(buffer, BMP.magic_signature.c_str(), BMP.magic_signaturBytes) == 0){
+		if (strncmp(buffer, BMP.magic_signature.c_str(), BMP.magic_signaturBytes) == 0) {
 			NAISE_DEBUG_CONSOL("ITS A BMP");
 			return BMP.imageFileType;
 		}
@@ -335,9 +352,7 @@ std::shared_ptr<Texture> Resources::loadWithSTB(const std::string& path) {
 
 	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 
-	if(data) {
-
-	} else {
+	if (data == nullptr) {
 		NAISE_ERROR_LOG("Texture failed to load at path: {}", path);
 	}
 
@@ -351,19 +366,19 @@ std::shared_ptr<Texture> Resources::loadWithSTB(const std::string& path) {
 
 	//TODO
 	// Give the image to OpenGL
-	switch (nrChannels){
-		case 1:
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0,  GL_RED, GL_UNSIGNED_BYTE, data);
-			break;
-		case 2:
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, data);
-			break;
-		case 3:
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			break;
-		case 4:
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-			break;
+	switch (nrChannels) {
+	case 1:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+		break;
+	case 2:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, data);
+		break;
+	case 3:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		break;
+	case 4:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		break;
 	}
 
 	texture->width = width;
