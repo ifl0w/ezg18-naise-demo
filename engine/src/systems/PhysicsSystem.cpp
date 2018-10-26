@@ -152,7 +152,7 @@ void PhysicsSystem::toggleVisualDebugging() {
 	}
 }
 
-void PhysicsSystem::processSubSystems(double deltaTime) {
+void PhysicsSystem::processSubSystems(microseconds deltaTime) {
 	for (const auto& type: systemsInsertionOrder) {
 		subSystems[type]->processSubSystem(deltaTime); // process in correct order
 	}
@@ -172,5 +172,7 @@ glm::vec3 NAISE::Engine::btVector3ToVec3(btVector3 vec) {
 
 void NAISE::Engine::physicsTickCallback(btDynamicsWorld* world, btScalar timeStep) {
 	auto* physicsSystem = static_cast<PhysicsSystem*>(world->getWorldUserInfo());
-	physicsSystem->processSubSystems(timeStep);
+	std::chrono::microseconds deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(
+			std::chrono::duration<double>(timeStep));
+	physicsSystem->processSubSystems(deltaTime);
 }

@@ -24,7 +24,7 @@ struct RigidBodySignature: public Signature<RigidBodyComponent, TransformCompone
 struct CollisionSignature: public Signature<RigidBodyComponent, CollisionComponent, TransformComponent> {};
 
 struct PhysicsSubSystem {
-  virtual void processSubSystem(double deltaTime) = 0;
+  virtual void processSubSystem(microseconds deltaTime) = 0;
 };
 
 class PhysicsSystem: public System {
@@ -42,7 +42,7 @@ public:
 	 */
 	void toggleVisualDebugging();
 
-	void processSubSystems(double deltaTime);
+	void processSubSystems(microseconds deltaTime);
 
 	template<typename T, typename ... Args>
 	void registerSubSystem(Args... args);
