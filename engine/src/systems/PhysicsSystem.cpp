@@ -27,7 +27,8 @@ PhysicsSystem::PhysicsSystem() {
 															  collisionConfiguration.get());
 	dynamicsWorld->setGravity(btVector3(0, -9.81, 0));
 	dynamicsWorld->getPairCache()->setInternalGhostPairCallback(new btGhostPairCallback()); // enable ghost objects
-//	dynamicsWorld->setInternalTickCallback(physicsTickCallback, nullptr, true);
+	dynamicsWorld->setInternalTickCallback(physicsTickCallback, dynamicsWorld.get(), true);
+	dynamicsWorld->setWorldUserInfo(this);
 
 	/* Physics debug drawing */
 	debugDrawer = std::make_unique<BulletDebugDrawer>();
@@ -54,6 +55,7 @@ void PhysicsSystem::process(microseconds deltaTime) {
 	std::chrono::duration<float> sec = deltaTime;
 	dynamicsWorld->stepSimulation(sec.count(), PHYSICS_SUBSTEPS, 1.0f / 60.0f); // timeStep < substeps * fixedTime
 
+	// TODO: check if the following code should be moved to the sub step callback
 	auto& rgd = Engine::getEntityManager().getEntities<RigidBodySignature>();
 	for (auto& entity: rgd) {
 		auto rigidBody = entity->component<RigidBodyComponent>().rigidBody.get();
@@ -150,6 +152,12 @@ void PhysicsSystem::toggleVisualDebugging() {
 	}
 }
 
+void PhysicsSystem::processSubSystems(double deltaTime) {
+	for (const auto& type: systemsInsertionOrder) {
+		subSystems[type]->processSubSystem(deltaTime); // process in correct order
+	}
+}
+
 glm::quat NAISE::Engine::btQuaternion3ToQuat(btQuaternion q) {
 	btScalar x = 0;
 	btScalar y = 0;
@@ -162,6 +170,7 @@ glm::vec3 NAISE::Engine::btVector3ToVec3(btVector3 vec) {
 	return vec3(vec.getX(), vec.getY(), vec.getZ());
 }
 
-void NAISE::Engine::physicsTickCallback(btDynamicsWorld* world, double timeStep) {
-	NAISE_DEBUG_CONSOL("Substep callback not implemented.");
+void NAISE::Engine::physicsTickCallback(btDynamicsWorld* world, btScalar timeStep) {
+	auto* physicsSystem = static_cast<PhysicsSystem*>(world->getWorldUserInfo());
+	physicsSystem->processSubSystems(timeStep);
 }
