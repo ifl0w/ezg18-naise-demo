@@ -8,6 +8,8 @@
 #include "Event.hpp"
 #include "scene/EntityManager.hpp"
 
+#include "Logger.hpp"
+
 namespace NAISE {
 namespace Engine {
 
@@ -26,7 +28,7 @@ public:
 	template<typename T>
 	void removeSystem();
 
-	void process(const EntityManager& em, std::chrono::microseconds deltaTime);
+	void process(std::chrono::microseconds deltaTime);
 
 	void cleanup();
 private:
@@ -35,12 +37,15 @@ private:
 	std::chrono::steady_clock::time_point _beginTime;
 
 	std::unordered_map<std::type_index, std::shared_ptr<System>> systems;
+	std::vector<std::type_index> systemsInsertionOrder; // order is described by the position in the vector
 };
 
 template<typename T, typename... Args>
 void SystemsManager::registerSystem(Args... args) {
-	auto s = std::make_shared<T>(args ...);
-	systems.insert(pair(std::type_index(typeid(T)), s));
+	auto sys = std::make_shared<T>(args ...);
+	auto type = std::type_index(typeid(T));
+	systems.insert(pair(type, sys));
+	systemsInsertionOrder.push_back(type);
 }
 
 template<typename T>
@@ -58,8 +63,11 @@ T& SystemsManager::getSystem() {
 
 template<typename T>
 void SystemsManager::removeSystem() {
-	erase(remove_if(systems.begin(), systems.end(),
+	NAISE_WARN_CONSOL("Remove system is untested! Functionality should be checked!");
+	systems.erase(remove_if(systems.begin(), systems.end(),
 					[](auto& s) { return typeid(s) == typeid(T); }));
+	systemsInsertionOrder.erase(remove_if(systems.begin(), systems.end(),
+										  [](auto& s) { return s == type_index(typeid(T)); }));
 }
 
 }

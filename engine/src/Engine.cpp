@@ -29,7 +29,7 @@ Engine::~Engine() {
 
 void Engine::run() {
 	while (!quit) {
-		systemsManager.process(entityManager, _deltaTime);
+		systemsManager.process(_deltaTime);
 
 		// fps calculation
 		_deltaTime = duration_cast<microseconds>(steady_clock::now() - _lastFrame);
