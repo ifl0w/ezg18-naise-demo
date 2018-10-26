@@ -32,6 +32,9 @@ public:
 	PhysicsSystem();
 	~PhysicsSystem();
 
+	/* Physic properties */
+	std::unique_ptr<btDiscreteDynamicsWorld> dynamicsWorld;
+
 	void process(microseconds deltaTime) override;
 
 	/**
@@ -52,7 +55,6 @@ public:
 
 private:
 	/* Physic properties */
-	std::unique_ptr<btDiscreteDynamicsWorld> dynamicsWorld;
 	std::unique_ptr<btBroadphaseInterface> broadphase;
 	std::unique_ptr<BulletDebugDrawer> debugDrawer;
 	std::unique_ptr<btDefaultCollisionConfiguration> collisionConfiguration;
