@@ -27,6 +27,11 @@ struct Signature : public SignatureBase {
 	  return x;
   }
 
+  static bool test(Entity& entity) {
+	  bool x = (entity.has<ComponentTypes>() && ...);
+	  return x;
+  }
+
   void update(Entity* entity) override {
 	  auto it = find_if(entities.begin(), entities.end(), [=](auto e) { return e->id == entity->id; });
 

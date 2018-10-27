@@ -44,7 +44,7 @@ PhysicsSystem::PhysicsSystem() {
 		  auto rigidBody = rigidBodyComponent->rigidBody.get();
 		  rigidBody->setUserIndex(id);
 		  rigidBody->activate(true);
-		  dynamicsWorld->addRigidBody(rigidBody);
+		  dynamicsWorld->addRigidBody(rigidBody, rigidBodyComponent->collisionGroup, rigidBodyComponent->collisionMask);
 	  }
 	});
 
@@ -71,7 +71,8 @@ void PhysicsSystem::process(microseconds deltaTime) {
 			auto& transform = entity->component<TransformComponent>();
 
 			btTransform newWorldTransform;
-			newWorldTransform.setFromOpenGLMatrix(glm::value_ptr(transform.getModelMatrix()));
+			newWorldTransform.setRotation(btQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w));
+			newWorldTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
 
 			if (rigidBody->isKinematicObject()) {
 				rigidBody->getMotionState()->setWorldTransform(newWorldTransform);

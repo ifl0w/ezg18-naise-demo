@@ -18,7 +18,8 @@ public:
 
 	std::unique_ptr<btTriangleMesh> triangleMesh;
 
-	uint16_t collisionGroup = 0;
+	int collisionGroup = -1;
+	int collisionMask = -1;
 };
 
 }

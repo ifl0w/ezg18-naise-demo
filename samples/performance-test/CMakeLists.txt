@@ -22,8 +22,8 @@ add_dependencies(sample-performance-test engine)
 target_link_libraries(sample-performance-test engine)
 
 ######## COPY ENGINE SHADERS ########
-set(NAISE_ENGINE_PATH "${CMAKE_SOURCE_DIR}")
-set(NAISE_RESOURCE_PATH "${CMAKE_SOURCE_DIR}/engine/resources")
+set(NAISE_ENGINE_PATH "${NAISE_Engine_SOURCE_DIR}")
+set(NAISE_RESOURCE_PATH "${NAISE_Engine_SOURCE_DIR}/engine/resources")
 NAISE_COPY_RESOURCE_DIR(${NAISE_ENGINE_PATH} ${NAISE_RESOURCE_PATH})
 
 ######## COPY ASSETS ########
