@@ -86,7 +86,13 @@ public:
 
 	template<typename T>
 	void addSignature() {
-		signatures.insert(pair(type_index(typeid(T)), make_unique<T>()));
+		auto ptr = make_unique<T>();
+
+		for (auto& e: entities) {
+			ptr->update(e.get());
+		}
+
+		signatures.insert(pair(type_index(typeid(T)), std::move(ptr)));
 	}
 
 	template<typename T>

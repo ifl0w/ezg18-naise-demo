@@ -23,8 +23,24 @@ namespace Engine {
 struct RigidBodySignature: public Signature<RigidBodyComponent, TransformComponent> {};
 struct CollisionSignature: public Signature<RigidBodyComponent, CollisionComponent, TransformComponent> {};
 
+class PhysicsSystem;
+
 struct PhysicsSubSystem {
+  /**
+   * Populate the dynamics world with rigid bodies ect.
+   */
+  virtual void initSubSystem(PhysicsSystem* physicsSystem) { };
+
+  /**
+   * Process the subsystem. This function will be called every internal substep of the bullet physics engine.
+   * @param deltaTime
+   */
   virtual void processSubSystem(microseconds deltaTime) = 0;
+
+  /**
+   * Cleanup the dynamics world
+   */
+  virtual void resetSubSystem(PhysicsSystem* physicsSystem) { };
 };
 
 class PhysicsSystem: public System {
@@ -79,6 +95,7 @@ void PhysicsSystem::registerSubSystem(Args... args) {
 	auto type = std::type_index(typeid(T));
 	subSystems.insert(pair(type, sys));
 	systemsInsertionOrder.push_back(type);
+	sys->initSubSystem(this);
 }
 
 template<typename T>
@@ -97,10 +114,15 @@ T& PhysicsSystem::getSubSystem() {
 template<typename T>
 void PhysicsSystem::removeSubSystem() {
 	NAISE_WARN_CONSOL("Remove system is untested! Functionality should be checked!");
-	subSystems.erase(remove_if(subSystems.begin(), subSystems.end(),
-							[](auto& s) { return typeid(s) == typeid(T); }));
-	systemsInsertionOrder.erase(remove_if(subSystems.begin(), subSystems.end(),
-										  [](auto& s) { return s == type_index(typeid(T)); }));
+
+	auto it = find(subSystems.begin(), subSystems.end(), type_index(typeid(T)));
+	if (it != subSystems.end()) {
+		it->second->resetSubSystem(this);
+		subSystems.erase(it);
+
+		systemsInsertionOrder.erase(remove_if(subSystems.begin(), subSystems.end(),
+											  [](auto& s) { return s == type_index(typeid(T)); }));
+	}
 }
 
 /**

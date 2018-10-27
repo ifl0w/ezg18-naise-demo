@@ -98,10 +98,14 @@ void PhysicsSystem::process(microseconds deltaTime) {
 }
 
 PhysicsSystem::~PhysicsSystem() {
+	for (auto& subSys: subSystems) {
+		subSys.second->resetSubSystem(this);
+	}
+	subSystems.clear();
+
 	for (auto entity: rigidBodyEntities) {
 		dynamicsWorld->removeRigidBody(entity->component<RigidBodyComponent>().rigidBody.get());
 	}
-
 	rigidBodyEntities.clear();
 }
 
@@ -125,16 +129,18 @@ void PhysicsSystem::evaluateCollisions() {
 				const btVector3& ptB = pt.getPositionWorldOnB();
 				const btVector3& normalOnB = pt.m_normalWorldOnB;
 
-				if (auto* cc = enitiyA->get<CollisionComponent>()) {
-					cc->collisionPoints.push_back(btVector3ToVec3(ptA));
-					cc->collisionNormals.push_back(btVector3ToVec3(-normalOnB));
-					cc->collisionEntities.push_back(enitiyB->id);
-				}
+				if (enitiyA != nullptr && enitiyB != nullptr) {
+					if (auto* cc = enitiyA->get<CollisionComponent>()) {
+						cc->collisionPoints.push_back(btVector3ToVec3(ptA));
+						cc->collisionNormals.push_back(btVector3ToVec3(-normalOnB));
+						cc->collisionEntities.push_back(enitiyB->id);
+					}
 
-				if (auto* cc = enitiyA->get<CollisionComponent>()) {
-					cc->collisionPoints.push_back(btVector3ToVec3(ptB));
-					cc->collisionNormals.push_back(btVector3ToVec3(normalOnB));
-					cc->collisionEntities.push_back(enitiyA->id);
+					if (auto* cc = enitiyB->get<CollisionComponent>()) {
+						cc->collisionPoints.push_back(btVector3ToVec3(ptB));
+						cc->collisionNormals.push_back(btVector3ToVec3(normalOnB));
+						cc->collisionEntities.push_back(enitiyA->id);
+					}
 				}
 			}
 		}
