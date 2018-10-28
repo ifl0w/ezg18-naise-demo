@@ -134,6 +134,7 @@ void PhysicsSystem::removeSubSystem() {
 void physicsTickCallback(btDynamicsWorld* world, btScalar timeStep);
 
 glm::vec3 btVector3ToVec3(btVector3 vec);
+btVector3 vec3ToBtVector3(glm::vec3 vec);
 glm::quat btQuaternion3ToQuat(btQuaternion quat);
 
 }

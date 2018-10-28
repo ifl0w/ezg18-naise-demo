@@ -52,6 +52,10 @@ PhysicsSystem::PhysicsSystem() {
 }
 
 void PhysicsSystem::process(microseconds deltaTime) {
+	if (physicsDebugging) {
+		debugDrawer->beginDebugFrame();
+	}
+
 	std::chrono::duration<float> sec = deltaTime;
 	dynamicsWorld->stepSimulation(sec.count(), PHYSICS_SUBSTEPS, 1.0f / 60.0f); // timeStep < substeps * fixedTime
 
@@ -92,7 +96,6 @@ void PhysicsSystem::process(microseconds deltaTime) {
 	evaluateCollisions();
 
 	if (physicsDebugging) {
-		debugDrawer->beginDebugFrame();
 		dynamicsWorld->debugDrawWorld();
 		debugDrawer->finishMeshes();
 	}
@@ -175,6 +178,10 @@ glm::quat NAISE::Engine::btQuaternion3ToQuat(btQuaternion q) {
 
 glm::vec3 NAISE::Engine::btVector3ToVec3(btVector3 vec) {
 	return vec3(vec.getX(), vec.getY(), vec.getZ());
+}
+
+btVector3 NAISE::Engine::vec3ToBtVector3(vec3 vec) {
+	return btVector3(vec.x, vec.y, vec.z);
 }
 
 void NAISE::Engine::physicsTickCallback(btDynamicsWorld* world, btScalar timeStep) {
