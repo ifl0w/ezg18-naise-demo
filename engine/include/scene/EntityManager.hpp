@@ -3,6 +3,9 @@
 #include "Entity.hpp"
 #include "filter/Filter.hpp"
 
+#include <systems/EventManager.hpp>
+#include <scene/Signature.hpp>
+
 #include <vector>
 #include <memory>
 #include <unordered_map>
@@ -12,39 +15,6 @@ using namespace std;
 
 namespace NAISE {
 namespace Engine {
-
-struct SignatureBase {
-  virtual bool match(Entity& entity) { return false; };
-
-  virtual void update(Entity* entity) { };
-  vector<Entity*> entities;
-};
-
-template<typename ... ComponentTypes>
-struct Signature : public SignatureBase {
-  bool match(Entity& entity) override {
-	  bool x = (entity.has<ComponentTypes>() && ...);
-	  return x;
-  }
-
-  static bool test(Entity& entity) {
-	  bool x = (entity.has<ComponentTypes>() && ...);
-	  return x;
-  }
-
-  void update(Entity* entity) override {
-	  auto it = find_if(entities.begin(), entities.end(), [=](auto e) { return e->id == entity->id; });
-
-	  // not matching and contained (remove)
-	  if (!match(*entity) && it != entities.end()) {
-		  entities.erase(it);
-	  }
-	  // matching and not contained (insert)
-	  if (match(*entity) && it == entities.end()) {
-		  entities.push_back(entity);
-	  }
-  }
-};
 
 class EntityManager {
 public:
@@ -78,6 +48,7 @@ public:
 	 * @param entities
 	 */
 	void removeEntities(std::vector<std::shared_ptr<Entity>> entities);
+	void removeEntities(std::vector<EntityID>& ids);
 
 	/**
 	 * Get the entity by its ID.

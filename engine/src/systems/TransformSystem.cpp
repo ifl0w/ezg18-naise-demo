@@ -12,6 +12,21 @@ TransformSystem::TransformSystem() {
 	Engine::getEntityManager().addSignature<TransformSignature>();
 	Engine::getEntityManager().addSignature<ParentSignature>();
 	Engine::getEntityManager().addSignature<AABBSignature>();
+
+	// remove all child entities if an entity is removed
+	// TODO: asynchronous execution of events would allow deletion of entities without buffering in "del" vector
+	Engine::getEventManager().event<RuntimeEvents::EntityRemoved>().subscribe([&](EntityID id) {
+	  auto& p = Engine::getEntityManager().getEntities<ParentSignature>();
+	  auto del = vector<EntityID>();
+
+	  for (auto e: p) {
+	  	if (e->component<ParentComponent>().parent == id) {
+			del.push_back(e->id);
+	  	}
+	  }
+
+	  Engine::getEntityManager().removeEntities(del);
+	});
 }
 
 void TransformSystem::process(microseconds deltaTime) {
@@ -27,7 +42,7 @@ void TransformSystem::process(microseconds deltaTime) {
 	for (auto e: p) {
 		e->component<ParentComponent>().evaluated = false;
 	}
-	for (auto& e: p) {
+	for (auto e: p) {
 		evaluateNode(*e);
 	}
 

@@ -12,7 +12,7 @@ void EntityManager::addEntity(shared_ptr<Entity> entity) {
 	// add to signatures
 	for (auto& signature: signatures) {
 		if (signature.second->match(*entity.get())) {
-			signature.second->entities.push_back(entity.get());
+			signature.second->add(entity.get());
 		}
 	}
 
@@ -36,9 +36,7 @@ void EntityManager::removeEntity(EntityID id) {
 	for (auto& signature: signatures) {
 		auto& s = signature.second;
 		if (s->match(*entityMap[id])) {
-			s->entities.erase(remove_if(s->entities.begin(), s->entities.end(), [&](auto ptr){
-			  return ptr->id == id;
-			}), s->entities.end());
+			s->remove(entityMap[id]);
 		}
 	}
 
@@ -98,6 +96,8 @@ void EntityManager::updateSignatures(EntityID id) {
 	for (auto& s: signatures) {
 		s.second->update(it->second);
 	}
+
+	Engine::getEventManager().event<RuntimeEvents::EntityModified>().emit(id);
 }
 
 void EntityManager::addEntities(vector<shared_ptr<Entity>> entities) {
@@ -109,6 +109,12 @@ void EntityManager::addEntities(vector<shared_ptr<Entity>> entities) {
 void EntityManager::removeEntities(std::vector<std::shared_ptr<Entity>> entities) {
 	for(auto& entity: entities) {
 		removeEntity(entity->id);
+	}
+}
+
+void EntityManager::removeEntities(std::vector<EntityID>& ids) {
+	for(auto& id: ids) {
+		removeEntity(id);
 	}
 }
 

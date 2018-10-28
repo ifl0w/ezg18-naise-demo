@@ -6,6 +6,7 @@
 #include "InputMapper.hpp"
 
 #include <components/InputComponent.hpp>
+#include <scene/Signature.hpp>
 
 namespace NAISE {
 namespace Engine {
