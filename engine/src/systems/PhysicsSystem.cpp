@@ -48,6 +48,19 @@ PhysicsSystem::PhysicsSystem() {
 	  }
 	});
 
+	Engine::getEventManager().event<RuntimeEvents::EntityRemoved>().subscribe([&](EntityID id) {
+	  Entity* removeEntity = Engine::getEntityManager().getEntity(id);
+	  if (!removeEntity) { return; }
+
+	  if (auto* rigidBodyComponent = removeEntity->get<RigidBodyComponent>()) {
+		  auto rigidBody = rigidBodyComponent->rigidBody.get();
+		  dynamicsWorld->removeRigidBody(rigidBody);
+
+		  auto it = find(rigidBodyEntities.begin(), rigidBodyEntities.end(), removeEntity);
+		  rigidBodyEntities.erase(it);
+	  }
+	});
+
 	// TODO: handle component removed and entity removed events.
 }
 
@@ -75,7 +88,8 @@ void PhysicsSystem::process(microseconds deltaTime) {
 			auto& transform = entity->component<TransformComponent>();
 
 			btTransform newWorldTransform;
-			newWorldTransform.setRotation(btQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w));
+			newWorldTransform.setRotation(btQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z,
+													   transform.rotation.w));
 			newWorldTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
 
 			if (rigidBody->isKinematicObject()) {
@@ -115,20 +129,17 @@ PhysicsSystem::~PhysicsSystem() {
 
 void PhysicsSystem::evaluateCollisions() {
 	int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
-	for (int i=0;i<numManifolds;i++)
-	{
-		btPersistentManifold* contactManifold =  dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+	for (int i = 0; i < numManifolds; i++) {
+		btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
 		auto* obA = contactManifold->getBody0();
 		Entity* enitiyA = Engine::getEntityManager().getEntity(static_cast<EntityID>(obA->getUserIndex()));
 		auto* obB = contactManifold->getBody1();
 		Entity* enitiyB = Engine::getEntityManager().getEntity(static_cast<EntityID>(obB->getUserIndex()));
 
 		int numContacts = contactManifold->getNumContacts();
-		for (int j=0;j<numContacts;j++)
-		{
+		for (int j = 0; j < numContacts; j++) {
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
-			if (pt.getDistance()<0.f)
-			{
+			if (pt.getDistance() < 0.f) {
 				const btVector3& ptA = pt.getPositionWorldOnA();
 				const btVector3& ptB = pt.getPositionWorldOnB();
 				const btVector3& normalOnB = pt.m_normalWorldOnB;

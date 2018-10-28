@@ -30,6 +30,8 @@ Entity* EntityManager::getEntity(EntityID id) {
 }
 
 void EntityManager::removeEntity(EntityID id) {
+	Engine::getEventManager().event<RuntimeEvents::EntityRemoved>().emit(id);
+
 	// remove from signatures
 	for (auto& signature: signatures) {
 		auto& s = signature.second;
@@ -95,6 +97,18 @@ void EntityManager::updateSignatures(EntityID id) {
 
 	for (auto& s: signatures) {
 		s.second->update(it->second);
+	}
+}
+
+void EntityManager::addEntities(vector<shared_ptr<Entity>> entities) {
+	for(auto& entity: entities) {
+		addEntity(entity);
+	}
+}
+
+void EntityManager::removeEntities(std::vector<std::shared_ptr<Entity>> entities) {
+	for(auto& entity: entities) {
+		removeEntity(entity->id);
 	}
 }
 

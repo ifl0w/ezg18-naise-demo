@@ -18,6 +18,7 @@ namespace Engine {
 namespace RuntimeEvents {
 struct Quit: public Event<> {};
 struct EntityAdded: public Event<EntityID> {};
+struct EntityRemoved: public Event<EntityID> {};
 }
 
 class Engine {

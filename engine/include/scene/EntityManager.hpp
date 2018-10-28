@@ -61,11 +61,23 @@ public:
 	void addEntity(shared_ptr<Entity> entity);
 
 	/**
+	 * Add multiple entities at once. Forwards to addEntity(...).
+	 * @param entities
+	 */
+	void addEntities(std::vector<std::shared_ptr<Entity>> entities);
+
+	/**
 	 * Remove an entity and its component by its ID.
 	 *
 	 * @param id
 	 */
 	void removeEntity(EntityID id);
+
+	/**
+	 * Remove multiple entities at once. Forwards to removeEntity(...).
+	 * @param entities
+	 */
+	void removeEntities(std::vector<std::shared_ptr<Entity>> entities);
 
 	/**
 	 * Get the entity by its ID.
