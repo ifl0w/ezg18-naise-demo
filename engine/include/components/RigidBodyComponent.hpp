@@ -4,6 +4,7 @@
 
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <BulletCollision/CollisionShapes/btTriangleMesh.h>
+#include <BulletCollision/CollisionShapes/btConvexHullShape.h>
 
 #include "Component.hpp"
 
@@ -17,6 +18,7 @@ public:
 	std::unique_ptr<btCollisionShape> collisionShape;
 
 	std::unique_ptr<btTriangleMesh> triangleMesh;
+	std::unique_ptr<btConvexHullShape> convexHullShape;
 
 	int collisionGroup = -1;
 	int collisionMask = -1;
