@@ -65,10 +65,6 @@ PhysicsSystem::PhysicsSystem() {
 }
 
 void PhysicsSystem::process(microseconds deltaTime) {
-	if (physicsDebugging) {
-		debugDrawer->beginDebugFrame();
-	}
-
 	std::chrono::duration<float> sec = deltaTime;
 	dynamicsWorld->stepSimulation(sec.count(), PHYSICS_SUBSTEPS, 1.0f / 60.0f); // timeStep < substeps * fixedTime
 
@@ -108,11 +104,6 @@ void PhysicsSystem::process(microseconds deltaTime) {
 	}
 	// add collision data to collision components
 	evaluateCollisions();
-
-	if (physicsDebugging) {
-		dynamicsWorld->debugDrawWorld();
-		debugDrawer->finishMeshes();
-	}
 }
 
 PhysicsSystem::~PhysicsSystem() {
@@ -174,8 +165,17 @@ void PhysicsSystem::toggleVisualDebugging() {
 }
 
 void PhysicsSystem::processSubSystems(microseconds deltaTime) {
+	if (physicsDebugging) {
+		debugDrawer->beginDebugFrame();
+	}
+
 	for (const auto& type: systemsInsertionOrder) {
 		subSystems[type]->processSubSystem(deltaTime); // process in correct order
+	}
+
+	if (physicsDebugging) {
+		dynamicsWorld->debugDrawWorld();
+		debugDrawer->finishMeshes();
 	}
 }
 
