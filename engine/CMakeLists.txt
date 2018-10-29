@@ -1,5 +1,21 @@
 project(engine)
 
+### FUNCTIONS ###
+function(CO1PY_INCLUDE_DIR source destination)
+    file(GLOB_RECURSE include_files
+            RELATIVE ${source}
+            ${source}/**/*.*
+            ${source}/*.*)
+
+    # This will contain full paths to files in binary directory.
+    set(binary_files_list)
+    foreach (file ${include_files})
+        set(source_file ${source}/${file})
+        set(binary_file ${destination}/${file})
+        configure_file(${source_file} ${binary_file} COPYONLY)
+    endforeach ()
+endfunction()
+q
 ### Debug Flags ###
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG)
@@ -78,7 +94,9 @@ if (SDL2_FOUND AND NOT MINGW)
 else()
     message(">>> Building SDL from source!")
     add_subdirectory(external/sdl2)
-    include_directories(external/sdl2/include)
+
+    COPY_INCLUDE_DIR(${SDL2_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/include/sdl2/SDL2)
+    include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/sdl2/)
 endif ()
 
 #################
