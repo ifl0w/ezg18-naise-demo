@@ -1,7 +1,7 @@
 project(engine)
 
 ### FUNCTIONS ###
-function(CO1PY_INCLUDE_DIR source destination)
+function(COPY_INCLUDE_DIR source destination)
     file(GLOB_RECURSE include_files
             RELATIVE ${source}
             ${source}/**/*.*
@@ -15,11 +15,15 @@ function(CO1PY_INCLUDE_DIR source destination)
         configure_file(${source_file} ${binary_file} COPYONLY)
     endforeach ()
 endfunction()
-q
+
 ### Debug Flags ###
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG)
 endif ()
+
+if(MSVC)
+	add_definitions(-D_ENABLE_EXTENDED_ALIGNED_STORAGE)
+endif()
 
 add_definitions(-DSPDLOG_TRACE_ON)
 
@@ -116,6 +120,7 @@ else()
 
     add_subdirectory(external/glbinding)
     include_directories(external/glbinding/source)
+
 endif ()
 
 ### stb ###
@@ -165,7 +170,6 @@ else()
 
 endif ()
 
-
 add_library(engine STATIC ${SRC_FILES}
         src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp
         src/components/InputComponent.cpp include/components/InputComponent.hpp
@@ -190,12 +194,17 @@ target_include_directories(engine PUBLIC
         external/bullet3/src
         external/tinygltf)
 
-if (MINGW)
+if(MSVC)
+target_include_directories(engine PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include/sdl2/)
+endif()
+
+
+if (MINGW OR MSVC)
     target_link_libraries(engine PUBLIC
             glbinding
-            glbinding-aux # for additionaly, auxiliary features as logging, meta information, or debugging functionality
+            glbinding-aux # for additionaly, auxiliary features as logging, meta information, or debugging 
             SDL2-static
-            Bullet3Common BulletDynamics BulletCollision LinearMath -static)
+            Bullet3Common BulletDynamics BulletCollision LinearMath)
 else()
     target_link_libraries(engine PUBLIC
             glbinding

@@ -114,4 +114,6 @@ int main(int argc, char** argv) {
 	Engine::getEntityManager().addEntity(box);
 
 	engine.run();
+
+	return 0;
 }

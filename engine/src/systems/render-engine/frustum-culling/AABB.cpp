@@ -16,7 +16,7 @@ AABB::AABB(const std::vector<glm::vec3>& points) {
 		minY = glm::min(minY, point.y);
 		maxY = glm::max(maxY, point.y);
 		minZ = glm::min(minZ, point.z);
-		maxZ = std::max(maxZ, point.z);
+		maxZ = glm::max(maxZ, point.z);
 	}
 
 	values = pair<vec3, vec3>(glm::vec3(minX, minY, minZ), glm::vec3(maxX, maxY, maxZ));
@@ -54,7 +54,7 @@ AABB::AABB(const std::vector<glm::vec4>& points) {
 		minY = glm::min(minY, point.y);
 		maxY = glm::max(maxY, point.y);
 		minZ = glm::min(minZ, point.z);
-		maxZ = std::max(maxZ, point.z);
+		maxZ = glm::max(maxZ, point.z);
 	}
 
 	values = pair<vec3, vec3>(glm::vec3(minX, minY, minZ), glm::vec3(maxX, maxY, maxZ));
@@ -86,7 +86,7 @@ void AABB::transform(mat4 transform) {
 		minY = glm::min(minY, tmp.y);
 		maxY = glm::max(maxY, tmp.y);
 		minZ = glm::min(minZ, tmp.z);
-		maxZ = std::max(maxZ, tmp.z);
+		maxZ = glm::max(maxZ, tmp.z);
 	}
 
 	values = pair<vec3, vec3>(glm::vec3(minX, minY, minZ), glm::vec3(maxX, maxY, maxZ));

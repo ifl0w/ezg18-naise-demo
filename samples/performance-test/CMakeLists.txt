@@ -19,7 +19,7 @@ add_executable(sample-performance-test
 
 add_dependencies(sample-performance-test engine)
 
-target_link_libraries(sample-performance-test engine)
+target_link_libraries(sample-performance-test SDL2main engine)
 
 ######## COPY ENGINE SHADERS ########
 set(NAISE_ENGINE_PATH "${NAISE_Engine_SOURCE_DIR}")

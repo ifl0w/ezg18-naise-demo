@@ -30,7 +30,7 @@ layout(std140, binding = 0) uniform screenData
     float brightnessFactor; // multiplied to the color to lighten or darken the result
 };
 
-uniform projectionData
+layout(std140, binding = 1) uniform projectionData
 {
     mat4 viewProjection;    // size = 64B
     mat4 projectionMatrix;    // size = 64B
