@@ -19,7 +19,7 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
 
 	//TODO refactor glow, separate into own classes
-	float aspectRatio = viewportWidth / viewportHeight;
+	float aspectRatio = viewportWidth / (float) viewportHeight;
 	float glowTextureHeight;
 	float glowTextureWidth;
 	float glowTextureMaxSize = 512;
