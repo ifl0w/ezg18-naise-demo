@@ -14,6 +14,13 @@ using namespace std;
 WindowSystem::WindowSystem() {
 	SDL_Init(SDL_INIT_VIDEO);              	// Initialize SDL2
 
+	setSDLAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	setSDLAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	setSDLAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+	setSDLAttribute(SDL_GL_DEPTH_SIZE, 24);
+	setSDLAttribute(SDL_GL_STENCIL_SIZE, 8);
+	setSDLAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
 	// Create an application window with the following settings:
 	window = SDL_CreateWindow(
 			"An SDL2 window",                  // window title
@@ -30,10 +37,6 @@ WindowSystem::WindowSystem() {
 		throw runtime_error(string("Could not create window: ").append(SDL_GetError()));
 	}
 
-	setSDLAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	setSDLAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	setSDLAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
-	setSDLAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	context = SDL_GL_CreateContext(window);
 	// Check that the window was successfully created
