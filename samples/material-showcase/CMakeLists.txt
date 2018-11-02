@@ -17,7 +17,7 @@ add_executable(material-showcase
 
 add_dependencies(material-showcase engine)
 
-target_link_libraries(material-showcase SDL2main engine)
+target_link_libraries(material-showcase engine)
 
 ######## COPY ENGINE SHADERS ########
 set(NAISE_ENGINE_PATH "${NAISE_Engine_SOURCE_DIR}")

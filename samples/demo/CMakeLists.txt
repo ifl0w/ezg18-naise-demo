@@ -19,7 +19,7 @@ add_executable(sample-demo
 
 add_dependencies(sample-demo engine)
 
-target_link_libraries(sample-demo SDL2main engine)
+target_link_libraries(sample-demo engine)
 
 ######## COPY ENGINE SHADERS ########
 set(NAISE_ENGINE_PATH "${NAISE_Engine_SOURCE_DIR}")

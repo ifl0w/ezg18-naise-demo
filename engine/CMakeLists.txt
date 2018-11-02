@@ -203,7 +203,7 @@ if (MINGW OR MSVC)
     target_link_libraries(engine PUBLIC
             glbinding
             glbinding-aux # for additionaly, auxiliary features as logging, meta information, or debugging 
-            SDL2-static
+            SDL2main SDL2-static
             Bullet3Common BulletDynamics BulletCollision LinearMath)
 else()
     target_link_libraries(engine PUBLIC
