@@ -1,4 +1,4 @@
-project(material-showcase)
+project(animation-demo)
 set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${NAISE_BUILD_ARTIFACTS_DIRECTORY}/${PROJECT_NAME})
@@ -7,17 +7,16 @@ include_directories(include)
 
 include_directories(${NAISE_Engine_SOURCE_DIR}/engine/include)
 
-add_executable(material-showcase
-        src/Game.cpp
-        src/Game.hpp
+add_executable(${PROJECT_NAME}
+        src/main.cpp
         ../common/FPSCameraSystem/FPSCameraInputMapper.cpp
         ../common/FPSCameraSystem/FPSCameraInputMapper.hpp
         ../common/FPSCameraSystem/FPSCameraMovementSystem.cpp
         ../common/FPSCameraSystem/FPSCameraMovementSystem.hpp)
 
-add_dependencies(material-showcase engine)
+add_dependencies(${PROJECT_NAME} engine)
 
-target_link_libraries(material-showcase engine)
+target_link_libraries(${PROJECT_NAME} engine)
 
 ######## COPY ENGINE SHADERS ########
 set(NAISE_ENGINE_PATH "${NAISE_Engine_SOURCE_DIR}")

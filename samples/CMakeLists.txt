@@ -11,4 +11,5 @@ endif ()
 
 subdirs(demo
         performance-test
-        material-showcase)
+        material-showcase
+        animation-demo)
