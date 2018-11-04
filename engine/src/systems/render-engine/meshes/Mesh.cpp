@@ -1,6 +1,8 @@
 #include <systems/render-engine/meshes/Mesh.hpp>
 #include <spdlog/spdlog.h>
 
+#include "resource-loader/GLTFLoader.hpp"
+
 using namespace NAISE::RenderCore;
 
 Mesh::Mesh() {
@@ -147,75 +149,24 @@ Mesh::Mesh(const tinygltf::Mesh& mesh, const tinygltf::Model& model): Mesh() {
 			for (const auto& attribute: primitive.attributes) {
 
 				if (attribute.first == "POSITION") {
-					std::vector<vec3> addVec = vec3FromGLTFBuffer(attribute.second, model);
+					std::vector<vec3> addVec = Engine::GLTFLoader::dataFromBuffer<glm::vec3>(attribute.second, model);
 					vertices.insert(vertices.end(), addVec.begin(), addVec.end());
 				} else if (attribute.first == "NORMAL") {
-					std::vector<vec3> addVec = vec3FromGLTFBuffer(attribute.second, model);
+					std::vector<vec3> addVec = Engine::GLTFLoader::dataFromBuffer<glm::vec3>(attribute.second, model);
 					normals.insert(normals.end(), addVec.begin(), addVec.end());
 				} else if (attribute.first == "TEXCOORD_0") {
-					std::vector<vec2> addVec = vec2FromGLTFBuffer(attribute.second, model);
+					std::vector<vec2> addVec = Engine::GLTFLoader::dataFromBuffer<glm::vec2>(attribute.second, model);
 					uv_coords.insert(uv_coords.end(), addVec.begin(), addVec.end());
 				} else if (attribute.first == "TANGENT") {
-					std::vector<vec3> addVec = vec3FromGLTFBuffer(attribute.second, model);
+					std::vector<vec3> addVec = Engine::GLTFLoader::dataFromBuffer<glm::vec3>(attribute.second, model);
 					tangents.insert(tangents.end(), addVec.begin(), addVec.end());
 				}
 			}
 
-			std::vector<GLuint> addIdx = gluintFromGLTFBuffer(primitive.indices, model);
+			std::vector<GLuint> addIdx = Engine::GLTFLoader::dataFromBuffer<GLuint>(primitive.indices, model);
 			indices.insert(indices.end(),  addIdx.begin(), addIdx.end());
 		}
 	}
 
 	fillBuffers();
-}
-
-std::vector<vec3> Mesh::vec3FromGLTFBuffer(int accessorIdx, const tinygltf::Model& model) {
-	tinygltf::Accessor accessor = model.accessors[accessorIdx];
-	tinygltf::BufferView bufferView = model.bufferViews[accessor.bufferView];
-
-	std::vector<vec3> result = std::vector<vec3>(accessor.count);
-
-	if (bufferView.byteStride != 0) {
-		spdlog::get("logger")->error("NAISE::ENGINE::Mesh::vec3FromGLTFBuffer >> Data in GLTF has stride. This is not supported.");
-		return result;
-	}
-
-	memcpy(result.data(), model.buffers[bufferView.buffer].data.data()+bufferView.byteOffset, accessor.count * sizeof(vec3));
-	return result;
-}
-
-std::vector<vec2> Mesh::vec2FromGLTFBuffer(int accessorIdx, const tinygltf::Model& model) {
-	tinygltf::Accessor accessor = model.accessors[accessorIdx];
-	tinygltf::BufferView bufferView = model.bufferViews[accessor.bufferView];
-
-	std::vector<vec2> result = std::vector<vec2>(accessor.count);
-
-	if (bufferView.byteStride != 0) {
-		spdlog::get("logger")->error("NAISE::ENGINE::Mesh::vec3FromGLTFBuffer >> Data in GLTF has stride. This is not supported.");
-		return result;
-	}
-
-	memcpy(result.data(), model.buffers[bufferView.buffer].data.data()+bufferView.byteOffset, accessor.count * sizeof(vec2));
-	return result;
-}
-
-std::vector<GLuint> Mesh::gluintFromGLTFBuffer(int accessorIdx, const tinygltf::Model& model) {
-	tinygltf::Accessor accessor = model.accessors[accessorIdx];
-	tinygltf::BufferView bufferView = model.bufferViews[accessor.bufferView];
-
-	std::vector<GLuint> result = std::vector<GLuint>();
-
-	if (bufferView.byteStride != 0) {
-		spdlog::get("logger")->error("NAISE::ENGINE::Mesh::gluintFromGLTFBuffer >> Data in GLTF has stride. This is not supported.");
-		return result;
-	}
-
-	auto s = static_cast<uint32_t>(tinygltf::GetComponentSizeInBytes(static_cast<uint32_t>(accessor.componentType)));
-	result.resize(accessor.count);
-
-	for (int i = 0; i < result.size(); ++i) {
-		memcpy(&result[i], model.buffers[bufferView.buffer].data.data()+bufferView.byteOffset + i * s, s);
-	}
-
-	return result;
 }

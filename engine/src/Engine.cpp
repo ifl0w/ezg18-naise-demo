@@ -28,6 +28,8 @@ Engine::~Engine() {
 }
 
 void Engine::run() {
+	_lastFrame = steady_clock::now();
+
 	while (!quit) {
 		systemsManager.process(_deltaTime);
 

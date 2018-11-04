@@ -52,11 +52,6 @@ public:
 
 protected:
 	void fillBuffers();
-
-private:
-	std::vector<vec3> vec3FromGLTFBuffer(int accessorIdx, const tinygltf::Model& model);
-	std::vector<vec2> vec2FromGLTFBuffer(int accessorIdx, const tinygltf::Model& model);
-	std::vector<GLuint> gluintFromGLTFBuffer(int accessorIdx, const tinygltf::Model& model);
 };
 
 }

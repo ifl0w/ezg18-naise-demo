@@ -18,11 +18,13 @@
 #include <factories/RigidBodyFactory.hpp>
 
 #include <Resources.hpp>
+#include <resource-loader/GLTFLoader.hpp>
 
 #include <systems/RenderSystem.hpp>
 #include <systems/WindowSystem.hpp>
 #include <systems/PhysicsSystem.hpp>
 #include <systems/TransformSystem.hpp>
+#include <systems/animations/AnimationSystem.hpp>
 
 #include "../../common/FPSCameraSystem/FPSCameraInputMapper.hpp"
 #include "../../common/FPSCameraSystem/FPSCameraMovementSystem.hpp"
@@ -37,6 +39,7 @@ int main(int argc, char** argv) {
 	Engine::getSystemsManager().registerSystem<InputSystem>();
 	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<FPSCameraInputMapper>());
 	Engine::getSystemsManager().registerSystem<FPSCameraMovementSystem>();
+	Engine::getSystemsManager().registerSystem<AnimationSystem>();
 	Engine::getSystemsManager().registerSystem<TransformSystem>();
 	Engine::getSystemsManager().registerSystem<RenderSystem>();
 	
@@ -52,8 +55,30 @@ int main(int argc, char** argv) {
 	auto skybox = NAISE::Engine::Skybox(identifier, paths);
 	Engine::getSystemsManager().getSystem<RenderSystem>().setSkybox(skybox);
 
-	auto simpleCubeAnimation = Resources::loadModel("resources/simple-cube-animation.gltf");
-	Engine::getEntityManager().addEntities(simpleCubeAnimation);
+	int amount = 10;
+	float gapSize = 0.01;
+	float radius = 2;
+	vec3 cubeSize = vec3(amount * (radius * 2 + gapSize));
+	vec3 positionOffset = vec3(0, cubeSize.z / 2.0 + 10, -(cubeSize.z / 2.0 + 50));
+	for (int i = 0; i < amount; ++i) {
+		for (int j = 0; j < amount; ++j) {
+			for (int k = 0; k < amount; ++k) {
+				auto origin = make_shared<NAISE::Engine::Entity>();
+				auto position = vec3(i * (radius * 2 + gapSize), j * (radius * 2 + gapSize), k * (radius * 2 + gapSize));
+				position += (-cubeSize / 2.0f) + positionOffset;
+
+				origin->add<TransformComponent>();
+				origin->component<TransformComponent>().position = position;
+
+				auto simpleCubeAnimation = GLTFLoader::loadModel("resources/simple-cube-animation.gltf");
+				simpleCubeAnimation[0]->add<ParentComponent>(origin->id);
+				simpleCubeAnimation[0]->component<TransformAnimationComponent>().animations[0].playing = true;
+
+				Engine::getEntityManager().addEntity(origin);
+				Engine::getEntityManager().addEntities(simpleCubeAnimation);
+			}
+		}
+	}
 
 	auto box = make_shared<NAISE::Engine::Entity>();
 	box->add<TransformComponent>();

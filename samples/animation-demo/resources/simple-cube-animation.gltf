@@ -2,7 +2,7 @@
     "accessors" : [
         {
             "bufferView" : 0,
-            "componentType" : 5121,
+            "componentType" : 5123,
             "count" : 36,
             "max" : [
                 23
@@ -156,6 +156,7 @@
                     }
                 }
             ],
+            "name" : "CubeAction.001",
             "samplers" : [
                 {
                     "input" : 3,
@@ -182,56 +183,56 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 36,
+            "byteLength" : 72,
             "byteOffset" : 0,
             "target" : 34963
         },
         {
             "buffer" : 0,
             "byteLength" : 288,
-            "byteOffset" : 36,
+            "byteOffset" : 72,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 288,
-            "byteOffset" : 324,
+            "byteOffset" : 360,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 2400,
-            "byteOffset" : 612
+            "byteOffset" : 648
         },
         {
             "buffer" : 0,
             "byteLength" : 7200,
-            "byteOffset" : 3012
+            "byteOffset" : 3048
         },
         {
             "buffer" : 0,
             "byteLength" : 2400,
-            "byteOffset" : 10212
+            "byteOffset" : 10248
         },
         {
             "buffer" : 0,
             "byteLength" : 9600,
-            "byteOffset" : 12612
+            "byteOffset" : 12648
         },
         {
             "buffer" : 0,
             "byteLength" : 4,
-            "byteOffset" : 22212
+            "byteOffset" : 22248
         },
         {
             "buffer" : 0,
             "byteLength" : 36,
-            "byteOffset" : 22216
+            "byteOffset" : 22252
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 22252,
+            "byteLength" : 22288,
             "uri" : "simple-cube-animation.bin"
         }
     ],

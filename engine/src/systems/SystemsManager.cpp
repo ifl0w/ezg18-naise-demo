@@ -14,7 +14,7 @@ void SystemsManager::process(std::chrono::microseconds deltaTime) {
 		systems[type]->process(deltaTime); // process in correct order
 
 		_deltaTime = duration_cast<microseconds>(steady_clock::now() - _beginTime);
-//		NAISE_DEBUG_CONSOL("{} :: Processing took {}ms", system.first.name(), duration_cast<milliseconds>(_deltaTime).count());
+//		NAISE_DEBUG_CONSOL("{} :: Processing took {}ms", type.name(), duration_cast<milliseconds>(_deltaTime).count());
 	}
 //	NAISE_DEBUG_CONSOL("### End processing of systems ###");
 }

@@ -2,8 +2,6 @@
 
 #include <systems/render-engine/textures/ImageTexture.hpp>
 #include <systems/render-engine/textures/GLTFTexture.hpp>
-
-#include <components/MaterialComponent.hpp>
 #include <systems/render-engine/materials/PBRMaterial.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -20,6 +18,9 @@
 #include <components/ParentComponent.hpp>
 #include <components/TagComponent.hpp>
 #include <components/AABBComponent.hpp>
+#include <components/MaterialComponent.hpp>
+
+#include <resource-loader/GLTFLoader.hpp>
 
 #include <systems/render-engine/textures/SkyboxTexture.hpp>
 #include <Logger.hpp>
@@ -62,9 +63,6 @@ std::map<pair<type_index, std::string>, std::shared_ptr<Mesh>> Resources::meshes
 
 std::map<pair<type_index, std::string>, std::shared_ptr<Material>> Resources::materials =
 		std::map<pair<type_index, std::string>, std::shared_ptr<Material>>();
-
-std::map<std::string, tinygltf::Model> Resources::models =
-		std::map<std::string, tinygltf::Model>();
 
 std::shared_ptr<Texture> Resources::loadTexture(const std::string& path) {
 	return loadTexture(path, path);
@@ -189,125 +187,12 @@ std::shared_ptr<Texture> Resources::getTexture(const std::string& identifier) {
 //	return Resources::computeShaders[key];
 //}
 
-vector<shared_ptr<Entity>> Resources::loadModel(const std::string& path) {
-	return loadModel(nullptr, path);
-}
-
-vector<shared_ptr<Entity>> Resources::loadModel(const ModelLoaderAdapter* adapter, const std::string& path) {
-	vector<shared_ptr<Entity>> ret;
-
-	const auto& key = path;
-	auto it = Resources::models.find(key);
-
-	tinygltf::TinyGLTF loader;
-	tinygltf::Model model;
-	std::string warn;
-	std::string error;
-
-	if (it != Resources::models.end()) {
-		model = it->second;
-	} else {
-		bool successful = loader.LoadASCIIFromFile(&model, &error, &warn, path);
-
-		if (!warn.empty()) {
-			NAISE_WARN_LOG("Warning during loading of ASCII model {} ({})", path, warn);
-		}
-
-		if (!successful) {
-			NAISE_ERROR_LOG("Could not load ASCII model {} ({})", path, error);
-			return ret;
-		}
-	}
-
-	for (const auto nodeIdx: model.scenes[model.defaultScene].nodes) {
-		auto result = entityFromGLTFNode(adapter, path, model.nodes[nodeIdx], model, nullptr);
-		ret.insert(ret.end(), result.begin(), result.end());
-	}
-
-	for (auto& image: model.images) {
-		// remove data from memory
-		image.image.clear();
-	}
-
-	Resources::models[key] = model;
-	return ret;
-}
-
-vector<shared_ptr<Entity>> Resources::entityFromGLTFNode(const ModelLoaderAdapter* adapter,
-														const std::string& idPrefix, const tinygltf::Node& node,
-														const tinygltf::Model& model,
-														shared_ptr<Entity> parent) {
-	vector<shared_ptr<Entity>> ret;
-
-	auto entity = make_shared<Entity>();
-	entity->add<TransformComponent>();
-	entity->add<TagComponent>(node.name);
-
-	string id = idPrefix + "->" + node.name;
-
-	if (node.mesh >= 0) {
-		/* load mesh */
-		tinygltf::Mesh mesh = model.meshes[node.mesh];
-		string meshID = idPrefix + "::mesh::" + mesh.name;
-
-		auto meshObject = getMesh<Mesh>(meshID, mesh, model);
-		entity->add<MeshComponent>(meshObject);
-		entity->add<AABBComponent>(AABB(meshObject->vertices));
-
-		/* load material */
-		if (mesh.primitives[0].material >= 0) {
-			// TODO: support for more than a single material per object (iflow: probable not soon)
-			auto gltfMaterial = model.materials[mesh.primitives[0].material];
-			string matID = idPrefix + "::material::" + gltfMaterial.name;
-
-			entity->add<MaterialComponent>();
-			entity->component<MaterialComponent>().material = getMaterial<PBRMaterial>(matID, gltfMaterial, model);
-		}
-	}
-
-	if (!node.translation.empty()) {
-		auto pos = vec3(node.translation[0], node.translation[1], node.translation[2]);
-		entity->component<TransformComponent>().position = pos;
-	}
-
-	if (!node.scale.empty()) {
-		auto scale = vec3(node.scale[0], node.scale[1], node.scale[2]);
-		entity->component<TransformComponent>().scale = scale;
-	}
-
-	if (!node.rotation.empty()) {
-		auto rot = quat(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
-		entity->component<TransformComponent>().rotation = rot;
-	}
-
-	if (adapter != nullptr) {
-		bool stopEvaluation = adapter->adapt(entity, parent, node, model);
-
-		if (stopEvaluation) {
-			return ret;
-		}
-	}
-
-	ret.push_back(entity);
-
-	if (parent != nullptr) {
-		entity->add<ParentComponent>(parent->id);
-	}
-
-	for (const auto& child: node.children) {
-		auto children = entityFromGLTFNode(adapter, id, model.nodes[child], model, entity);
-		ret.insert(ret.end(), children.begin(), children.end());
-	}
-
-	return ret;
-}
-
 void Resources::freeAll() {
 	shaders.clear();
 	textures.clear();
 	materials.clear();
 	meshes.clear();
-	models.clear();
+	GLTFLoader::freeAll();
 }
 
 ImageFileType Resources::getImageTypeByMagic(const std::string& path) {

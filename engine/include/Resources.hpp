@@ -44,23 +44,6 @@ public:
 	static void freeAll();
 
 	/**
-	 * Load a model from a gltf source and return all resulting entities as vector.
-	 * The models will be cached and identified by the path.
-	 * @param path
-	 * @return
-	 */
-	static vector<shared_ptr<Entity>> loadModel(const std::string& path);
-
-	/**
-	 * Load a model from a gltf source with a given adapter and return all resulting entities as vector.
-	 * The model will be cached and identified by the path.
-	 *
-	 * @param path
-	 * @return
-	 */
-	static vector<shared_ptr<Entity>> loadModel(const ModelLoaderAdapter* adapter, const std::string& path);
-
-	/**
 	 * Returns a shader object for the template type
 	 * @tparam T
 	 * @return
@@ -147,20 +130,6 @@ private:
 	static std::map<std::string, std::shared_ptr<Texture>> textures;
 	static std::map<pair<type_index, std::string>, std::shared_ptr<Mesh>> meshes;
 	static std::map<pair<type_index, std::string>, std::shared_ptr<Material>> materials;
-	static std::map<std::string, tinygltf::Model> models;
-
-	/**
-	 * Creates an entity for every node in the loaded scene with the given adapter.
-	 *
-	 * @param idPrefix
-	 * @param node
-	 * @param model
-	 * @return
-	 */
-	static vector<shared_ptr<Entity>> entityFromGLTFNode(const ModelLoaderAdapter* adapter,
-														 const std::string& idPrefix, const tinygltf::Node& node,
-														 const tinygltf::Model& model,
-														 shared_ptr<Entity> parent);
 
 	/**
 	 * Loads textures with stbi_load
