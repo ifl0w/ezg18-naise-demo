@@ -19,6 +19,7 @@
 #include <components/TransformComponent.hpp>
 #include <components/ParentComponent.hpp>
 #include <components/TagComponent.hpp>
+#include <components/AABBComponent.hpp>
 
 #include <systems/render-engine/textures/SkyboxTexture.hpp>
 #include <Logger.hpp>
@@ -247,15 +248,20 @@ vector<shared_ptr<Entity>> Resources::entityFromGLTFNode(const ModelLoaderAdapte
 	if (node.mesh >= 0) {
 		/* load mesh */
 		tinygltf::Mesh mesh = model.meshes[node.mesh];
-		entity->add<MeshComponent>();
-		entity->component<MeshComponent>().mesh = getMesh<Mesh>(id, mesh, model);
+		string meshID = idPrefix + "::mesh::" + mesh.name;
+
+		auto meshObject = getMesh<Mesh>(meshID, mesh, model);
+		entity->add<MeshComponent>(meshObject);
+		entity->add<AABBComponent>(AABB(meshObject->vertices));
 
 		/* load material */
 		if (mesh.primitives[0].material >= 0) {
 			// TODO: support for more than a single material per object (iflow: probable not soon)
 			auto gltfMaterial = model.materials[mesh.primitives[0].material];
+			string matID = idPrefix + "::material::" + gltfMaterial.name;
+
 			entity->add<MaterialComponent>();
-			entity->component<MaterialComponent>().material = getMaterial<PBRMaterial>(id, gltfMaterial, model);
+			entity->component<MaterialComponent>().material = getMaterial<PBRMaterial>(matID, gltfMaterial, model);
 		}
 	}
 

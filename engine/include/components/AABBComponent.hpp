@@ -1,3 +1,5 @@
+#include <utility>
+
 #pragma once
 
 #include <systems/render-engine/frustum-culling/AABB.hpp>
@@ -10,6 +12,8 @@ namespace Engine {
 
 class AABBComponent: public Component {
 public:
+	explicit AABBComponent(AABB aabb): aabb(std::move(aabb)) {};
+
 	AABB aabb;
 };
 
