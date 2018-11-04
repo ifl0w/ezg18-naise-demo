@@ -133,42 +133,35 @@ include_directories(external/tinygltf)
 include_directories(external/glm)
 
 ### BULLET ###
+# Compile bullet from source since double precision is targeted
 
-find_package(Bullet 2.87)
+set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
+set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
+set(BULLET2_USE_THREAD_LOCKS ON CACHE BOOL "" FORCE)
+set(USE_DOUBLE_PRECISION ON CACHE BOOL "" FORCE)
+add_definitions(-DBT_USE_DOUBLE_PRECISION)
 
-if (Bullet_FOUND AND NOT MINGW)
-    message(">>> Bullet found!")
-else()
-    message(">>> Bullet not found! It will be compiled from source.")
+if (CMAKE_FIND_ROOT_PATH)
+    set(WTF_BULLET ${CMAKE_FIND_ROOT_PATH})
+    unset(CMAKE_FIND_ROOT_PATH)
+endif (CMAKE_FIND_ROOT_PATH)
 
-    set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
-    set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
-    set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
-    set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
-    set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
-    set(BULLET2_USE_THREAD_LOCKS ON CACHE BOOL "" FORCE)
-#    set(USE_DOUBLE_PRECISION ON CACHE BOOL "" FORCE)
-#    add_definitions(-DBT_USE_DOUBLE_PRECISION)
+add_subdirectory(external/bullet3)
+include_directories(external/bullet3/src)
 
-    if (CMAKE_FIND_ROOT_PATH)
-        set(WTF_BULLET ${CMAKE_FIND_ROOT_PATH})
-        unset(CMAKE_FIND_ROOT_PATH)
-    endif (CMAKE_FIND_ROOT_PATH)
+if (WTF_BULLET)
+    set(CMAKE_FIND_ROOT_PATH ${WTF_BULLET})
+endif (WTF_BULLET)
 
-    add_subdirectory(external/bullet3)
-    include_directories(external/bullet3/src)
+add_custom_target(
+        bullet
+        COMMAND make
+        WORKING_DIRECTORY external/bullet3
+)
 
-    if (WTF_BULLET)
-        set(CMAKE_FIND_ROOT_PATH ${WTF_BULLET})
-    endif (WTF_BULLET)
-
-    add_custom_target(
-            bullet
-            COMMAND make
-            WORKING_DIRECTORY external/bullet3
-    )
-
-endif ()
 
 add_library(engine STATIC ${SRC_FILES}
         src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp
