@@ -1,5 +1,8 @@
 .idea
 
+# blender backup files in sample folder
+*.blend?
+
 # build folder
 cmake-build-*
 release-*

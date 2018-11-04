@@ -52,21 +52,8 @@ int main(int argc, char** argv) {
 	auto skybox = NAISE::Engine::Skybox(identifier, paths);
 	Engine::getSystemsManager().getSystem<RenderSystem>().setSkybox(skybox);
 
-	int resolution = 10;
-	float radius = 1;
-	float gap = 0.5;
-	vec3 color = vec3(0.8, 0, 0);
-	for (int i = 0; i <= resolution; ++i) {
-		for (int j = 0; j <= resolution; ++j) {
-			auto sphere = make_shared<NAISE::Engine::Entity>();
-			sphere->add<TransformComponent>();
-			sphere->component<TransformComponent>().position = vec3(j*(2*radius+gap), i*(2*radius+gap), -40);
-			sphere->add(MeshFactory::create<Sphere>(radius));
-			sphere->add<MaterialComponent>();
-			sphere->add(MaterialFactory::createMaterial<PBRMaterial>(color, i/(float)resolution, j/(float)resolution));
-			Engine::getEntityManager().addEntity(sphere);
-		}
-	}
+	auto simpleCubeAnimation = Resources::loadModel("resources/simple-cube-animation.gltf");
+	Engine::getEntityManager().addEntities(simpleCubeAnimation);
 
 	auto box = make_shared<NAISE::Engine::Entity>();
 	box->add<TransformComponent>();
@@ -78,12 +65,11 @@ int main(int argc, char** argv) {
 	auto material = make_shared<PBRMaterial>(vec3(0.2, 0.2, 0.2), 0, 0.6);
 	materialComponent->material = material;
 	box->add(materialComponent);
-
 	Engine::getEntityManager().addEntity(box);
 
 	auto camera = make_shared<NAISE::Engine::Entity>();
 	camera->add<TransformComponent>();
-	camera->component<TransformComponent>().position = vec3(0, 1.6, 0);
+	camera->component<TransformComponent>().position = vec3(0, 1.6, 20);
 	camera->add<CameraComponent>();
 	camera->add<InputComponent>();
 	camera->component<InputComponent>().add<Actions::MoveForward>();

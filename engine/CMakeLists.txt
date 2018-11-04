@@ -179,7 +179,8 @@ add_library(engine STATIC ${SRC_FILES}
         src/systems/TransformSystem.cpp include/systems/TransformSystem.hpp
         include/components/ParentComponent.hpp include/components/AABBComponent.hpp
         include/components/CollisionComponent.hpp include/components/TagComponent.hpp
-        include/resource-loader/ModelLoaderAdapter.hpp include/scene/Signature.hpp)
+        include/resource-loader/ModelLoaderAdapter.hpp include/scene/Signature.hpp
+        src/systems/animations/AnimationSystem.cpp include/systems/animations/AnimationSystem.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include
