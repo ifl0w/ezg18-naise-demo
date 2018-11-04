@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
 	Engine::getEntityManager().addEntity(camera);
 	Engine::getEntityManager().addEntity(floorEntity);
 
-	int amount = 20;
+	int amount = 10;
 	float gapSize = 0.01;
 	float radius = 1;
 	vec3 cubeSize = vec3(amount * (radius * 2 + gapSize));
@@ -93,11 +93,11 @@ int main(int argc, char** argv) {
 
 				sphere->add<TransformComponent>();
 				sphere->component<TransformComponent>().position = position;
-				sphere->add(make_shared<MeshComponent>(Resources::getMesh<Sphere>("demo-sphere-mesh", radius)));
-				sphere->add(make_shared<MaterialComponent>(Resources::getMaterial<PBRMaterial>("demo-sphere-material", vec3(0.8, 0, 0.8), 0, 0.2)));
-//				sphere->add(RigidBodyFactory::createBox(radius, radius, radius, 10, position));
-//				sphere->add(MeshFactory::createBox(radius,radius,radius));
-//				sphere->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.8, 0, 0.8), 0, 0.2));
+//				sphere->add(make_shared<MeshComponent>(Resources::getMesh<Sphere>("demo-sphere-mesh", radius)));
+//				sphere->add(make_shared<MaterialComponent>(Resources::getMaterial<PBRMaterial>("demo-sphere-material", vec3(0.8, 0, 0.8), 0, 0.2)));
+				sphere->add(RigidBodyFactory::createBox(radius, radius, radius, 10, position));
+				sphere->add(MeshFactory::createBox(radius,radius,radius));
+				sphere->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.8, 0, 0), 0, 0.2));
 				sphere->add<AABBComponent>();
 				sphere->component<AABBComponent>().aabb = AABB(sphere->component<MeshComponent>().mesh->vertices);
 

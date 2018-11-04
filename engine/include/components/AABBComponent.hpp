@@ -12,6 +12,7 @@ namespace Engine {
 
 class AABBComponent: public Component {
 public:
+	AABBComponent() = default;
 	explicit AABBComponent(AABB aabb): aabb(std::move(aabb)) {};
 
 	AABB aabb;
