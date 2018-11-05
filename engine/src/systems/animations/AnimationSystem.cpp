@@ -19,18 +19,17 @@ void AnimationSystem::process(microseconds deltaTime) {
 		for (auto& anim: animComp.animations) {
 			if (anim.playing) {
 
-				animateProperty(anim.position, transformComp.position, anim.state);
-				animateProperty(anim.rotation, transformComp.rotation, anim.state);
-				animateProperty(anim.scale, transformComp.scale, anim.state);
+				animateProperty(anim.position, transformComp.position, anim.state, sec.count());
+				animateProperty(anim.rotation, transformComp.rotation, anim.state, sec.count());
+				animateProperty(anim.scale, transformComp.scale, anim.state, sec.count());
 
 				anim.state += sec.count();
 
-				if (anim.state >= anim.tMax) {
-					anim.state = 0;
+				if (anim.ended()) {
+					anim.reset();
 				}
 
 			}
 		}
-
 	}
 }

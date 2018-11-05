@@ -166,10 +166,7 @@ void GLTFLoader::loadAnimations(std::shared_ptr<Entity>& entity, const int nodeI
 					vector<float> inputValues = dataFromBuffer<float>(input, model);
 					vector<glm::vec3> outputValues = dataFromBuffer<glm::vec3>(output, model);
 
-					assert(inputValues.size() == outputValues.size());
-					for (size_t i = 0; i < inputValues.size(); ++i) {
-						transformAnimation.position[inputValues[i]] = outputValues[i];
-					}
+					transformAnimation.position = AnimationProperty(inputValues, outputValues);
 
 					auto lastT = inputValues[inputValues.size() - 1];
 					if (transformAnimation.tMax < lastT) {
@@ -179,10 +176,7 @@ void GLTFLoader::loadAnimations(std::shared_ptr<Entity>& entity, const int nodeI
 					vector<float> inputValues = dataFromBuffer<float>(input, model);
 					vector<glm::quat> outputValues = dataFromBuffer<glm::quat>(output, model);
 
-					assert(inputValues.size() == outputValues.size());
-					for (size_t i = 0; i < inputValues.size(); ++i) {
-						transformAnimation.rotation[inputValues[i]] = outputValues[i];
-					}
+					transformAnimation.rotation = AnimationProperty(inputValues, outputValues);
 
 					auto lastT = inputValues[inputValues.size() - 1];
 					if (transformAnimation.tMax < lastT) {
@@ -192,10 +186,7 @@ void GLTFLoader::loadAnimations(std::shared_ptr<Entity>& entity, const int nodeI
 					vector<float> inputValues = dataFromBuffer<float>(input, model);
 					vector<glm::vec3> outputValues = dataFromBuffer<glm::vec3>(output, model);
 
-					assert(inputValues.size() == outputValues.size());
-					for (size_t i = 0; i < inputValues.size(); ++i) {
-						transformAnimation.scale[inputValues[i]] = outputValues[i];
-					}
+					transformAnimation.scale = AnimationProperty(inputValues, outputValues);
 
 					auto lastT = inputValues[inputValues.size() - 1];
 					if (transformAnimation.tMax < lastT) {
