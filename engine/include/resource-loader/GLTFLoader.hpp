@@ -97,7 +97,7 @@ vector<T> GLTFLoader::dataFromBuffer(int accessorIdx, const tinygltf::Model& mod
 		}
 
 	} else {
-		NAISE_ERROR_LOG("This type of conversion is not supported!")
+		NAISE_ERROR_LOG("This conversion is not supported! (source size: {}, target size: {})", sourceSize, targetSize)
 	}
 
 	return result;

@@ -1,6 +1,7 @@
 #include <Engine.hpp>
 #include <Logger.hpp>
 #include <Resources.hpp>
+#include <resource-loader/GLTFLoader.hpp>
 
 #include <components/TransformComponent.hpp>
 #include <components/MeshComponent.hpp>
@@ -114,7 +115,7 @@ int main(int argc, char **argv) {
 		pointLight->component<LightComponent>().light->data.diffuse = vec4(30, 30, 30, 1);
 		Engine::getEntityManager().addEntity(pointLight);
 
-		auto tunnelSegment = Resources::loadModel("resources/models/tunnel-segment/tunnel_segment.gltf");
+		auto tunnelSegment = GLTFLoader::loadModel("resources/models/tunnel-segment/tunnel_segment.gltf");
 		tunnelSegment[0]->component<TransformComponent>().position = vec3(0, 0, -i * 20);
 		for (int j = 0; j < tunnelSegment.size(); ++j) {
 			Engine::getEntityManager().addEntity(tunnelSegment[j]);
@@ -122,7 +123,7 @@ int main(int argc, char **argv) {
 
 	}
 
-	auto luminarisScene = Resources::loadModel("resources/models/luminaris/luminaris.gltf");
+	auto luminarisScene = GLTFLoader::loadModel("resources/models/luminaris/luminaris.gltf");
 	for (int j = 0; j < luminarisScene.size(); ++j) {
 		auto& t = luminarisScene[j];
 		t->component<TransformComponent>().position = vec3(0, 0, 0);
