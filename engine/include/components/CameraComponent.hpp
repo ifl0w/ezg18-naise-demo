@@ -28,6 +28,8 @@ public:
 
 	Frustum frustum;
 
+	bool active = false;
+
 	AABB calculateViewFrustrum();
 
 protected:

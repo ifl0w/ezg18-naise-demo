@@ -29,7 +29,13 @@ void RenderSystem::process(microseconds deltaTime) {
 	renderEngine.setSkybox(&skybox);
 
 	auto& cameraEntities = Engine::getEntityManager().getEntities<CameraSignature>();
-	for (auto entity: cameraEntities) { camera = entity; }
+	camera = cameraEntities.front();
+	for (auto entity: cameraEntities) {
+		if (entity->component<CameraComponent>().active) {
+			camera = entity;
+			break;
+		}
+	}
 
 	auto& sunEntities = Engine::getEntityManager().getEntities<SunSignature>();
 	for (auto entity: sunEntities) {

@@ -523,63 +523,63 @@
                 {
                     "sampler" : 0,
                     "target" : {
-                        "node" : 5,
+                        "node" : 6,
                         "path" : "translation"
                     }
                 },
                 {
                     "sampler" : 1,
                     "target" : {
-                        "node" : 5,
+                        "node" : 6,
                         "path" : "rotation"
                     }
                 },
                 {
                     "sampler" : 2,
                     "target" : {
-                        "node" : 5,
+                        "node" : 6,
                         "path" : "scale"
                     }
                 },
                 {
                     "sampler" : 3,
                     "target" : {
-                        "node" : 6,
+                        "node" : 7,
                         "path" : "translation"
                     }
                 },
                 {
                     "sampler" : 4,
                     "target" : {
-                        "node" : 6,
+                        "node" : 7,
                         "path" : "rotation"
                     }
                 },
                 {
                     "sampler" : 5,
                     "target" : {
-                        "node" : 6,
+                        "node" : 7,
                         "path" : "scale"
                     }
                 },
                 {
                     "sampler" : 6,
                     "target" : {
-                        "node" : 7,
+                        "node" : 8,
                         "path" : "translation"
                     }
                 },
                 {
                     "sampler" : 7,
                     "target" : {
-                        "node" : 7,
+                        "node" : 8,
                         "path" : "rotation"
                     }
                 },
                 {
                     "sampler" : 8,
                     "target" : {
-                        "node" : 7,
+                        "node" : 8,
                         "path" : "scale"
                     }
                 }
@@ -805,6 +805,18 @@
             "uri" : "simple-robot-arm-animation.bin"
         }
     ],
+    "cameras" : [
+        {
+            "name" : "Camera",
+            "perspective" : {
+                "aspectRatio" : 1.7777777777777777,
+                "yfov" : 0.5033799372418416,
+                "zfar" : 100.0,
+                "znear" : 0.10000000149011612
+            },
+            "type" : "perspective"
+        }
+    ],
     "materials" : [
         {
             "name" : "Material",
@@ -863,7 +875,7 @@
     "nodes" : [
         {
             "children" : [
-                5
+                6
             ],
             "name" : "Armature",
             "translation" : [
@@ -889,7 +901,7 @@
         },
         {
             "children" : [
-                4
+                5
             ],
             "mesh" : 1,
             "name" : "Cube.001",
@@ -921,6 +933,19 @@
             ]
         },
         {
+            "camera" : 0,
+            "name" : "Correction_RoboCam",
+            "rotation" : [
+                -0.7071067690849304,
+                -0.0,
+                0.0,
+                0.7071067690849304
+            ]
+        },
+        {
+            "children" : [
+                4
+            ],
             "name" : "RoboCam",
             "rotation" : [
                 0.991796612739563,
@@ -936,7 +961,7 @@
         },
         {
             "children" : [
-                6,
+                7,
                 1
             ],
             "name" : "Armature_Bone",
@@ -948,7 +973,7 @@
         },
         {
             "children" : [
-                7,
+                8,
                 2
             ],
             "name" : "Armature_Bone.002",
@@ -983,27 +1008,27 @@
         {
             "inverseBindMatrices" : 9,
             "joints" : [
-                5,
                 6,
-                7
+                7,
+                8
             ],
             "skeleton" : 0
         },
         {
             "inverseBindMatrices" : 10,
             "joints" : [
-                5,
                 6,
-                7
+                7,
+                8
             ],
             "skeleton" : 0
         },
         {
             "inverseBindMatrices" : 11,
             "joints" : [
-                5,
                 6,
-                7
+                7,
+                8
             ],
             "skeleton" : 0
         }

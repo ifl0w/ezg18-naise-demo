@@ -91,6 +91,10 @@ int main(int argc, char** argv) {
 				}
 			}
 		}
+
+		if(auto* c = e->get<CameraComponent>()) {
+			c->active = false;
+		}
 	}
 	Engine::getEntityManager().addEntities(robotArm);
 
@@ -110,6 +114,7 @@ int main(int argc, char** argv) {
 	camera->add<TransformComponent>();
 	camera->component<TransformComponent>().position = vec3(0, 1.6, 20);
 	camera->add<CameraComponent>();
+	camera->component<CameraComponent>().active = true;
 	camera->add<InputComponent>();
 	camera->component<InputComponent>().add<Actions::MoveForward>();
 	camera->component<InputComponent>().add<Actions::MoveBackward>();
