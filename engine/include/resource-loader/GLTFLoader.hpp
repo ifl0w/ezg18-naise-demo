@@ -5,6 +5,8 @@
 #include <scene/Entity.hpp>
 #include <Logger.hpp>
 
+#include <glm/glm.hpp>
+
 #include "ModelLoaderAdapter.hpp"
 
 namespace NAISE {
@@ -37,8 +39,7 @@ public:
 	 */
 	static vector<shared_ptr<Entity>> loadModel(const ModelLoaderAdapter* adapter, const std::string& path);
 
-
-	template <typename T>
+	template<typename T>
 	static std::vector<T> dataFromBuffer(int accessorIdx, const tinygltf::Model& model);
 
 private:
@@ -64,7 +65,6 @@ private:
 							   const tinygltf::Node& node,
 							   const tinygltf::Model& model,
 							   const std::string& idPrefix);
-
 };
 
 template<typename T>
@@ -86,12 +86,13 @@ vector<T> GLTFLoader::dataFromBuffer(int accessorIdx, const tinygltf::Model& mod
 
 	if (sourceSize == targetSize) {
 
-		memcpy(result.data(), model.buffers[bufferView.buffer].data.data()+bufferView.byteOffset, accessor.count * targetSize);
+		memcpy(result.data(), model.buffers[bufferView.buffer].data.data() + bufferView.byteOffset,
+			   accessor.count * targetSize);
 
 	} else if (sourceSize < targetSize) {
 		// IMPORTANT! This probably only works correct on little endian systems (e.g.: x86, amd64)
 
-		auto base = model.buffers[bufferView.buffer].data.data()+bufferView.byteOffset;
+		auto base = model.buffers[bufferView.buffer].data.data() + bufferView.byteOffset;
 		for (int i = 0; i < result.size(); ++i) {
 			memcpy(&result[i], base + i * sourceSize, sourceSize);
 		}

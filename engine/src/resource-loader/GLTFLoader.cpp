@@ -8,6 +8,8 @@
 #include <components/ParentComponent.hpp>
 #include <components/AnimationComponent.hpp>
 
+#include <glm/gtx/spline.hpp>
+
 #include <systems/render-engine/materials/PBRMaterial.hpp>
 
 #include "Resources.hpp"
@@ -15,6 +17,24 @@
 using namespace NAISE::Engine;
 using namespace std;
 
+/* Local function declarations */
+
+std::string INTERPOLATION_CUBIC = "CUBICSPLINE";
+std::string INTERPOLATION_LINEAR = "LINEAR";
+std::string INTERPOLATION_STEP = "STEP";
+
+std::string TARGET_ROTATION = "rotation";
+std::string TARGET_POSITION = "translation";
+std::string TARGET_SCALE = "scale";
+
+void getAnimationInterpolations(InterpolationFunction<vec3>& vec3Interpolation,
+								InterpolationFunction<quat>& quatInterpolation,
+								std::string& interpolationMode);
+
+void generateAnimation(TransformAnimation& transformAnimation, int input, int output, const std::string& target_path,
+					   const std::string& interpolationMode, const tinygltf::Model& model);
+
+/* Cache definitions */
 std::map<std::string, tinygltf::Model> GLTFLoader::models =
 		std::map<std::string, tinygltf::Model>();
 
@@ -149,61 +169,120 @@ void GLTFLoader::loadAnimations(std::shared_ptr<Entity>& entity, const int nodeI
 		for (const auto& channel: animation.channels) {
 
 			if (channel.target_node == nodeIdx) {
-				auto sampler = animation.samplers[channel.sampler];
-				auto interpolation = sampler.interpolation;
-
-				if (interpolation != "LINEAR") {
-					NAISE_WARN_LOG("Requested interpolation is currently not supported! ({})", interpolation)
-					continue;
-				}
-
 				addAnimation = true;
 
+				auto sampler = animation.samplers[channel.sampler];
 				int input = animation.samplers[channel.sampler].input;
 				int output = animation.samplers[channel.sampler].output;
 
-				if (channel.target_path == "translation") {
-					vector<float> inputValues = dataFromBuffer<float>(input, model);
-					vector<glm::vec3> outputValues = dataFromBuffer<glm::vec3>(output, model);
-
-					transformAnimation.position = AnimationProperty(inputValues, outputValues);
-
-					auto lastT = inputValues[inputValues.size() - 1];
-					if (transformAnimation.tMax < lastT) {
-						transformAnimation.tMax = lastT;
-					}
-				} else if (channel.target_path == "rotation") {
-					vector<float> inputValues = dataFromBuffer<float>(input, model);
-					vector<glm::quat> outputValues = dataFromBuffer<glm::quat>(output, model);
-
-					transformAnimation.rotation = AnimationProperty(inputValues, outputValues);
-
-					auto lastT = inputValues[inputValues.size() - 1];
-					if (transformAnimation.tMax < lastT) {
-						transformAnimation.tMax = lastT;
-					}
-				} else if (channel.target_path == "scale") {
-					vector<float> inputValues = dataFromBuffer<float>(input, model);
-					vector<glm::vec3> outputValues = dataFromBuffer<glm::vec3>(output, model);
-
-					transformAnimation.scale = AnimationProperty(inputValues, outputValues);
-
-					auto lastT = inputValues[inputValues.size() - 1];
-					if (transformAnimation.tMax < lastT) {
-						transformAnimation.tMax = lastT;
-					}
-				} else if (channel.target_path == "weights") {
-					NAISE_WARN_LOG("Vertex skinning is currently not implemented")
-				}
+				generateAnimation(transformAnimation, input, output, channel.target_path, sampler.interpolation,
+								  model);
 			}
 		}
 
-		if(addAnimation) {
+		if (addAnimation) {
 			animComp->animations.push_back(transformAnimation);
 		}
 	}
 
 	if (!animComp->animations.empty()) {
 		entity->add(animComp);
+	}
+}
+
+void getAnimationInterpolations(InterpolationFunction<vec3>& vec3Interpolation,
+								InterpolationFunction<quat>& quatInterpolation,
+								const std::string& interpolationMode) {
+
+	if (interpolationMode == INTERPOLATION_LINEAR) {
+
+		vec3Interpolation = [](KeyFrame<vec3> k1, KeyFrame<vec3> k2, float factor) {
+		  return glm::mix(std::get<vec3>(k1.value), std::get<vec3>(k2.value), factor);
+		};
+
+		quatInterpolation = [](KeyFrame<quat> k1, KeyFrame<quat> k2, float factor) {
+		  quat v1 = std::get<quat>(k1.value);
+		  quat v2 = std::get<quat>(k2.value);
+
+		  return glm::slerp(v1, v2, factor);
+		};
+
+	} else if (interpolationMode == INTERPOLATION_CUBIC) {
+
+		vec3Interpolation = [](KeyFrame<vec3> k1, KeyFrame<vec3> k2, float factor) {
+		  auto v1 = std::get<std::tuple<vec3, vec3, vec3>>(k1.value);
+		  auto v2 = std::get<std::tuple<vec3, vec3, vec3>>(k2.value);
+
+		  return glm::hermite(std::get<1>(v1), std::get<0>(v1), std::get<1>(v2), std::get<2>(v2), factor);
+		};
+
+		quatInterpolation = [](KeyFrame<quat> k1, KeyFrame<quat> k2, float factor) {
+		  std::tuple<quat, quat, quat> v1 = std::get<std::tuple<quat, quat, quat>>(k1.value);
+		  std::tuple<quat, quat, quat> v2 = std::get<std::tuple<quat, quat, quat>>(k2.value);
+
+		  return glm::hermite(std::get<1>(v1), std::get<0>(v1), std::get<1>(v2), std::get<2>(v2), factor);
+		};
+
+	} else {
+
+		vec3Interpolation = [](KeyFrame<vec3> k1, KeyFrame<vec3> k2, float factor) {
+		  return std::get<vec3>(k1.value);
+		};
+
+		quatInterpolation = [](KeyFrame<quat> k1, KeyFrame<quat> k2, float factor) {
+		  return std::get<quat>(k1.value);
+		};
+
+	}
+}
+
+void generateAnimation(TransformAnimation& transformAnimation, int input, int output, const std::string& target_path,
+					   const std::string& interpolationMode, const tinygltf::Model& model) {
+	InterpolationFunction<glm::vec3> vec3Interpolation;
+	InterpolationFunction<glm::quat> quatInterpolation;
+
+	getAnimationInterpolations(vec3Interpolation, quatInterpolation, interpolationMode);
+
+	if (target_path == TARGET_POSITION) {
+
+		vector<float> inputValues = GLTFLoader::dataFromBuffer<float>(input, model);
+		auto outputValues = GLTFLoader::dataFromBuffer<vec3>(output, model);
+
+		transformAnimation.position = AnimationProperty(inputValues, outputValues);
+		transformAnimation.position.interpolate = vec3Interpolation;
+
+		auto lastT = inputValues[inputValues.size() - 1];
+		if (transformAnimation.tMax < lastT) {
+			transformAnimation.tMax = lastT;
+		}
+
+	} else if (target_path == TARGET_ROTATION) {
+
+		auto inputValues = GLTFLoader::dataFromBuffer<float>(input, model);
+		auto outputValues = GLTFLoader::dataFromBuffer<quat>(output, model);
+
+		transformAnimation.rotation = AnimationProperty(inputValues, outputValues);
+		transformAnimation.rotation.interpolate = quatInterpolation;
+
+		auto lastT = inputValues[inputValues.size() - 1];
+		if (transformAnimation.tMax < lastT) {
+			transformAnimation.tMax = lastT;
+		}
+
+	} else if (target_path == TARGET_SCALE) {
+
+		auto inputValues = GLTFLoader::dataFromBuffer<float>(input, model);
+		auto outputValues = GLTFLoader::dataFromBuffer<vec3>(output, model);
+
+		transformAnimation.scale = AnimationProperty(inputValues, outputValues);
+		transformAnimation.scale.interpolate = vec3Interpolation;
+
+		auto lastT = inputValues[inputValues.size() - 1];
+		if (transformAnimation.tMax < lastT) {
+			transformAnimation.tMax = lastT;
+		}
+
+	} else if (target_path == "weights") {
+		NAISE_WARN_LOG("Vertex skinning is currently not implemented")
 	}
 }

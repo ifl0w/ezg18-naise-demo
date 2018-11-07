@@ -73,6 +73,7 @@ int main(int argc, char** argv) {
 				auto simpleCubeAnimation = GLTFLoader::loadModel("resources/simple-cube-animation.gltf");
 				simpleCubeAnimation[0]->add<ParentComponent>(origin->id);
 				simpleCubeAnimation[0]->component<TransformAnimationComponent>().animations[0].playing = true;
+				simpleCubeAnimation[0]->component<TransformAnimationComponent>().animations[0].loopBehaviour = LOOP;
 
 				Engine::getEntityManager().addEntity(origin);
 				Engine::getEntityManager().addEntities(simpleCubeAnimation);

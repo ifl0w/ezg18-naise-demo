@@ -21,46 +21,38 @@ public:
 private:
 
 	template<typename T>
-	void animateProperty(AnimationProperty<T>& property, T& target, float& state, float progression);
-
-	template<typename T>
-	T linearInterpolation(T val1, T val2, float factor);
+	void animateProperty(AnimationProperty<T>& property, T& target, float state, float progress);
 
 };
 
 template<typename T>
-T AnimationSystem::linearInterpolation(T val1, T val2, float factor) {
-	return val1 * (1 - factor) + val2 * factor;
-}
-
-template<typename T>
-void AnimationSystem::animateProperty(AnimationProperty<T>& property, T& target, float& state, float progression) {
+void AnimationSystem::animateProperty(AnimationProperty<T>& property, T& target, float state, float progress) {
 	if (property.keyFrames.empty()) {
 		return;
 	}
 
 	auto keyFrameIdx = property.currentKeyFrame;
-	auto t2 = property.keyFrames[keyFrameIdx].timePoint;
-	auto v2 = property.keyFrames[keyFrameIdx].value;
 
-	if (keyFrameIdx == 0) {
-		target = v2;
+	auto k2 = property.keyFrames[keyFrameIdx];
+	auto t2 = k2.timePoint;
+
+	if (keyFrameIdx == 0 || keyFrameIdx >= property.keyFrames.size()) {
+		target = property.interpolate(k2, k2, 0);
 	} else {
-		auto t1 = property.keyFrames[keyFrameIdx-1].timePoint;
-		auto v1 = property.keyFrames[keyFrameIdx-1].value;
+		auto k1 = property.keyFrames[keyFrameIdx-1];
+		auto t1 = k1.timePoint;
 
-		auto factor = (t2 - state) / (t2 - t1);
+		auto factor = 1 - (t2 - state) / (t2 - t1);
 
-		target = linearInterpolation(v1, v2, factor);
+		target = property.interpolate(k1, k2, factor);
 	}
 
 	// update current key Frame
-	while (state + progression > t2
-		&& property.currentKeyFrame < property.keyFrames.size()) {
+	while (state + progress > t2
+		&& property.currentKeyFrame < property.keyFrames.size() - 1) {
 		property.currentKeyFrame++;
 		t2 = property.keyFrames[property.currentKeyFrame].timePoint;
 	}
-
 }
 
 }

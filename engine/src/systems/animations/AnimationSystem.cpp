@@ -25,7 +25,7 @@ void AnimationSystem::process(microseconds deltaTime) {
 
 				anim.state += sec.count();
 
-				if (anim.ended()) {
+				if (anim.ended() && anim.loopBehaviour == LOOP) {
 					anim.reset();
 				}
 
