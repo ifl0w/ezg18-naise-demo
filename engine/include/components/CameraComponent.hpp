@@ -17,7 +17,8 @@ namespace Engine {
 class CameraComponent: public Component {
 public:
 	CameraComponent();
-	CameraComponent(double fov, double near, double far, int viewportWidth, int viewportHeight);
+	CameraComponent(double fovX, double near, double far, int viewportWidth, int viewportHeight);
+	CameraComponent(double fovY, double near, double far, double aspectRatio);
 
 	glm::mat4 getViewMatrix() const;
 
@@ -30,24 +31,24 @@ public:
 	AABB calculateViewFrustrum();
 
 protected:
-	double fov;
+	double fovY; // fov in Y direction in radians
+	double fovX; // fov in X direction in radians
+	double aspectRatio;
 	double near;
 	double far;
-
-	//TODO: update viewport values on resize.
-	int viewportWidth;
-	int viewportHeight;
 
 	glm::vec3 cameraPosition;
 
 	glm::mat4 positionMatrix;
+	//TODO: update aspect ratio and projection values on resize.
 	glm::mat4 projectionMatrix;
 
 	/**
 	 * Returns the vertical field of view in degrees
 	 * @return
 	 */
-	double getFovY() const;
+	static double getFovY(double fovX, double aspectRatio);
+	static double getFovX(double fovY, double aspectRatio);
 };
 
 }

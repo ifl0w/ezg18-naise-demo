@@ -4,36 +4,41 @@ using namespace NAISE::Engine;
 using namespace glm;
 
 CameraComponent::CameraComponent() {
-	/* --------------------------------------------- */
-	// Load video-settings.ini
-	/* --------------------------------------------- */
-	// init reader for ini files
-	//INIReader videoIniReader("resources/video-settings.ini");
-
-	// load window values from ini file
-	// first param: section [window], second param: property name, third param: default value
-	viewportWidth = 1024;
-	viewportHeight = 768;
-
 	// load camera values from ini file
-	fov = 60.0f;
+	aspectRatio = (double) 4 / (double) 3;
+	fovX = radians(60.0f);
+	fovY = getFovY(fovX, aspectRatio);
 	near = 0.1f;
 	far = 1000.0f;
 
-	projectionMatrix = perspectiveFov<double>(glm::radians(getFovY()), viewportWidth, viewportHeight, near, far);
-	frustum = Frustum(fov, getFovY(), near, far);
+	projectionMatrix = perspective<double>(getFovY(fovX, aspectRatio), aspectRatio, near, far);
+	frustum = Frustum(fovX, fovY, near, far);
 	positionMatrix = mat4(1);
 }
 
-CameraComponent::CameraComponent(double fov, double near, double far, int viewportWidth, int viewportHeight)
-		: fov(fov),
+CameraComponent::CameraComponent(double fovX, double near, double far, int viewportWidth, int viewportHeight)
+		: fovX(fovX),
+		  fovY(getFovY(fovX, (double) viewportWidth / (double) viewportHeight)),
+		  aspectRatio((double) viewportWidth / (double) viewportHeight),
 		  near(near),
 		  far(far),
-		  viewportWidth(viewportWidth),
-		  viewportHeight(viewportHeight),
 		  positionMatrix(glm::mat4(0)) {
-	projectionMatrix = perspectiveFov<double>(glm::radians(getFovY()), viewportWidth, viewportHeight, near, far);
-	frustum = Frustum(fov, getFovY(), near, far);
+
+	projectionMatrix = perspectiveFov<double>(fovY, viewportWidth, viewportHeight, near, far);
+	frustum = Frustum(fovX, fovY, near, far);
+	positionMatrix = mat4(1);
+}
+
+CameraComponent::CameraComponent(double yfov, double near, double far, double aspectRatio)
+		: fovX(getFovX(yfov, aspectRatio)),
+		  fovY(yfov),
+		  aspectRatio(aspectRatio),
+		  near(near),
+		  far(far),
+		  positionMatrix(glm::mat4(0)) {
+
+	projectionMatrix = perspective<double>(getFovY(fovX, aspectRatio), aspectRatio, near, far);
+	frustum = Frustum(fovX, getFovY(fovY, aspectRatio), near, far);
 	positionMatrix = mat4(1);
 }
 
@@ -45,14 +50,21 @@ glm::mat4 CameraComponent::getProjectionMatrix() const {
 	return this->projectionMatrix;
 }
 
-glm::vec3 CameraComponent::getCameraPosition() const{
-	return vec3(positionMatrix * vec4(0,0,0,1));
+glm::vec3 CameraComponent::getCameraPosition() const {
+	return vec3(positionMatrix * vec4(0, 0, 0, 1));
 }
 
-double CameraComponent::getFovY()const {
-	return fov * ((double) viewportHeight / (double) viewportWidth);
+double CameraComponent::getFovY(double fovX, double aspectRatio) {
+	return fovX / aspectRatio;
+}
+
+double CameraComponent::getFovX(double fovY, double aspectRatio) {
+	return fovY * aspectRatio;
 }
 
 AABB CameraComponent::calculateViewFrustrum() {
 	return AABB(frustum.getBoundingVolume());
 }
+
+
+

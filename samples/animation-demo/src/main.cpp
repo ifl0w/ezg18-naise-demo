@@ -81,6 +81,19 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	auto robotArm = GLTFLoader::loadModel("resources/simple-robot-arm-animation.gltf");
+	for (auto& e: robotArm) {
+		if(auto* c = e->get<TransformAnimationComponent>()) {
+			for(auto& anim: c->animations) {
+				if(anim.name == "ArmatureAction") {
+					anim.playing = true;
+					anim.loopBehaviour = LOOP;
+				}
+			}
+		}
+	}
+	Engine::getEntityManager().addEntities(robotArm);
+
 	auto box = make_shared<NAISE::Engine::Entity>();
 	box->add<TransformComponent>();
 	box->component<TransformComponent>().position = vec3(0, -2, -5);

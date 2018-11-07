@@ -21,10 +21,10 @@ void Frustum::setCameraSettings(double fovX, double fovY, double nearDistance, d
 	this->farDistance = farDistance;
 
 	// compute width and height of the near and far plane sections
-	nw = nearDistance * tan(radians(fovX / 2));
-	nh = nearDistance * tan(radians(fovY / 2));
-	fw = farDistance * tan(radians(fovX / 2));
-	fh = farDistance * tan(radians(fovY / 2));
+	nw = nearDistance * tan(fovX / 2);
+	nh = nearDistance * tan(fovY / 2);
+	fw = farDistance * tan(fovX / 2);
+	fh = farDistance * tan(fovY / 2);
 }
 
 vector<vec4> Frustum::getBoundingVolume(double maxDistance) const {
@@ -35,8 +35,8 @@ vector<vec4> Frustum::getBoundingVolume(double maxDistance) const {
 
 	vector<vec4> result = vector<vec4>(0);
 
-	double tanHalfHorizonalFOV = glm::tan(radians(fovX / 2.0f));
-	double tanHalfVerticalFOV = glm::tan(radians(fovY / 2.0f));
+	double tanHalfHorizonalFOV = glm::tan(fovX / 2.0f);
+	double tanHalfVerticalFOV = glm::tan(fovY / 2.0f);
 
 	double xn = nearDistance * tanHalfHorizonalFOV;
 	double xf = localFar * tanHalfHorizonalFOV;

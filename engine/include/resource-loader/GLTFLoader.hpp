@@ -60,11 +60,19 @@ private:
 																   const tinygltf::Model& model,
 																   std::shared_ptr<Entity> parent);
 
-	static void loadAnimations(std::shared_ptr<Entity>& entity,
-							   int nodeIdx,
-							   const tinygltf::Node& node,
-							   const tinygltf::Model& model,
-							   const std::string& idPrefix);
+	static void addTransformComponents(std::shared_ptr<Entity>& entity, const tinygltf::Node& node,
+									   const tinygltf::Model& model);
+
+	static void addVisualComponents(std::shared_ptr<Entity>& entity, const std::string& idPrefix,
+									const tinygltf::Node& node, const tinygltf::Model& model);
+
+	static void addAnimationComponents(std::shared_ptr<Entity>& entity,
+									   int nodeIdx,
+									   const tinygltf::Node& node,
+									   const tinygltf::Model& model,
+									   const std::string& idPrefix);
+
+	static void addCameraComponents(std::shared_ptr<Entity>& entity,  const tinygltf::Node& node, const tinygltf::Model& model);
 };
 
 template<typename T>

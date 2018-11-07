@@ -69,8 +69,8 @@ public:
 	bool intersect(vec3 center, float radius);
 
 protected:
-	double fovY;
-	double fovX;
+	double fovY; // fov in Y direction in radians
+	double fovX; // fov in X direction in radians
 	double farDistance;
 	double nearDistance;
 	mat4 invViewMat;

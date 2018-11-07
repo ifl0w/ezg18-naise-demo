@@ -7,8 +7,10 @@
 #include <components/MeshComponent.hpp>
 #include <components/ParentComponent.hpp>
 #include <components/AnimationComponent.hpp>
+#include <components/CameraComponent.hpp>
 
 #include <glm/gtx/spline.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include <systems/render-engine/materials/PBRMaterial.hpp>
 
@@ -91,11 +93,80 @@ vector<shared_ptr<Entity>> GLTFLoader::entityFromGLTFNode(const ModelLoaderAdapt
 	vector<shared_ptr<Entity>> ret;
 
 	auto entity = make_shared<Entity>();
-	entity->add<TransformComponent>();
 	entity->add<TagComponent>(node.name);
+
+	if (parent != nullptr) {
+		entity->add<ParentComponent>(parent->id);
+	}
 
 	string id = idPrefix + "->" + node.name;
 
+	addVisualComponents(entity, idPrefix, node, model);
+
+	addTransformComponents(entity, node, model);
+
+	for (auto& skin: model.skins) {
+		for (auto& joint: skin.joints) {
+			for (auto& child: model.nodes[joint].children) {
+				if (child == nodeIdx && model.nodes[child].mesh >= 0) {
+					// TODO: find elegant solution and implement vertex skinning?
+//					auto test = GLTFLoader::dataFromBuffer<mat4>(skin.inverseBindMatrices, model);
+//					for (auto m: test) {
+//						NAISE_INFO_CONSOL("{}", glm::to_string(m))
+//					}
+					entity->add<TransformComponent>(); // reset
+				}
+			}
+		}
+	}
+
+	addAnimationComponents(entity, nodeIdx, node, model, idPrefix);
+
+	addCameraComponents(entity, node, model);
+
+	if (adapter != nullptr) {
+		bool stopEvaluation = adapter->adapt(entity, parent, node, model);
+
+		if (stopEvaluation) {
+			return ret;
+		}
+	}
+
+	ret.push_back(entity);
+
+	for (const auto& child: node.children) {
+		auto children = entityFromGLTFNode(adapter, id, child, model.nodes[child], model, entity);
+		ret.insert(ret.end(), children.begin(), children.end());
+	}
+
+	return ret;
+}
+
+void GLTFLoader::addTransformComponents(std::shared_ptr<Entity>& entity, const tinygltf::Node& node, const tinygltf::Model& model) {
+	entity->add<TransformComponent>();
+
+	if (!node.translation.empty()) {
+		auto pos = vec3(node.translation[0], node.translation[1], node.translation[2]);
+		entity->component<TransformComponent>().position = pos;
+	}
+
+	if (!node.scale.empty()) {
+		auto scale = vec3(node.scale[0], node.scale[1], node.scale[2]);
+		entity->component<TransformComponent>().scale = scale;
+	}
+
+	if (!node.rotation.empty()) {
+		auto rot = quat(static_cast<float>(node.rotation[3]),
+						static_cast<float>(node.rotation[0]),
+						static_cast<float>(node.rotation[1]),
+						static_cast<float>(node.rotation[2]));
+		entity->component<TransformComponent>().rotation = rot;
+	}
+
+}
+
+void GLTFLoader::addVisualComponents(std::shared_ptr<Entity>& entity, const std::string& idPrefix,
+									 const tinygltf::Node& node, const tinygltf::Model& model) {
 	if (node.mesh >= 0) {
 		/* load mesh */
 		tinygltf::Mesh mesh = model.meshes[node.mesh];
@@ -116,48 +187,31 @@ vector<shared_ptr<Entity>> GLTFLoader::entityFromGLTFNode(const ModelLoaderAdapt
 																								  model);
 		}
 	}
-
-	if (!node.translation.empty()) {
-		auto pos = vec3(node.translation[0], node.translation[1], node.translation[2]);
-		entity->component<TransformComponent>().position = pos;
-	}
-
-	if (!node.scale.empty()) {
-		auto scale = vec3(node.scale[0], node.scale[1], node.scale[2]);
-		entity->component<TransformComponent>().scale = scale;
-	}
-
-	if (!node.rotation.empty()) {
-		auto rot = quat(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
-		entity->component<TransformComponent>().rotation = rot;
-	}
-
-	if (adapter != nullptr) {
-		bool stopEvaluation = adapter->adapt(entity, parent, node, model);
-
-		if (stopEvaluation) {
-			return ret;
-		}
-	}
-
-	ret.push_back(entity);
-
-	loadAnimations(entity, nodeIdx, node, model, idPrefix);
-
-	if (parent != nullptr) {
-		entity->add<ParentComponent>(parent->id);
-	}
-
-	for (const auto& child: node.children) {
-		auto children = entityFromGLTFNode(adapter, id, child, model.nodes[child], model, entity);
-		ret.insert(ret.end(), children.begin(), children.end());
-	}
-
-	return ret;
 }
 
-void GLTFLoader::loadAnimations(std::shared_ptr<Entity>& entity, const int nodeIdx, const tinygltf::Node& node,
-								const tinygltf::Model& model, const std::string& idPrefix) {
+void GLTFLoader::addCameraComponents(std::shared_ptr<Entity>& entity, const tinygltf::Node& node,
+									 const tinygltf::Model& model) {
+
+	if (node.camera >= 0) {
+		auto camera = model.cameras[node.camera];
+
+		if (camera.type == "orthographic") {
+			NAISE_ERROR_LOG("Orthographic cameras are currently not supported.")
+			return;
+		}
+
+		double fovY = camera.perspective.yfov;
+		double aspectRatio = camera.perspective.aspectRatio;
+		double far = camera.perspective.zfar;
+		double near = camera.perspective.znear;
+
+		entity->add<CameraComponent>(fovY, near, far, aspectRatio);
+	}
+
+}
+
+void GLTFLoader::addAnimationComponents(std::shared_ptr<Entity>& entity, int nodeIdx, const tinygltf::Node& node,
+										const tinygltf::Model& model, const std::string& idPrefix) {
 	auto animComp = make_shared<TransformAnimationComponent>();
 
 	for (const auto& animation: model.animations) {
