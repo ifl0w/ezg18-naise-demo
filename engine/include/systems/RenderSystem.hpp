@@ -10,6 +10,7 @@
 #include <components/TransformComponent.hpp>
 #include <components/MaterialComponent.hpp>
 #include <components/LightComponent.hpp>
+#include <components/VisualComponent.hpp>
 
 #include <systems/render-engine/lights/PointLight.hpp>
 
@@ -22,6 +23,7 @@ namespace Engine {
 struct SunSignature: public Signature<LightComponent> {};
 struct LightSignature: public Signature<LightComponent, TransformComponent> {};
 struct GeometrySignature: public Signature<TransformComponent, MeshComponent> {};
+struct VisualSignature: public Signature<TransformComponent, VisualComponent> {};
 struct CameraSignature: public Signature<CameraComponent, TransformComponent> {};
 struct DebugDrawSignature: public Signature<PhysicsDebugComponent> {};
 

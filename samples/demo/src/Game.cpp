@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
 	sun->add<TransformComponent>();
 	sun->add(LightFactory::createLight<DirectionalLight>());
 	sun->component<LightComponent>().light->data.direction = vec4(-1, -2, -1, 1);
-	sun->component<LightComponent>().light->data.ambient = vec4(0.75, 0.75, 0.75, 1);
+	sun->component<LightComponent>().light->data.ambient = vec4(1);
 
 	for (int i = 0; i < 5; ++i) {
 		auto pointLight = make_shared<NAISE::Engine::Entity>();
@@ -116,7 +116,7 @@ int main(int argc, char **argv) {
 		Engine::getEntityManager().addEntity(pointLight);
 
 		auto tunnelSegment = GLTFLoader::loadModel("resources/models/tunnel-segment/tunnel_segment.gltf");
-		tunnelSegment[0]->component<TransformComponent>().position = vec3(0, 0, -i * 20);
+		tunnelSegment[0]->component<TransformComponent>().position = vec3(-6, 18, -70 + -i * 20);
 		for (int j = 0; j < tunnelSegment.size(); ++j) {
 			Engine::getEntityManager().addEntity(tunnelSegment[j]);
 		}
@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
 	auto luminarisScene = GLTFLoader::loadModel("resources/models/luminaris/luminaris.gltf");
 	for (int j = 0; j < luminarisScene.size(); ++j) {
 		auto& t = luminarisScene[j];
-		t->component<TransformComponent>().position = vec3(0, 0, 0);
+		t->component<TransformComponent>().position = vec3(-2, 8, 5);
 		t->component<TransformComponent>().rotation = quat(vec3(0, glm::pi<float>(), 0));
 		t->component<TransformComponent>().scale = vec3(0.2);
 
@@ -145,14 +145,17 @@ int main(int argc, char **argv) {
 		Engine::getEntityManager().addEntity(t);
 	}
 
+	auto hangar = GLTFLoader::loadModel("resources/models/hangar.gltf");
+	Engine::getEntityManager().addEntities(hangar);
+
 	Engine::getEntityManager().addEntity(sun);
 	Engine::getEntityManager().addEntity(camera);
 	Engine::getEntityManager().addEntity(sphere);
 	Engine::getEntityManager().addEntity(box);
 	Engine::getEntityManager().addEntity(wall);
 
-	//Engine::getEventManager().event<WindowEvents::SetResolution>().emit(1920, 1200);
-	//Engine::getEventManager().event<WindowEvents::SetFullscreen>().emit(true);
+//	Engine::getEventManager().event<WindowEvents::SetResolution>().emit(1920, 1200);
+//	Engine::getEventManager().event<WindowEvents::SetFullscreen>().emit(true);
 	//engine.mainWindow->setFullscreen(false);
 	engine.run();
 

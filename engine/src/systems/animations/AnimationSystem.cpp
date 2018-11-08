@@ -12,6 +12,7 @@ void AnimationSystem::process(microseconds deltaTime) {
 	std::chrono::duration<float> sec = deltaTime;
 
 	auto& animEntities = Engine::getEntityManager().getEntities<TransformAnimationSignature>();
+
 	for (auto& entity: animEntities) {
 		auto& animComp = entity->component<TransformAnimationComponent>();
 		auto& transformComp = entity->component<TransformComponent>();

@@ -72,13 +72,11 @@ void Entity::add(Args&& ... args) {
 template<class T>
 T& Entity::component() const {
 	try {
-		auto tmp = components.at(type_index(typeid(T)));
+		auto tmp = static_cast<T*>(components.at(type_index(typeid(T))).get());
+		return *tmp;
 	} catch (std::out_of_range& e) {
 		throw std::invalid_argument("Entity does not contain the requested component.");
 	}
-
-	auto tmp = static_cast<T*>(components.at(type_index(typeid(T))).get());
-	return *tmp;
 }
 
 template<class T>

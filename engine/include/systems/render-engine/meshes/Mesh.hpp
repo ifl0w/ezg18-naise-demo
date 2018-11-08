@@ -20,6 +20,7 @@ class Mesh {
 public:
 	Mesh();
 	Mesh(const tinygltf::Mesh& mesh, const tinygltf::Model& model);
+	Mesh(const tinygltf::Primitive& primitive, const tinygltf::Model& model);
 	~Mesh();
 
 	vector<vec3> convexHullData;

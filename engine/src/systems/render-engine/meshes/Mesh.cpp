@@ -146,6 +146,8 @@ Mesh::Mesh(const tinygltf::Mesh& mesh, const tinygltf::Model& model): Mesh() {
 
 		// only supporting triangle primitives for now
 		if (primitive.mode == TINYGLTF_MODE_TRIANGLES) {
+			size_t idxOffset = vertices.size();
+
 			for (const auto& attribute: primitive.attributes) {
 
 				if (attribute.first == "POSITION") {
@@ -158,14 +160,49 @@ Mesh::Mesh(const tinygltf::Mesh& mesh, const tinygltf::Model& model): Mesh() {
 					std::vector<vec2> addVec = Engine::GLTFLoader::dataFromBuffer<glm::vec2>(attribute.second, model);
 					uv_coords.insert(uv_coords.end(), addVec.begin(), addVec.end());
 				} else if (attribute.first == "TANGENT") {
-					std::vector<vec3> addVec = Engine::GLTFLoader::dataFromBuffer<glm::vec3>(attribute.second, model);
+					std::vector<vec4> addVec = Engine::GLTFLoader::dataFromBuffer<glm::vec4>(attribute.second, model);
 					tangents.insert(tangents.end(), addVec.begin(), addVec.end());
 				}
 			}
 
 			std::vector<GLuint> addIdx = Engine::GLTFLoader::dataFromBuffer<GLuint>(primitive.indices, model);
+			for (auto& idx: addIdx) {
+				idx += idxOffset;
+			}
 			indices.insert(indices.end(),  addIdx.begin(), addIdx.end());
 		}
+	}
+
+	fillBuffers();
+}
+
+Mesh::Mesh(const tinygltf::Primitive& primitive, const tinygltf::Model& model) {
+	// only supporting triangle primitives for now
+	if (primitive.mode == TINYGLTF_MODE_TRIANGLES) {
+		size_t idxOffset = vertices.size();
+
+		for (const auto& attribute: primitive.attributes) {
+
+			if (attribute.first == "POSITION") {
+				std::vector<vec3> addVec = Engine::GLTFLoader::dataFromBuffer<glm::vec3>(attribute.second, model);
+				vertices.insert(vertices.end(), addVec.begin(), addVec.end());
+			} else if (attribute.first == "NORMAL") {
+				std::vector<vec3> addVec = Engine::GLTFLoader::dataFromBuffer<glm::vec3>(attribute.second, model);
+				normals.insert(normals.end(), addVec.begin(), addVec.end());
+			} else if (attribute.first == "TEXCOORD_0") {
+				std::vector<vec2> addVec = Engine::GLTFLoader::dataFromBuffer<glm::vec2>(attribute.second, model);
+				uv_coords.insert(uv_coords.end(), addVec.begin(), addVec.end());
+			} else if (attribute.first == "TANGENT") {
+				std::vector<vec4> addVec = Engine::GLTFLoader::dataFromBuffer<glm::vec4>(attribute.second, model);
+				tangents.insert(tangents.end(), addVec.begin(), addVec.end());
+			}
+		}
+
+		std::vector<GLuint> addIdx = Engine::GLTFLoader::dataFromBuffer<GLuint>(primitive.indices, model);
+		for (auto& idx: addIdx) {
+			idx += idxOffset;
+		}
+		indices.insert(indices.end(),  addIdx.begin(), addIdx.end());
 	}
 
 	fillBuffers();

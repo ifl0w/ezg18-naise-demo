@@ -181,7 +181,7 @@ add_library(engine STATIC ${SRC_FILES}
         include/components/CollisionComponent.hpp include/components/TagComponent.hpp
         include/resource-loader/ModelLoaderAdapter.hpp include/scene/Signature.hpp
         src/systems/animations/AnimationSystem.cpp include/systems/animations/AnimationSystem.hpp
-        src/resource-loader/GLTFLoader.cpp include/resource-loader/GLTFLoader.hpp include/components/AnimationComponent.hpp)
+        src/resource-loader/GLTFLoader.cpp include/resource-loader/GLTFLoader.hpp include/components/AnimationComponent.hpp include/components/VisualComponent.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include

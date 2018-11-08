@@ -12,6 +12,7 @@ RenderSystem::RenderSystem() {
 	Engine::getEntityManager().addSignature<GeometrySignature>();
 	Engine::getEntityManager().addSignature<CameraSignature>();
 	Engine::getEntityManager().addSignature<DebugDrawSignature>();
+	Engine::getEntityManager().addSignature<VisualSignature>();
 
 	Engine::getEventManager().event<WindowEvents::SetResolution>().subscribe([&](uint32_t width, uint32_t height){
 	  renderEngine.setResolution(width, height);
@@ -71,6 +72,26 @@ void RenderSystem::process(microseconds deltaTime) {
 		InstanceID instanceID(mesh, material);
 
 		meshInstances[instanceID].push_back(entity->component<TransformComponent>().getModelMatrix());
+	}
+	for (auto entity: Engine::getEntityManager().getEntities<VisualSignature>()) {
+		auto meshes = entity->component<VisualComponent>().meshes;
+		auto materials = entity->component<VisualComponent>().materials;
+		for (int i = 0; i < meshes.size(); i++) {
+			Mesh* mesh = meshes[i].get();
+
+			// TODO: cull shadow meshes
+			shadowMeshInstances[mesh].push_back(entity->component<TransformComponent>().getModelMatrix());
+
+			if (cullEntity(*camera, *entity)) {
+				continue;
+			}
+
+			Material* material = materials[i].get();
+
+			InstanceID instanceID(mesh, material);
+
+			meshInstances[instanceID].push_back(entity->component<TransformComponent>().getModelMatrix());
+		}
 	}
 
 	if (sun != nullptr) {

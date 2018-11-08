@@ -15,6 +15,10 @@ public:
 	AABBComponent() = default;
 	explicit AABBComponent(AABB aabb): aabb(std::move(aabb)) {};
 
+	void add(const std::vector<glm::vec3>& points) {
+		aabb.merge(points);
+	}
+
 	AABB aabb;
 };
 

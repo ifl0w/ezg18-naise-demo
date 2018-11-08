@@ -13,6 +13,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include <systems/render-engine/materials/PBRMaterial.hpp>
+#include <components/VisualComponent.hpp>
 
 #include "Resources.hpp"
 
@@ -170,21 +171,26 @@ void GLTFLoader::addVisualComponents(std::shared_ptr<Entity>& entity, const std:
 	if (node.mesh >= 0) {
 		/* load mesh */
 		tinygltf::Mesh mesh = model.meshes[node.mesh];
-		string meshID = idPrefix + "::mesh::" + mesh.name;
 
-		auto meshObject = Resources::getMesh<Mesh>(meshID, mesh, model);
-		entity->add<MeshComponent>(meshObject);
-		entity->add<AABBComponent>(AABB(meshObject->vertices));
+		entity->add<VisualComponent>();
+		entity->add<AABBComponent>();
 
-		/* load material */
-		if (mesh.primitives[0].material >= 0) {
-			// TODO: support for more than a single material per object (iflow: probable not soon)
-			auto gltfMaterial = model.materials[mesh.primitives[0].material];
-			string matID = idPrefix + "::material::" + gltfMaterial.name;
+		auto i = 0;
+		for (const auto& primitive: mesh.primitives) {
+			string meshID = idPrefix + "::mesh::" + std::to_string(i++) + "::" + mesh.name;
+			auto meshObject = Resources::getMesh<Mesh>(meshID, mesh, model);
+			entity->component<AABBComponent>().add(meshObject->vertices);
 
-			entity->add<MaterialComponent>();
-			entity->component<MaterialComponent>().material = Resources::getMaterial<PBRMaterial>(matID, gltfMaterial,
-																								  model);
+			/* load material */
+			if (primitive.material >= 0) {
+				auto gltfMaterial = model.materials[primitive.material];
+				string matID = idPrefix + "::material::" + gltfMaterial.name;
+
+				auto mat = Resources::getMaterial<PBRMaterial>(matID, gltfMaterial, model);
+				entity->component<VisualComponent>().add(meshObject, mat);
+			} else {
+				entity->component<VisualComponent>().add(meshObject);
+			}
 		}
 	}
 }
