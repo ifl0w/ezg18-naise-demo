@@ -125,7 +125,7 @@ PBRMaterial::PBRMaterial(const tinygltf::Material& material, const tinygltf::Mod
 	}
 
 	try {
-		auto factor = material.values.at("emissiveFactor");
+		auto factor = material.additionalValues.at("emissiveFactor");
 
 		auto color = factor.ColorFactor();
 		glow = vec3(color[0], color[1], color[2]);

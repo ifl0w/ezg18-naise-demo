@@ -11,7 +11,7 @@ CameraComponent::CameraComponent() {
 	near = 0.1f;
 	far = 1000.0f;
 
-	projectionMatrix = perspective<double>(getFovY(fovX, aspectRatio), aspectRatio, near, far);
+	projectionMatrix = perspective<double>(fovY, aspectRatio, near, far);
 	frustum = Frustum(fovX, fovY, near, far);
 	positionMatrix = mat4(1);
 }
@@ -37,8 +37,8 @@ CameraComponent::CameraComponent(double yfov, double near, double far, double as
 		  far(far),
 		  positionMatrix(glm::mat4(0)) {
 
-	projectionMatrix = perspective<double>(getFovY(fovX, aspectRatio), aspectRatio, near, far);
-	frustum = Frustum(fovX, getFovY(fovY, aspectRatio), near, far);
+	projectionMatrix = perspective<double>(fovY, aspectRatio, near, far);
+	frustum = Frustum(fovX, fovY, near, far);
 	positionMatrix = mat4(1);
 }
 
