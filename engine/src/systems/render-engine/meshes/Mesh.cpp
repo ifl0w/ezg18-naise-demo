@@ -170,16 +170,17 @@ Mesh::Mesh(const tinygltf::Mesh& mesh, const tinygltf::Model& model): Mesh() {
 				idx += idxOffset;
 			}
 			indices.insert(indices.end(),  addIdx.begin(), addIdx.end());
+		} else {
+			NAISE_ERROR_LOG("Requested primitive mode not supported.")
 		}
 	}
 
 	fillBuffers();
 }
 
-Mesh::Mesh(const tinygltf::Primitive& primitive, const tinygltf::Model& model) {
+Mesh::Mesh(const tinygltf::Primitive& primitive, const tinygltf::Model& model): Mesh() {
 	// only supporting triangle primitives for now
 	if (primitive.mode == TINYGLTF_MODE_TRIANGLES) {
-		size_t idxOffset = vertices.size();
 
 		for (const auto& attribute: primitive.attributes) {
 
@@ -199,10 +200,9 @@ Mesh::Mesh(const tinygltf::Primitive& primitive, const tinygltf::Model& model) {
 		}
 
 		std::vector<GLuint> addIdx = Engine::GLTFLoader::dataFromBuffer<GLuint>(primitive.indices, model);
-		for (auto& idx: addIdx) {
-			idx += idxOffset;
-		}
 		indices.insert(indices.end(),  addIdx.begin(), addIdx.end());
+	} else {
+		NAISE_ERROR_LOG("Requested primitive mode not supported.")
 	}
 
 	fillBuffers();

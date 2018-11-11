@@ -178,7 +178,7 @@ void GLTFLoader::addVisualComponents(std::shared_ptr<Entity>& entity, const std:
 		auto i = 0;
 		for (const auto& primitive: mesh.primitives) {
 			string meshID = idPrefix + "::mesh::" + std::to_string(i++) + "::" + mesh.name;
-			auto meshObject = Resources::getMesh<Mesh>(meshID, mesh, model);
+			auto meshObject = Resources::getMesh<Mesh>(meshID, primitive, model);
 			entity->component<AABBComponent>().add(meshObject->vertices);
 
 			/* load material */
