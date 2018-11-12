@@ -94,24 +94,29 @@ void RenderSystem::process(microseconds deltaTime) {
 			meshInstances[instanceID].push_back(entity->component<TransformComponent>().getModelMatrix());
 		}
 	}
-	auto& particleSystemEntities = Engine::getEntityManager().getEntities<GPUParticleSignature>();
+
 	RenderCommandBuffer particleSystemCommandBuffer;
-	for (auto& particleSystem: particleSystemEntities) {
-		auto& particleComponent = particleSystem->component<GPUParticleComponent>();
-		auto& particleData = particleComponent.particleSystemData;
-		auto& mesh = particleComponent.mesh;
-		auto& material = particleComponent.material;
+	try {
+		auto& particleSystemEntities = Engine::getEntityManager().getEntities<GPUParticleSignature>();
+		for (auto& particleSystem: particleSystemEntities) {
+			auto& particleComponent = particleSystem->component<GPUParticleComponent>();
+			auto& particleData = particleComponent.particleSystemData;
+			auto& mesh = particleComponent.mesh;
+			auto& material = particleComponent.material;
 
-		if (particleData && mesh && material) {
-			DrawInstancedSSBO command;
+			if (particleData && mesh && material) {
+				DrawInstancedSSBO command;
 
-			command.mesh = mesh.get();
-			command.material = material.get();
-			command.transformSSBO = particleData->ssboTransformations;
-			command.count = particleData->particleCount;
+				command.mesh = mesh.get();
+				command.material = material.get();
+				command.transformSSBO = particleData->ssboTransformations;
+				command.count = particleData->particleCount;
 
-			particleSystemCommandBuffer.push_back(command);
+				particleSystemCommandBuffer.push_back(command);
+			}
 		}
+	} catch (std::invalid_argument& e) {
+		// TODO: find correct way to handle not initialized signatures
 	}
 
 	if (sun != nullptr) {
