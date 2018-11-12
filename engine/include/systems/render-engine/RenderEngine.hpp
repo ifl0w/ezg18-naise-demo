@@ -30,6 +30,8 @@
 #include "shaders/GlowShader.hpp"
 //#include "../text/Text.h"
 
+#include <variant>
+
 #define BIT(x) (1<<(x))
 
 using namespace gl;
@@ -46,28 +48,45 @@ enum DebugState {
   DEBUG_GLOW = BIT(3)
 };
 
-struct RenderCommand {};
-
-struct DrawMesh: public RenderCommand {
+struct DrawMesh {
   Mesh* mesh;
   Material* material;
   mat4 transform;
 };
 
-struct SetRenderTarget: public RenderCommand {
+struct SetRenderTarget {
   using RenderTargetID = type_index;
   RenderTargetID renderTargetID;
 };
 
-struct SetViewProjectionData: public RenderCommand {
+struct SetViewProjectionData {
   mat4 viewMatrix;
   mat4 projectionMatrix;
   mat4 cameraPosition;
 };
 
-struct CommandBuffer {
-  vector<RenderCommand> commands;
+struct DrawInstanced {
+  Mesh* mesh;
+  Material* material;
+  std::vector<mat4> transforms;
 };
+
+struct DrawInstancedSSBO {
+  Mesh* mesh;
+  Material* material;
+  GLuint count;
+  GLuint transformSSBO;
+};
+
+using RenderCommand = std::variant<
+		DrawMesh,
+		SetRenderTarget,
+		SetViewProjectionData,
+		DrawInstanced,
+		DrawInstancedSSBO
+>;
+
+using RenderCommandBuffer = vector<RenderCommand>;
 
 class Scene; // forward declaration to break cyclic dependency
 class Object; // forward declaration to break cyclic dependency
@@ -94,6 +113,12 @@ public:
 	void toggleLightVolumeDebugging();
 
 	void skyboxPass();
+
+	void executeCommandBuffer(RenderCommandBuffer commandBuffer);
+	void executeCommand(DrawMesh& command);
+	void executeCommand(DrawInstanced& command);
+	void executeCommand(DrawInstancedSSBO& command);
+	void executeCommand(SetRenderTarget& command);
 
 	uint8_t debugFlags = 0;
 	uint32_t drawCallCount = 0;
@@ -158,7 +183,7 @@ private:
 	glm::mat4 viewMatrix;
 
 	/* Default properties */
-	unique_ptr<Material>  _defaultMaterial;
+	unique_ptr<Material> _defaultMaterial;
 	Skybox* _skybox;
 
 	// instancing properties

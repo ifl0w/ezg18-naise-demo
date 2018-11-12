@@ -5,6 +5,8 @@
 #include <components/LightComponent.hpp>
 #include <components/AABBComponent.hpp>
 
+#include <Logger.hpp>
+
 using namespace NAISE::Engine;
 using namespace std;
 using namespace glm;
@@ -652,4 +654,51 @@ void RenderEngine::drawMeshInstancedDirect(const Mesh& mesh, vector<mat4> transf
 	glUniform1i(glGetUniformLocation(static_cast<GLuint>(Shader::activeShader), "useInstancing"), false);
 
 	drawCallCount++;
+}
+
+void RenderEngine::executeCommandBuffer(RenderCommandBuffer commandBuffer) {
+
+	for (int i = 0; i < commandBuffer.size(); ++i) {
+		std::visit([&](auto&& arg) {
+		  using T = std::decay_t<decltype(arg)>;
+		  if constexpr (std::is_same_v<T, DrawInstancedSSBO>)
+			  executeCommand(arg);
+		  else if constexpr (std::is_same_v<T, DrawInstanced>)
+			  executeCommand(arg);
+		  else
+			  NAISE_DEBUG_CONSOL("Render command not handled! ({})", typeid(arg).name())
+		}, commandBuffer[i]);
+	}
+
+}
+
+void RenderEngine::executeCommand(DrawMesh& command) {
+
+}
+
+void RenderEngine::executeCommand(DrawInstanced& command) {
+
+}
+
+void RenderEngine::executeCommand(DrawInstancedSSBO& command) {
+	if (command.material->shader->shaderID != Shader::activeShader) {
+		command.material->shader->useShader();
+	}
+
+	command.material->useMaterial();
+
+	glUniform1i(glGetUniformLocation(Shader::activeShader, "useInstancing"), true);
+
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssboInstanceTransformsBindingIndex, command.transformSSBO);
+	glBindVertexArray(command.mesh->vao);
+	glDrawElementsInstanced(GL_TRIANGLES, command.mesh->indices.size(), GL_UNSIGNED_INT, nullptr, command.count);
+	glBindVertexArray(0);
+
+	glUniform1i(glGetUniformLocation(Shader::activeShader, "useInstancing"), false);
+
+	drawCallCount++;
+}
+
+void RenderEngine::executeCommand(SetRenderTarget& command) {
+
 }

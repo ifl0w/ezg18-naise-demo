@@ -1,5 +1,6 @@
 #include <systems/RenderSystem.hpp>
 #include <systems/WindowSystem.hpp>
+#include <systems/particle-system/GPUParticleSystem.hpp>
 #include <components/AABBComponent.hpp>
 
 #include <Engine.hpp>
@@ -93,12 +94,34 @@ void RenderSystem::process(microseconds deltaTime) {
 			meshInstances[instanceID].push_back(entity->component<TransformComponent>().getModelMatrix());
 		}
 	}
+	auto& particleSystemEntities = Engine::getEntityManager().getEntities<GPUParticleSignature>();
+	RenderCommandBuffer particleSystemCommandBuffer;
+	for (auto& particleSystem: particleSystemEntities) {
+		auto& particleComponent = particleSystem->component<GPUParticleComponent>();
+		auto& particleData = particleComponent.particleSystemData;
+		auto& mesh = particleComponent.mesh;
+		auto& material = particleComponent.material;
+
+		if (particleData && mesh && material) {
+			DrawInstancedSSBO command;
+
+			command.mesh = mesh.get();
+			command.material = material.get();
+			command.transformSSBO = particleData->ssboTransformations;
+			command.count = particleData->particleCount;
+
+			particleSystemCommandBuffer.push_back(command);
+		}
+	}
 
 	if (sun != nullptr) {
 		renderEngine.activateShadowPass(*sun, *camera);
 		for (auto& instance: shadowMeshInstances) {
 			renderEngine.drawMeshInstancedDirect(*instance.first, instance.second);
 		}
+
+//		renderEngine.executeCommandBuffer(particleSystemCommandBuffer);
+
 		renderEngine.deactivateShadowPass();
 	}
 
@@ -110,6 +133,7 @@ void RenderSystem::process(microseconds deltaTime) {
 	for (auto& instanceID: meshInstances) {
 		renderEngine.drawMeshInstanced(*instanceID.first.first, instanceID.first.second, instanceID.second);
 	}
+	renderEngine.executeCommandBuffer(particleSystemCommandBuffer);
 	renderEngine.deactivateRenderState();
 
 //	NAISE_DEBUG_CONSOL("Draw calls: {}", renderEngine.drawCallCount)

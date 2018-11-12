@@ -26,6 +26,7 @@
 #include <systems/TransformSystem.hpp>
 
 #include "Game.hpp"
+#include "WeldingParticleSystem.hpp"
 
 #include "../../common/VisualDebugging/VisualDebuggingInputMapper.hpp"
 #include "../../common/FPSCameraSystem/FPSCameraInputMapper.hpp"
@@ -44,6 +45,7 @@ int main(int argc, char **argv) {
 	Engine::getSystemsManager().registerSystem<FPSCameraMovementSystem>();
 	Engine::getSystemsManager().registerSystem<PhysicsSystem>();
 	Engine::getSystemsManager().registerSystem<TransformSystem>();
+	Engine::getSystemsManager().registerSystem<WeldingParticleSystem>();
 	Engine::getSystemsManager().registerSystem<RenderSystem>();
 
 	std::string posX = "resources/textures/skybox/clouds1_east.bmp";
@@ -148,6 +150,18 @@ int main(int argc, char **argv) {
 	auto hangar = GLTFLoader::loadModel("resources/models/hangar.gltf");
 	Engine::getEntityManager().addEntities(hangar);
 
+	auto weldingParticleSystem = make_shared<NAISE::Engine::Entity>();
+	weldingParticleSystem->add<TransformComponent>();
+	weldingParticleSystem->component<TransformComponent>().position = vec3(-2, 3, 5);
+	weldingParticleSystem->add<GPUParticleComponent>();
+	weldingParticleSystem->component<GPUParticleComponent>().particleSystemData
+		= make_unique<GPUParticleData>("resources/particle-systems/welding.glsl", 10000, 500);
+	weldingParticleSystem->component<GPUParticleComponent>().mesh = Resources::getMesh<Sphere>("particle", 0.05, 4, 3);
+	weldingParticleSystem->component<GPUParticleComponent>().material = Resources::getMaterial<PBRMaterial>("ParticleGlow");
+	static_cast<PBRMaterial*>(weldingParticleSystem->component<GPUParticleComponent>().material.get())->glow = vec3(0,1,1);
+	weldingParticleSystem->add<AABBComponent>();
+	Engine::getEntityManager().addEntity(weldingParticleSystem);
+
 	Engine::getEntityManager().addEntity(sun);
 	Engine::getEntityManager().addEntity(camera);
 	Engine::getEntityManager().addEntity(sphere);
@@ -156,7 +170,6 @@ int main(int argc, char **argv) {
 
 //	Engine::getEventManager().event<WindowEvents::SetResolution>().emit(1920, 1200);
 //	Engine::getEventManager().event<WindowEvents::SetFullscreen>().emit(true);
-	//engine.mainWindow->setFullscreen(false);
 	engine.run();
 
 	return 0;

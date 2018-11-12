@@ -7,6 +7,7 @@
 #include <systems/render-engine/meshes/Mesh.hpp>
 #include <systems/render-engine/materials/Material.hpp>
 #include <systems/render-engine/textures/Texture.hpp>
+#include <systems/particle-system/ComputeShader.hpp>
 
 #include <scene/Entity.hpp>
 
@@ -51,7 +52,10 @@ public:
 	template<typename T>
 	static std::shared_ptr<Shader> getShader();
 
-//	static std::shared_ptr<ComputeShader> getComputeShader(const std::string& path);
+	/**
+	 * Returns a compute shader object for the given path.
+	 */
+	static std::shared_ptr<ComputeShader> getComputeShader(const std::string& path);
 
 	/**
 	 * Returns a mesh object for the template type, identifier.
@@ -126,7 +130,7 @@ public:
 
 private:
 	static std::map<std::type_index, std::shared_ptr<Shader>> shaders;
-//	static std::map<std::string, std::shared_ptr<ComputeShader>> computeShaders;
+	static std::map<std::string, std::shared_ptr<ComputeShader>> computeShaders;
 	static std::map<std::string, std::shared_ptr<Texture>> textures;
 	static std::map<pair<type_index, std::string>, std::shared_ptr<Mesh>> meshes;
 	static std::map<pair<type_index, std::string>, std::shared_ptr<Material>> materials;

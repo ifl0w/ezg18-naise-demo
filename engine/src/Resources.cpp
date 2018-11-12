@@ -52,8 +52,8 @@ struct Image TGA {IMAGE_FILE_TGA, };*/
 std::map<std::type_index, std::shared_ptr<Shader>> Resources::shaders =
 		std::map<std::type_index, std::shared_ptr<Shader>>();
 
-//std::map<std::string, std::shared_ptr<ComputeShader>> Resources::computeShaders =
-//		std::map<std::string, std::shared_ptr<ComputeShader>>();
+std::map<std::string, std::shared_ptr<ComputeShader>> Resources::computeShaders =
+		std::map<std::string, std::shared_ptr<ComputeShader>>();
 
 std::map<std::string, std::shared_ptr<Texture>> Resources::textures =
 		std::map<std::string, std::shared_ptr<Texture>>();
@@ -175,20 +175,21 @@ std::shared_ptr<Texture> Resources::getTexture(const std::string& identifier) {
 	return std::shared_ptr<Texture>();
 }
 
-//std::shared_ptr<ComputeShader> Resources::getComputeShader(const std::string& path) {
-//	const auto& key = path;
-//	auto it = Resources::computeShaders.find(key);
-//
-//	if (it != Resources::computeShaders.end()) {
-//		return it->second;
-//	}
-//
-//	Resources::computeShaders[key] = std::make_shared<ComputeShader>(path);
-//	return Resources::computeShaders[key];
-//}
+std::shared_ptr<ComputeShader> Resources::getComputeShader(const std::string& path) {
+	const auto& key = path;
+	auto it = Resources::computeShaders.find(key);
+
+	if (it != Resources::computeShaders.end()) {
+		return it->second;
+	}
+
+	Resources::computeShaders[key] = std::make_shared<ComputeShader>(path);
+	return Resources::computeShaders[key];
+}
 
 void Resources::freeAll() {
 	shaders.clear();
+	computeShaders.clear();
 	textures.clear();
 	materials.clear();
 	meshes.clear();
