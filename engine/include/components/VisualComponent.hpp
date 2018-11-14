@@ -31,7 +31,7 @@ public:
 	};
 
 	explicit VisualComponent(const shared_ptr<Mesh>& mesh) {
-
+		add(mesh);
 	};
 
 	void add(const shared_ptr<Mesh>& mesh) {

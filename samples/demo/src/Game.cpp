@@ -26,7 +26,7 @@
 #include <systems/TransformSystem.hpp>
 
 #include "Game.hpp"
-#include "WeldingParticleSystem.hpp"
+#include "RaisingParticleSystem.hpp"
 
 #include "../../common/VisualDebugging/VisualDebuggingInputMapper.hpp"
 #include "../../common/FPSCameraSystem/FPSCameraInputMapper.hpp"
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 	Engine::getSystemsManager().registerSystem<FPSCameraMovementSystem>();
 	Engine::getSystemsManager().registerSystem<PhysicsSystem>();
 	Engine::getSystemsManager().registerSystem<TransformSystem>();
-	Engine::getSystemsManager().registerSystem<WeldingParticleSystem>();
+	Engine::getSystemsManager().registerSystem<RaisingParticleSystem>();
 	Engine::getSystemsManager().registerSystem<RenderSystem>();
 
 	std::string posX = "resources/textures/skybox/clouds1_east.bmp";
@@ -150,17 +150,19 @@ int main(int argc, char **argv) {
 	auto hangar = GLTFLoader::loadModel("resources/models/hangar.gltf");
 	Engine::getEntityManager().addEntities(hangar);
 
-	auto weldingParticleSystem = make_shared<NAISE::Engine::Entity>();
-	weldingParticleSystem->add<TransformComponent>();
-	weldingParticleSystem->component<TransformComponent>().position = vec3(-2, 3, 5);
-	weldingParticleSystem->add<GPUParticleComponent>();
-	weldingParticleSystem->component<GPUParticleComponent>().particleSystemData
+	auto platformParticles = make_shared<NAISE::Engine::Entity>();
+	platformParticles->add<TransformComponent>();
+	platformParticles->component<TransformComponent>().position = vec3(-2, 3, 5);
+	platformParticles->add<GPUParticleComponent>();
+	platformParticles->component<GPUParticleComponent>().particleSystemData
 		= make_unique<GPUParticleData>("resources/particle-systems/welding.glsl", 10000, 500);
-	weldingParticleSystem->component<GPUParticleComponent>().mesh = Resources::getMesh<Sphere>("particle", 0.05, 4, 3);
-	weldingParticleSystem->component<GPUParticleComponent>().material = Resources::getMaterial<PBRMaterial>("ParticleGlow");
-	static_cast<PBRMaterial*>(weldingParticleSystem->component<GPUParticleComponent>().material.get())->glow = vec3(0,1,1);
-	weldingParticleSystem->add<AABBComponent>();
-	Engine::getEntityManager().addEntity(weldingParticleSystem);
+	platformParticles->component<GPUParticleComponent>().particleSystemData->addUniforms({"uRadius", "uVelocity", "uLifeTime"});
+	platformParticles->component<GPUParticleComponent>().mesh = Resources::getMesh<Sphere>("particle", 0.05, 4, 3);
+	auto particleMaterial = Resources::getMaterial<PBRMaterial>("ParticleGlow");
+	particleMaterial->glow = vec3(0,1,1);
+	platformParticles->component<GPUParticleComponent>().material = particleMaterial;
+	platformParticles->add<AABBComponent>();
+	Engine::getEntityManager().addEntity(platformParticles);
 
 	Engine::getEntityManager().addEntity(sun);
 	Engine::getEntityManager().addEntity(camera);

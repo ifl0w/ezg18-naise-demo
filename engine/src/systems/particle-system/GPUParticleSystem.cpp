@@ -7,12 +7,12 @@
 using namespace NAISE::Engine;
 
 GPUParticleSystem::GPUParticleSystem() {
-	Engine::getEntityManager().addSignature<GPUParticleSignature>();
+	Engine::getEntityManager().addSignature<GPUParticleDataSignature>();
 }
 
 void GPUParticleSystem::process(microseconds deltaTime) {
 
-	auto& particleSystems = Engine::getEntityManager().getEntities<GPUParticleSignature>();
+	auto& particleSystems = Engine::getEntityManager().getEntities<GPUParticleDataSignature>();
 	for (auto particleSystem: particleSystems) {
 		auto& particleData = *particleSystem->component<GPUParticleComponent>().particleSystemData.get();;
 		auto& transformComponent = particleSystem->component<TransformComponent>();

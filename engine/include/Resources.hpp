@@ -75,7 +75,7 @@ public:
 	 * @return
 	 */
 	template<class T, class... Args>
-	static std::shared_ptr<Material> getMaterial(const std::string& identifier, Args&& ... args);
+	static std::shared_ptr<T> getMaterial(const std::string& identifier, Args&& ... args);
 
 	/**
 	 * Load a texture by path. The path will be used as identifier. (same as loadTexture(path, path))
@@ -156,16 +156,19 @@ std::shared_ptr<Shader> Resources::getShader() {
 }
 
 template<class T, class... Args>
-std::shared_ptr<Material> Resources::getMaterial(const std::string& identifier, Args&& ... args) {
+std::shared_ptr<T> Resources::getMaterial(const std::string& identifier, Args&& ... args) {
 	auto key = pair<type_index, std::string>(typeid(T), identifier);
 	auto it = Resources::materials.find(key);
+	std::shared_ptr<T> output;
 
 	if (it != Resources::materials.end()) {
-		return it->second;
+		output = std::static_pointer_cast<T>(it->second);
+	} else {
+		output = std::make_shared<T>(std::forward<Args>(args) ...);
+		Resources::materials[key] = output;
 	}
 
-	Resources::materials[key] = std::make_shared<T>(std::forward<Args>(args) ...);
-	return Resources::materials[key];
+	return output;
 }
 
 template<class T, class... Args>

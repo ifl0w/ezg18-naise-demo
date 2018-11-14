@@ -14,6 +14,7 @@ RenderSystem::RenderSystem() {
 	Engine::getEntityManager().addSignature<CameraSignature>();
 	Engine::getEntityManager().addSignature<DebugDrawSignature>();
 	Engine::getEntityManager().addSignature<VisualSignature>();
+	Engine::getEntityManager().addSignature<ParticleRenderSignature>();
 
 	Engine::getEventManager().event<WindowEvents::SetResolution>().subscribe([&](uint32_t width, uint32_t height){
 	  renderEngine.setResolution(width, height);
@@ -96,27 +97,23 @@ void RenderSystem::process(microseconds deltaTime) {
 	}
 
 	RenderCommandBuffer particleSystemCommandBuffer;
-	try {
-		auto& particleSystemEntities = Engine::getEntityManager().getEntities<GPUParticleSignature>();
-		for (auto& particleSystem: particleSystemEntities) {
-			auto& particleComponent = particleSystem->component<GPUParticleComponent>();
-			auto& particleData = particleComponent.particleSystemData;
-			auto& mesh = particleComponent.mesh;
-			auto& material = particleComponent.material;
+	auto& particleSystemEntities = Engine::getEntityManager().getEntities<ParticleRenderSignature>();
+	for (auto& particleSystem: particleSystemEntities) {
+		auto& particleComponent = particleSystem->component<GPUParticleComponent>();
+		auto& particleData = particleComponent.particleSystemData;
+		auto& mesh = particleComponent.mesh;
+		auto& material = particleComponent.material;
 
-			if (particleData && mesh && material) {
-				DrawInstancedSSBO command;
+		if (particleData && mesh && material) {
+			DrawInstancedSSBO command;
 
-				command.mesh = mesh.get();
-				command.material = material.get();
-				command.transformSSBO = particleData->ssboTransformations;
-				command.count = particleData->particleCount;
+			command.mesh = mesh.get();
+			command.material = material.get();
+			command.transformSSBO = particleData->ssboTransformations;
+			command.count = particleData->particleCount;
 
-				particleSystemCommandBuffer.push_back(command);
-			}
+			particleSystemCommandBuffer.push_back(command);
 		}
-	} catch (std::invalid_argument& e) {
-		// TODO: find correct way to handle not initialized signatures
 	}
 
 	if (sun != nullptr) {

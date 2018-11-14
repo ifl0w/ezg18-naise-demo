@@ -43,6 +43,14 @@ struct GPUParticleData {
   gl::GLint spawnCountLocation;
   gl::GLint originTransformationLocation;
 
+  void addUniforms(vector<std::string> requiredUniformLocations) {
+	  for(const auto& uniformName: requiredUniformLocations) {
+		  uniformLocations.insert(
+				  std::pair(uniformName, uniformLocation(computeShader->shaderID, uniformName)));
+	  }
+  }
+
+  std::unordered_map<std::string, gl::GLuint> uniformLocations;
 };
 
 class GPUParticleComponent: public Component {

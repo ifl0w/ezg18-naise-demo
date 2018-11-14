@@ -15,7 +15,7 @@
 namespace NAISE {
 namespace Engine {
 
-struct GPUParticleSignature: public Signature<TransformComponent, GPUParticleComponent> {};
+struct GPUParticleDataSignature: public Signature<GPUParticleComponent> {};
 
 class GPUParticleSystem: public System {
 public:
