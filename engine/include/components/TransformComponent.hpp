@@ -32,6 +32,10 @@ public:
 		return globalTransform;
 	}
 
+	void setModelMatrix(mat4 modelMatrix){
+		globalTransform = modelMatrix;
+	}
+
 	mat4 getLocalTransform() const {
 		return localTransform;
 	}
