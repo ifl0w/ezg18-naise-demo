@@ -642,6 +642,10 @@ void RenderEngine::setSkybox(Skybox *skybox) {
 }
 
 void RenderEngine::drawMeshInstancedDirect(const Mesh& mesh, vector<mat4> transforms) {
+
+	gl::GLint modelMatrixLocation = glGetUniformLocation(static_cast<GLuint>(Shader::activeShader), "modelMatrix");
+	glUniformMatrix4fv(modelMatrixLocation, 1, false, glm::value_ptr(mat4(1)));
+
 	glUniform1i(glGetUniformLocation(static_cast<GLuint>(Shader::activeShader), "useInstancing"), true);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssboInstanceTransformsBindingIndex, ssboInstanceTransforms);
 	glNamedBufferSubData(ssboInstanceTransforms, 0, transforms.size() * sizeof(mat4), transforms.data());
@@ -686,6 +690,7 @@ void RenderEngine::executeCommand(DrawInstancedSSBO& command) {
 	}
 
 	command.material->useMaterial();
+	command.material->shader->setModelMatrix(command.originTransformation);
 
 	glUniform1i(glGetUniformLocation(Shader::activeShader, "useInstancing"), true);
 

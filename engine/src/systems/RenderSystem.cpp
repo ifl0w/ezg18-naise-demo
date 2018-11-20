@@ -100,6 +100,7 @@ void RenderSystem::process(microseconds deltaTime) {
 	auto& particleSystemEntities = Engine::getEntityManager().getEntities<ParticleRenderSignature>();
 	for (auto& particleSystem: particleSystemEntities) {
 		auto& particleComponent = particleSystem->component<GPUParticleComponent>();
+		auto& transformComponent = particleSystem->component<TransformComponent>();
 		auto& particleData = particleComponent.particleSystemData;
 		auto& mesh = particleComponent.mesh;
 		auto& material = particleComponent.material;
@@ -110,6 +111,7 @@ void RenderSystem::process(microseconds deltaTime) {
 			command.mesh = mesh.get();
 			command.material = material.get();
 			command.transformSSBO = particleData->ssboTransformations;
+			command.originTransformation = transformComponent.getModelMatrix();
 			command.count = particleData->particleCount;
 
 			particleSystemCommandBuffer.push_back(command);

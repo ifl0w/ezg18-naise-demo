@@ -103,7 +103,7 @@ void main() {
     mat4 mMatrix = modelMatrix;
 
     if(useInstancing) {
-        mMatrix = instanceTransforms[gl_InstanceID];
+        mMatrix *= instanceTransforms[gl_InstanceID];
     }
 
     TBN = mat3(0);

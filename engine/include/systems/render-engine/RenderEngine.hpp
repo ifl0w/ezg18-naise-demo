@@ -74,6 +74,7 @@ struct DrawInstanced {
 struct DrawInstancedSSBO {
   Mesh* mesh;
   Material* material;
+  glm::mat4 originTransformation = glm::mat4(1);
   GLuint count;
   GLuint transformSSBO;
 };

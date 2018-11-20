@@ -11,16 +11,13 @@ GPUParticleSystem::GPUParticleSystem() {
 }
 
 void GPUParticleSystem::process(microseconds deltaTime) {
-
 	auto& particleSystems = Engine::getEntityManager().getEntities<GPUParticleDataSignature>();
 	for (auto particleSystem: particleSystems) {
 		auto& particleData = *particleSystem->component<GPUParticleComponent>().particleSystemData.get();;
 		auto& transformComponent = particleSystem->component<TransformComponent>();
 
 		particleData.computeShader->useShader();
-
-		this->setUniforms(*particleSystem);
-
+		
 		mat4 originTransformation = transformComponent.getModelMatrix();
 		glUniformMatrix4fv(particleData.originTransformationLocation, 1, false, glm::value_ptr(originTransformation));
 		glUniform1ui(particleData.lastCountLocation, particleData.particleCount);

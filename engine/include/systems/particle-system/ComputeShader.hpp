@@ -12,7 +12,7 @@ public:
 
 	~ComputeShader();
 
-	const gl::GLint shaderID;
+	const gl::GLuint shaderID;
 
 	void useShader() const;
 	void compute(uint64_t groups) const;
