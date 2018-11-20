@@ -80,7 +80,9 @@ public:
 			ptr->update(e.get());
 		}
 
-		signatures.insert(pair(type_index(typeid(T)), std::move(ptr)));
+		if (!signatures.count(type_index(typeid(T)))) {
+			signatures.insert(pair(type_index(typeid(T)), std::move(ptr)));
+		}
 	}
 
 	template<typename T>
