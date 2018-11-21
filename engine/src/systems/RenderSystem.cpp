@@ -101,18 +101,17 @@ void RenderSystem::process(microseconds deltaTime) {
 	for (auto& particleSystem: particleSystemEntities) {
 		auto& particleComponent = particleSystem->component<GPUParticleComponent>();
 		auto& transformComponent = particleSystem->component<TransformComponent>();
-		auto& particleData = particleComponent.particleSystemData;
 		auto& mesh = particleComponent.mesh;
 		auto& material = particleComponent.material;
 
-		if (particleData && mesh && material) {
+		if (mesh && material) {
 			DrawInstancedSSBO command;
 
 			command.mesh = mesh.get();
 			command.material = material.get();
-			command.transformSSBO = particleData->ssboTransformations;
+			command.transformSSBO = particleComponent.ssboTransformations;
 			command.originTransformation = transformComponent.getModelMatrix();
-			command.count = particleData->particleCount;
+			command.count = particleComponent.particleCount;
 
 			particleSystemCommandBuffer.push_back(command);
 		}
