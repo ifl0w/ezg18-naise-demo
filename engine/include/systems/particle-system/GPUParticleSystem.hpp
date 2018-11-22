@@ -22,6 +22,8 @@ public:
 	GPUParticleSystem();
 
 	void process(microseconds deltaTime) override;
+
+	virtual void setUniforms() = 0;
 };
 
 }

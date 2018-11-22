@@ -11,12 +11,13 @@ GPUParticleSystem::GPUParticleSystem() {
 }
 
 void GPUParticleSystem::process(microseconds deltaTime) {
-	auto& particleSystems = Engine::getEntityManager().getEntities<GPUParticleDataSignature>();
+	/*auto& particleSystems = Engine::getEntityManager().getEntities<GPUParticleDataSignature>();
 	for (auto particleSystem: particleSystems) {
 		auto& particleData = *particleSystem->component<GPUParticleComponent>().particleSystemData.get();;
 		auto& transformComponent = particleSystem->component<TransformComponent>();
 
 		particleData.computeShader->useShader();
+		setUniforms();
 		
 		mat4 originTransformation = transformComponent.getModelMatrix();
 		glUniformMatrix4fv(particleData.originTransformationLocation, 1, false, glm::value_ptr(originTransformation));
@@ -64,5 +65,5 @@ void GPUParticleSystem::process(microseconds deltaTime) {
 		glCopyBufferSubData(GL_COPY_WRITE_BUFFER, GL_ATOMIC_COUNTER_BUFFER, 0, 0, sizeof(GLuint));
 		// Make sure everything from Compute-Shader is written
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
-	}
+	}*/
 }
