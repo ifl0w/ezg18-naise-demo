@@ -12,9 +12,9 @@
 namespace NAISE {
 namespace Engine {
 
-class GPUParticleComponent: public Component {
+class MeshParticleComponent: public Component {
 public:
-	explicit GPUParticleComponent(uint32_t maxParticles): maxParticles(maxParticles) {
+	explicit MeshParticleComponent(uint32_t maxParticles): maxParticles(maxParticles) {
 		// generate tranformation buffer
 		glGenBuffers(1, &ssboTransformations);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboTransformations);
@@ -22,7 +22,7 @@ public:
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
 
-	~GPUParticleComponent() {
+	~MeshParticleComponent() {
 		glDeleteBuffers(1, &ssboTransformations);
 	}
 

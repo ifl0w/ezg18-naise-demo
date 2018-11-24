@@ -24,9 +24,9 @@
 #include <systems/WindowSystem.hpp>
 #include <systems/PhysicsSystem.hpp>
 #include <systems/TransformSystem.hpp>
+#include <systems/particle-system/SimpleGPUParticleSystem.hpp>
 
 #include "Game.hpp"
-#include "RaisingParticleSystem.hpp"
 
 #include "../../common/VisualDebugging/VisualDebuggingInputMapper.hpp"
 #include "../../common/FPSCameraSystem/FPSCameraInputMapper.hpp"
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 	Engine::getSystemsManager().registerSystem<FPSCameraMovementSystem>();
 	Engine::getSystemsManager().registerSystem<PhysicsSystem>();
 	Engine::getSystemsManager().registerSystem<TransformSystem>();
-	Engine::getSystemsManager().registerSystem<RaisingParticleSystem>();
+	Engine::getSystemsManager().registerSystem<SimpleGPUParticleSystem>();
 	Engine::getSystemsManager().registerSystem<RenderSystem>();
 
 	std::string posX = "resources/textures/skybox/clouds1_east.bmp";
@@ -152,15 +152,18 @@ int main(int argc, char **argv) {
 
 	auto platformParticles = make_shared<NAISE::Engine::Entity>();
 	platformParticles->add<TransformComponent>();
-	platformParticles->component<TransformComponent>().position = vec3(-2, 3, 5);
-	platformParticles->add<GPUParticleComponent>();
-	platformParticles->component<GPUParticleComponent>().particleSystemData
-		= make_unique<GPUParticleData>("resources/particle-systems/welding.glsl", 10000, 500);
-	platformParticles->component<GPUParticleComponent>().particleSystemData->addUniforms({"uRadius", "uVelocity", "uLifeTime"});
-	platformParticles->component<GPUParticleComponent>().mesh = Resources::getMesh<Sphere>("particle", 0.05, 4, 3);
+	platformParticles->component<TransformComponent>().position = vec3(-1.2, 1.2, 2);
+	platformParticles->add<SimpleGPUParticleComponent>("resources/particle-systems/welding.glsl", 10000, 500);
+	platformParticles->component<SimpleGPUParticleComponent>().setUniforms = [platformParticles](gl::GLuint shaderProgram){
+	  glProgramUniform1f(shaderProgram, uniformLocation(shaderProgram, "uRadius"), 10.0f);
+	  glProgramUniform3fv(shaderProgram, uniformLocation(shaderProgram, "uVelocity"), 1, value_ptr(vec3(0,1.0f,0)));
+	  glProgramUniform2fv(shaderProgram, uniformLocation(shaderProgram, "uLifeTime"), 1, value_ptr(vec2(4.0f, 7.0f)));
+	};
+	platformParticles->add<MeshParticleComponent>(10000);
+	platformParticles->component<MeshParticleComponent>().mesh = Resources::getMesh<Sphere>("particle", 0.05, 4, 3);
 	auto particleMaterial = Resources::getMaterial<PBRMaterial>("ParticleGlow");
 	particleMaterial->glow = vec3(0,1,1);
-	platformParticles->component<GPUParticleComponent>().material = particleMaterial;
+	platformParticles->component<MeshParticleComponent>().material = particleMaterial;
 	platformParticles->add<AABBComponent>();
 	Engine::getEntityManager().addEntity(platformParticles);
 

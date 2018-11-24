@@ -184,7 +184,9 @@ add_library(engine STATIC ${SRC_FILES}
         include/resource-loader/ModelLoaderAdapter.hpp include/scene/Signature.hpp
         src/systems/animations/AnimationSystem.cpp include/systems/animations/AnimationSystem.hpp
         src/resource-loader/GLTFLoader.cpp include/resource-loader/GLTFLoader.hpp include/components/AnimationComponent.hpp
-        include/components/VisualComponent.hpp)
+        include/components/VisualComponent.hpp
+        src/systems/particle-system/GPUMeshParticleSystem.cpp include/systems/particle-system/GPUMeshParticleSystem.hpp
+        src/systems/particle-system/GPUParticleData.cpp include/systems/particle-system/GPUParticleData.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include

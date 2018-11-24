@@ -1,7 +1,9 @@
 #pragma once
 
 #include "ComputeShader.hpp"
-#include "GPUParticleComponent.hpp"
+#include "MeshParticleComponent.hpp"
+#include "SimpleGPUParticleComponent.hpp"
+#include "GPUMeshParticleSystem.hpp"
 
 #include <glm/glm.hpp>
 #include <glbinding/gl/gl.h>
@@ -15,15 +17,13 @@
 namespace NAISE {
 namespace Engine {
 
-struct GPUParticleDataSignature: public Signature<GPUParticleComponent> {};
+struct SimpleGPUParticleDataSignature: public Signature<MeshParticleComponent, SimpleGPUParticleComponent> {};
 
-class GPUParticleSystem: public System {
+class SimpleGPUParticleSystem: public GPUMeshParticleSystem, public System {
 public:
-	GPUParticleSystem();
+	SimpleGPUParticleSystem();
 
 	void process(microseconds deltaTime) override;
-
-	virtual void setUniforms() = 0;
 };
 
 }

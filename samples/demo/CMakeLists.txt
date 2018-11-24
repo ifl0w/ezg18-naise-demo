@@ -14,9 +14,7 @@ add_executable(sample-demo
         ../common/FPSCameraSystem/FPSCameraMovementSystem.cpp
         ../common/FPSCameraSystem/FPSCameraMovementSystem.hpp
         ../common/VisualDebugging/VisualDebuggingInputMapper.cpp
-        ../common/VisualDebugging/VisualDebuggingInputMapper.hpp
-        src/RaisingParticleSystem.cpp
-        src/RaisingParticleSystem.hpp)
+        ../common/VisualDebugging/VisualDebuggingInputMapper.hpp)
 
 add_dependencies(sample-demo engine)
 
