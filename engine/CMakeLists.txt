@@ -204,7 +204,9 @@ if (MINGW OR MSVC)
             glbinding
             glbinding-aux # for additionaly, auxiliary features as logging, meta information, or debugging 
             SDL2main SDL2-static
-            Bullet3Common BulletDynamics BulletCollision LinearMath)
+            Bullet3Common BulletDynamics BulletCollision LinearMath
+            -static # link libstdc++, winpthread, gcc_s_seh in mingw
+            )
 else()
     target_link_libraries(engine PUBLIC
             glbinding
