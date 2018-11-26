@@ -1,4 +1,5 @@
 #include <systems/TransformSystem.hpp>
+#include <systems/RenderSystem.hpp>
 
 #include <Engine.hpp>
 #include <components/ParentComponent.hpp>
@@ -13,6 +14,7 @@ TransformSystem::TransformSystem() {
 	Engine::getEntityManager().addSignature<TransformSignature>();
 	Engine::getEntityManager().addSignature<ParentSignature>();
 	Engine::getEntityManager().addSignature<AABBSignature>();
+	Engine::getEntityManager().addSignature<CameraSignature>();
 
 	// remove all child entities if an entity is removed
 	// TODO: asynchronous execution of events would allow deletion of entities without buffering in "del" vector
@@ -35,21 +37,7 @@ void TransformSystem::process(microseconds deltaTime) {
 	// calculate all local model matrices
 	auto& t = Engine::getEntityManager().getEntities<TransformSignature>();
 	for (auto e: t) {
-		auto& transformComp = e->component<TransformComponent>();
-		auto cameraComponent = e->get<CameraComponent>();
-
-		// TODO: move normalization and frustum calculation to own system
-		if(cameraComponent) {
-			transformComp.rotation = glm::normalize(transformComp.rotation);
-		}
-
-		transformComp.calculateLocalModelMatrix();
-
-		/*if(cameraComponent) {
-//			 Recalculate camera frustum.
-//			 This has to be done always after camera movement.
-			cameraComponent->frustum.recalculate(transformComp.getModelMatrix());
-		}*/
+		e->component<TransformComponent>().calculateLocalModelMatrix();
 	}
 
 	auto& p = Engine::getEntityManager().getEntities<ParentSignature>();
@@ -67,6 +55,18 @@ void TransformSystem::process(microseconds deltaTime) {
 		auto& aabb = e->component<AABBComponent>().aabb;
 
 		aabb.transform(tc.getModelMatrix());
+	}
+
+	// TODO: move normalization and frustum calculation to own system
+	for (auto entity: Engine::getEntityManager().getEntities<CameraSignature>()) {
+		auto& transformComp = entity->component<TransformComponent>();
+		auto& cameraComponent = entity->component<CameraComponent>();
+
+		transformComp.rotation = glm::normalize(transformComp.rotation);
+
+		// Recalculate camera frustum.
+		// This has to be done always after camera movement.
+		cameraComponent.frustum.recalculate(transformComp.getModelMatrix());
 	}
 }
 

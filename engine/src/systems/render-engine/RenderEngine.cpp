@@ -382,7 +382,7 @@ void RenderEngine::renderLights(const Light& light, mat4 transform, const Entity
 		dlShader.setLightProperties(light);
 		auto& c = camera.component<CameraComponent>();
 		dlShader.setShadowMapViewProjection(
-				light.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(30))) * light.getShadowMatrix());
+				light.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(45))) * light.getShadowMatrix());
 		drawMeshDirect(quad);
 
 		glEnable(GL_DEPTH_TEST);
@@ -401,7 +401,7 @@ void RenderEngine::activateShadowPass(const Entity& light, const Entity& camera)
 	auto& t = camera.component<TransformComponent>();
 	auto& c = camera.component<CameraComponent>();
 
-	setShadowProjectionData(l.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(30))), l.getShadowMatrix(),
+	setShadowProjectionData(l.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(45))), l.getShadowMatrix(),
 							t.position);
 
 	// disable back face culling
