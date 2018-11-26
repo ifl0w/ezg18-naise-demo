@@ -19,3 +19,6 @@
 [submodule "sdl2"]
 	path = engine/external/sdl2
 	url = git@github.com:SDL-mirror/SDL.git
+[submodule "nlohmann_json"]
+	path = engine/external/nlohmann_json
+	url = git@github.com:nlohmann/json.git

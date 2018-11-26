@@ -128,6 +128,17 @@ endif ()
 ### stb ###
 include_directories(external/stb)
 
+### json ###
+# Typically you don't care so much for a third party library's tests to be
+# run from your own project's code.
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+
+# Don't use include(nlohmann_json/CMakeLists.txt) since that carries with it
+# inintended consequences that will break the build.  It's generally
+# discouraged (although not necessarily well documented as such) to use
+# include(...) for pulling in other CMake projects anyways.
+add_subdirectory(external/nlohmann_json)
+
 ### tinygltf ###
 include_directories(external/tinygltf)
 
@@ -205,6 +216,7 @@ if (MINGW OR MSVC)
             glbinding-aux # for additionaly, auxiliary features as logging, meta information, or debugging 
             SDL2main SDL2-static
             Bullet3Common BulletDynamics BulletCollision LinearMath
+            nlohmann_json::nlohmann_json
             -static # link libstdc++, winpthread, gcc_s_seh in mingw
             )
 else()
@@ -212,7 +224,8 @@ else()
             glbinding
             glbinding-aux # for additionaly, auxiliary features as logging, meta information, or debugging functionality
             SDL2
-            Bullet3Common BulletDynamics BulletCollision LinearMath)
+            Bullet3Common BulletDynamics BulletCollision LinearMath
+            nlohmann_json::nlohmann_json)
 endif ()
 
 ######## COPY ASSETS ########

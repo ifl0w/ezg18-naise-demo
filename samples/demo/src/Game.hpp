@@ -1,6 +1,5 @@
 #pragma once
 
-class Game {
-};
+void loadVideoSettings();
 
 

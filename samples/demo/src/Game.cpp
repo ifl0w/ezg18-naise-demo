@@ -114,44 +114,6 @@ int main(int argc, char **argv) {
 	sun->component<LightComponent>().light->data.direction = vec4(-1, -2, -1, 1);
 	sun->component<LightComponent>().light->data.ambient = vec4(1);
 
-//	for (int i = 0; i < 5; ++i) {
-//		auto pointLight = make_shared<NAISE::Engine::Entity>();
-//		pointLight->add<TransformComponent>();
-//		pointLight->component<TransformComponent>().position = vec3(0, 2, -i * 20);
-//		pointLight->add(LightFactory::createLight<PointLight>());
-//		pointLight->component<LightComponent>().light->data.diffuse = vec4(30, 30, 30, 1);
-//		Engine::getEntityManager().addEntity(pointLight);
-//
-//		auto tunnelSegment = GLTFLoader::loadModel("resources/models/tunnel-segment/tunnel_segment.gltf");
-//		tunnelSegment[0]->component<TransformComponent>().position = vec3(-6, 18, -70 + -i * 20);
-//		for (int j = 0; j < tunnelSegment.size(); ++j) {
-//			Engine::getEntityManager().addEntity(tunnelSegment[j]);
-//		}
-//
-//	}
-
-//	auto luminarisScene = GLTFLoader::loadModel("resources/models/luminaris/luminaris.gltf");
-//	for (int j = 0; j < luminarisScene.size(); ++j) {
-//		auto& t = luminarisScene[j];
-//		t->component<TransformComponent>().position = vec3(-2, 8, 5);
-//		t->component<TransformComponent>().rotation = quat(vec3(0, glm::pi<float>(), 0));
-//		t->component<TransformComponent>().scale = vec3(0.2);
-//
-//		auto light = make_shared<NAISE::Engine::Entity>();
-//		light->add(LightFactory::createLight<PointLight>(vec3(0, 0, 0), vec3(0, 5, 30)));
-//		light->add<TransformComponent>();
-//		light->component<TransformComponent>().position = vec3(0, 5, -9);
-//		light->add<ParentComponent>(t->id);
-//
-//		// attach camera to space ship
-//		camera->add<ParentComponent>(t->id);
-//		camera->component<TransformComponent>().position = vec3(0, 20, -100);
-//		camera->component<TransformComponent>().rotation = quat(vec3(-glm::half_pi<float>()/8, glm::pi<float>(), 0));
-//
-//		Engine::getEntityManager().addEntity(light);
-//		Engine::getEntityManager().addEntity(t);
-//	}
-
 	auto hangar = GLTFLoader::loadModel("resources/models/main-scene/main-scene.gltf");
 	Engine::getEntityManager().addEntities(hangar);
 
@@ -189,9 +151,39 @@ int main(int argc, char **argv) {
 	Engine::getEntityManager().addEntity(box);
 	Engine::getEntityManager().addEntity(wall);
 
-//	Engine::getEventManager().event<WindowEvents::SetResolution>().emit(1920, 1200);
-//	Engine::getEventManager().event<WindowEvents::SetFullscreen>().emit(true);
+	loadVideoSettings();
+
 	engine.run();
 
 	return 0;
+}
+
+void loadVideoSettings() {
+	json videoConfig = Resources::loadConfig("resources/config.json");
+
+	auto width = 1024;
+	auto height = 768;
+	auto fullscreen = false;
+
+	if (videoConfig["window"].is_object()) {
+		try {
+			width = videoConfig["window"].value("width", 1024);
+			height = videoConfig["window"].value("height", 768);
+			fullscreen = videoConfig["window"].value("fullscreen", false);
+		} catch (nlohmann::detail::type_error& e) {
+			NAISE_WARN_LOG("Video config invalid! Using default values.")
+		}
+
+	}
+
+	NAISE_INFO_CONSOL("Window dimensions: {} x {}, Fullscreen: {}", width, height, fullscreen)
+
+	Engine::getEventManager().event<WindowEvents::SetResolution>().emit(width, height);
+	Engine::getEventManager().event<WindowEvents::SetFullscreen>().emit(fullscreen);
+
+	// TODO: find better solution for adapting camera aspect rations (z.B. event in RenderSystem or CameraSystem)
+	// apply resolution to all cameras
+	for(auto e: Engine::getEntityManager().getEntities<CameraSignature>()) {
+		e->component<CameraComponent>().setAspectRatio(width, height);
+	}
 }
