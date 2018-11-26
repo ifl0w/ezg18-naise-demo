@@ -11,24 +11,35 @@ void CameraSelectionInputMapper::handleEvent(const SDL_Event& event) {
 	switch (event.type) {
 	case SDL_KEYUP: {
 		switch (event.key.keysym.sym) {
-		case SDLK_F8:
-		{
-			try {
-				auto& physicsSystem = Engine::getSystemsManager().getSystem<PhysicsSystem>();
-				physicsSystem.toggleVisualDebugging();
-			} catch (const std::invalid_argument& e) {
-				// swallow and forget
-				NAISE_DEBUG_CONSOL("No physics system in use.")
+		case SDLK_SPACE: {
+			auto entities = Engine::getEntityManager().getEntities<CameraSignature>();
+			int activeIdx = 0;
+
+			for (int i = 0; i < entities.size(); ++i) {
+				auto& camComp = entities[i]->component<CameraComponent>();
+
+				if (camComp.active) {
+					activeIdx = i;
+				}
+
+				camComp.active = false;
 			}
 
-			break;
-		}
-		case SDLK_ESCAPE:
-			Engine::getEventManager().event<RuntimeEvents::Quit>().emit();
-			break;
-		}
+			if (activeIdx == entities.size() - 1) {
+				activeIdx = 0;
+			} else {
+				activeIdx++;
+			}
 
-		break;
+			entities[activeIdx]->component<CameraComponent>().active = true;
+
+			break;
+		}
+		default:
+			break;
+		}
 	}
+	default:
+		break;
 	}
 }

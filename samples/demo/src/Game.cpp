@@ -28,6 +28,7 @@
 #include <systems/particle-system/SimpleGPUParticleSystem.hpp>
 
 #include "Game.hpp"
+#include "CameraSelectionSystem/CameraSelectionInputMapper.hpp"
 
 #include "../../common/VisualDebugging/VisualDebuggingInputMapper.hpp"
 #include "../../common/FPSCameraSystem/FPSCameraInputMapper.hpp"
@@ -43,6 +44,7 @@ int main(int argc, char **argv) {
 	Engine::getSystemsManager().registerSystem<InputSystem>();
 	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<FPSCameraInputMapper>());
 	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<VisualDebuggingInputMapper>());
+	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<CameraSelectionInputMapper>());
 	Engine::getSystemsManager().registerSystem<FPSCameraMovementSystem>();
 	Engine::getSystemsManager().registerSystem<PhysicsSystem>();
 	Engine::getSystemsManager().registerSystem<AnimationSystem>();
