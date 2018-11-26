@@ -32,6 +32,8 @@ public:
 
 	AABB calculateViewFrustrum();
 
+	void setAspectRatio(int viewportWidth, int viewportHeight);
+
 protected:
 	double fovY; // fov in Y direction in radians
 	double fovX; // fov in X direction in radians

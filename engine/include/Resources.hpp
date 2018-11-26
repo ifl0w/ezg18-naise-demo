@@ -3,6 +3,8 @@
 #include <tiny_gltf.h>
 #include <typeindex>
 
+#include <nlohmann/json.hpp>
+
 #include <systems/render-engine/materials/shaders/Shader.hpp>
 #include <systems/render-engine/meshes/Mesh.hpp>
 #include <systems/render-engine/materials/Material.hpp>
@@ -15,6 +17,8 @@
 #include <resource-loader/ModelLoaderAdapter.hpp>
 
 using namespace NAISE::RenderCore;
+
+using json = nlohmann::json;
 
 namespace NAISE {
 namespace Engine {
@@ -128,12 +132,23 @@ public:
 	 */
 	static ImageFileType getImageTypeByMagic(const std::string& path);
 
+	/**
+	 * Return the corresponding config json data.
+	 *
+	 * @param path Path to the config file.
+	 * @param forceReload Weather the cache should be considered.
+	 *
+	 * @return
+	 */
+	static json loadConfig(const std::string& path, bool forceReload = false);
+
 private:
 	static std::map<std::type_index, std::shared_ptr<Shader>> shaders;
 	static std::map<std::string, std::shared_ptr<ComputeShader>> computeShaders;
 	static std::map<std::string, std::shared_ptr<Texture>> textures;
 	static std::map<pair<type_index, std::string>, std::shared_ptr<Mesh>> meshes;
 	static std::map<pair<type_index, std::string>, std::shared_ptr<Material>> materials;
+	static std::map<std::string, nlohmann::json> configs;
 
 	/**
 	 * Loads textures with stbi_load

@@ -66,5 +66,10 @@ AABB CameraComponent::calculateViewFrustrum() {
 	return AABB(frustum.getBoundingVolume());
 }
 
+void CameraComponent::setAspectRatio(int viewportWidth, int viewportHeight) {
+	projectionMatrix = perspectiveFov<double>(fovY, viewportWidth, viewportHeight, near, far);
+	frustum = Frustum(fovX, fovY, near, far);
+}
+
 
 
