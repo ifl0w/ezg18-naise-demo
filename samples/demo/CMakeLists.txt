@@ -7,8 +7,8 @@ include_directories(include)
 include_directories(${NAISE_Engine_SOURCE_DIR}/engine/include)
 
 add_executable(sample-demo
-        src/Game.cpp
-        src/Game.hpp
+        src/Demo.cpp
+        src/Demo.hpp
         ../common/FPSCameraSystem/FPSCameraInputMapper.cpp
         ../common/FPSCameraSystem/FPSCameraInputMapper.hpp
         ../common/FPSCameraSystem/FPSCameraMovementSystem.cpp
