@@ -28,6 +28,7 @@
 #include <systems/particle-system/SimpleGPUParticleSystem.hpp>
 
 #include "Game.hpp"
+#include "SceneLoaderAdapter.hpp"
 #include "CameraSelectionSystem/CameraSelectionInputMapper.hpp"
 
 #include "../../common/VisualDebugging/VisualDebuggingInputMapper.hpp"
@@ -114,7 +115,8 @@ int main(int argc, char **argv) {
 	sun->component<LightComponent>().light->data.direction = vec4(-1, -2, -1, 1);
 	sun->component<LightComponent>().light->data.ambient = vec4(1);
 
-	auto hangar = GLTFLoader::loadModel("resources/models/main-scene/main-scene.gltf");
+	SceneLoaderAdapter loaderAdapter;
+	auto hangar = GLTFLoader::loadModel(&loaderAdapter, "resources/models/main-scene/main-scene.gltf");
 	Engine::getEntityManager().addEntities(hangar);
 
 	auto& animEntities = Engine::getEntityManager().getEntities<TransformAnimationSignature>();

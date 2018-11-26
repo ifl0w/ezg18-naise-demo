@@ -12,6 +12,9 @@
 #include <BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h>
 #include <components/ParentComponent.hpp>
 
+#include <systems/render-engine/lights/PointLight.hpp>
+#include <factories/LightFactory.hpp>
+
 using namespace NAISE::Engine;
 
 bool SceneLoaderAdapter::adapt(shared_ptr<Entity> entity, shared_ptr<Entity> parent, const tinygltf::Node& node,
@@ -29,7 +32,7 @@ bool SceneLoaderAdapter::adapt(shared_ptr<Entity> entity, shared_ptr<Entity> par
 
 bool SceneLoaderAdapter::handleLight(shared_ptr<Entity> entity, const tinygltf::Node& node,
 									 const tinygltf::Model& model) const {
-	NAISE_WARN_CONSOL("Light handling not implemented!")
+	entity->add(LightFactory::createLight<PointLight>(vec3(0, 0, 0), vec3(50, 50, 50)));
 
 	return false;
 }
