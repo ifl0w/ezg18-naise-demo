@@ -95,9 +95,9 @@ int main(int argc, char **argv) {
 
 	auto camera = make_shared<NAISE::Engine::Entity>();
 	camera->add<TransformComponent>();
-	camera->component<TransformComponent>().position = vec3(0, 1.6, 0);
+	camera->component<TransformComponent>().position = vec3(10, 10, 50);
+	camera->component<TransformComponent>().rotation = quat(vec3(radians<float>(5), radians<float>(30), radians<float>(0)));
 	camera->add<CameraComponent>();
-//	camera->component<CameraComponent>().active = true;
 	camera->add<InputComponent>();
 	camera->add(RigidBodyFactory::createSphere(1, 0, vec3(0, 0, 0), true));
 	camera->component<InputComponent>().add<Actions::MoveForward>();
