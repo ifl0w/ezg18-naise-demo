@@ -14,7 +14,11 @@ add_executable(sample-demo
         ../common/FPSCameraSystem/FPSCameraMovementSystem.cpp
         ../common/FPSCameraSystem/FPSCameraMovementSystem.hpp
         ../common/VisualDebugging/VisualDebuggingInputMapper.cpp
-        ../common/VisualDebugging/VisualDebuggingInputMapper.hpp)
+        ../common/VisualDebugging/VisualDebuggingInputMapper.hpp
+        src/SceneLoaderAdapter.hpp
+        src/SceneLoaderAdapter.cpp
+        src/CameraSelectionSystem/CameraSelectionInputMapper.hpp
+        src/CameraSelectionSystem/CameraSelectionInputMapper.cpp)
 
 add_dependencies(sample-demo engine)
 

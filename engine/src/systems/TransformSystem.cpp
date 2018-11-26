@@ -5,6 +5,7 @@
 #include <components/TransformComponent.hpp>
 #include <components/LightComponent.hpp>
 #include <components/AABBComponent.hpp>
+#include <components/CameraComponent.hpp>
 
 using namespace NAISE::Engine;
 
@@ -34,7 +35,21 @@ void TransformSystem::process(microseconds deltaTime) {
 	// calculate all local model matrices
 	auto& t = Engine::getEntityManager().getEntities<TransformSignature>();
 	for (auto e: t) {
-		e->component<TransformComponent>().calculateLocalModelMatrix();
+		auto& transformComp = e->component<TransformComponent>();
+		auto cameraComponent = e->get<CameraComponent>();
+
+		// TODO: move normalization and frustum calculation to own system
+		if(cameraComponent) {
+			transformComp.rotation = glm::normalize(transformComp.rotation);
+		}
+
+		transformComp.calculateLocalModelMatrix();
+
+		/*if(cameraComponent) {
+//			 Recalculate camera frustum.
+//			 This has to be done always after camera movement.
+			cameraComponent->frustum.recalculate(transformComp.getModelMatrix());
+		}*/
 	}
 
 	auto& p = Engine::getEntityManager().getEntities<ParentSignature>();
