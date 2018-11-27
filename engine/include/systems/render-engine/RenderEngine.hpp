@@ -48,6 +48,15 @@ enum DebugState {
   DEBUG_GLOW = BIT(3)
 };
 
+struct SetShader {
+  Shader* shader;
+};
+
+struct DrawMeshDirect {
+  Mesh* mesh;
+  mat4 transform;
+};
+
 struct DrawMesh {
   Mesh* mesh;
   Material* material;
@@ -60,9 +69,9 @@ struct SetRenderTarget {
 };
 
 struct SetViewProjectionData {
-  mat4 viewMatrix;
-  mat4 projectionMatrix;
-  mat4 cameraPosition;
+  mat4 viewMatrix = glm::mat4(1);
+  mat4 projectionMatrix = glm::mat4(1);
+  vec3 cameraPosition;
 };
 
 struct DrawInstanced {
@@ -80,6 +89,8 @@ struct DrawInstancedSSBO {
 };
 
 using RenderCommand = std::variant<
+		SetShader,
+		DrawMeshDirect,
 		DrawMesh,
 		SetRenderTarget,
 		SetViewProjectionData,
@@ -120,6 +131,9 @@ public:
 	void executeCommand(DrawInstanced& command);
 	void executeCommand(DrawInstancedSSBO& command);
 	void executeCommand(SetRenderTarget& command);
+	void executeCommand(SetShader& command);
+	void executeCommand(DrawMeshDirect& command);
+	void executeCommand(SetViewProjectionData& command);
 
 	uint8_t debugFlags = 0;
 	uint32_t drawCallCount = 0;

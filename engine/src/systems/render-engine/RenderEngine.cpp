@@ -669,6 +669,12 @@ void RenderEngine::executeCommandBuffer(RenderCommandBuffer commandBuffer) {
 			  executeCommand(arg);
 		  else if constexpr (std::is_same_v<T, DrawInstanced>)
 			  executeCommand(arg);
+		  else if constexpr (std::is_same_v<T, SetShader>)
+			  executeCommand(arg);
+		  else if constexpr (std::is_same_v<T, DrawMeshDirect>)
+			  executeCommand(arg);
+		  else if constexpr (std::is_same_v<T, SetViewProjectionData>)
+			  executeCommand(arg);
 		  else
 			  NAISE_DEBUG_CONSOL("Render command not handled! ({})", typeid(arg).name())
 		}, commandBuffer[i]);
@@ -706,4 +712,18 @@ void RenderEngine::executeCommand(DrawInstancedSSBO& command) {
 
 void RenderEngine::executeCommand(SetRenderTarget& command) {
 
+}
+
+void RenderEngine::executeCommand(SetShader& command) {
+	if (command.shader->shaderID != Shader::activeShader) {
+		command.shader->useShader();
+	}
+}
+
+void RenderEngine::executeCommand(DrawMeshDirect& command) {
+	drawMeshDirect(*command.mesh);
+}
+
+void RenderEngine::executeCommand(SetViewProjectionData& command) {
+	setProjectionData(command.projectionMatrix, command.viewMatrix, command.cameraPosition);
 }

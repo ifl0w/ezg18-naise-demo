@@ -57,6 +57,7 @@ file(GLOB_RECURSE SRC_FILES
         src/systems/render-engine/shadow-map/*.cpp
         src/systems/render-engine/textures/*.cpp
         src/systems/particle-system/*.cpp
+        src/systems/render-engine/text/*.cpp
         include/Engine.hpp
         include/Window.hpp
         include/components/*.hpp
@@ -84,6 +85,7 @@ file(GLOB_RECURSE SRC_FILES
         include/systems/render-engine/textures/*.hpp
         include/systems/physics/*.hpp
         include/systems/particle-system/*.hpp
+        include/systems/render-engine/text/*.cpp
         )
 
 set(BUILD_SHARED_LIBS OFF)
@@ -164,6 +166,16 @@ add_custom_target(
         WORKING_DIRECTORY external/bullet3
 )
 
+### FreeType2 ###
+if(MSVC)
+    # use windows binaries in MSVC
+    # TODO
+    #include_directories(external/freetype-windows-binaries/include)
+    #set(FREETYPE_LIBRARIES ${PROJECT_SOURCE_DIR}/external/freetype-windows-binaries/win64/freetype.lib)
+else(MSVC)
+    find_package(Freetype REQUIRED)
+    include_directories(${FREETYPE_INCLUDE_DIRS})
+endif(MSVC)
 
 add_library(engine STATIC ${SRC_FILES}
         src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp
@@ -202,12 +214,14 @@ if (MINGW OR MSVC)
             glbinding
             glbinding-aux # for additionaly, auxiliary features as logging, meta information, or debugging 
             SDL2main SDL2-static
+            ${FREETYPE_LIBRARIES}
             Bullet3Common BulletDynamics BulletCollision LinearMath)
 else()
     target_link_libraries(engine PUBLIC
             glbinding
             glbinding-aux # for additionaly, auxiliary features as logging, meta information, or debugging functionality
             SDL2
+            ${FREETYPE_LIBRARIES}
             Bullet3Common BulletDynamics BulletCollision LinearMath)
 endif ()
 
