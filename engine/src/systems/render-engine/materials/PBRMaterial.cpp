@@ -102,6 +102,8 @@ PBRMaterial::PBRMaterial(const tinygltf::Material& material, const tinygltf::Mod
 
 		metallic = static_cast<float>(factor.Factor());
 	} catch (std::out_of_range& e) {
+		// IMPORTANT TODO: Rework default values of loader
+		metallic = 1.0;
 		// swollow
 	}
 

@@ -58,7 +58,7 @@ public:
 			}
 		} else if(values.size() == timePoints.size() * 3) {
 			for (int i = 0; i < values.size(); i += 3) {
-				keyFrames.emplace_back(timePoints[i], std::tuple(values[i], values[i+1], values[i+2]));
+				keyFrames.emplace_back(timePoints[i/3], std::tuple(values[i], values[i+1], values[i+2]));
 			}
 		} else {
 			// error
