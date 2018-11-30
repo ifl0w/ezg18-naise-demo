@@ -1,6 +1,6 @@
 #include <systems/RenderSystem.hpp>
 #include <systems/WindowSystem.hpp>
-#include <systems/particle-system/GPUParticleSystem.hpp>
+#include <systems/particle-system/SimpleGPUParticleSystem.hpp>
 #include <components/AABBComponent.hpp>
 
 #include <Engine.hpp>
@@ -99,7 +99,7 @@ void RenderSystem::process(microseconds deltaTime) {
 	RenderCommandBuffer particleSystemCommandBuffer;
 	auto& particleSystemEntities = Engine::getEntityManager().getEntities<ParticleRenderSignature>();
 	for (auto& particleSystem: particleSystemEntities) {
-		auto& particleComponent = particleSystem->component<GPUParticleComponent>();
+		auto& particleComponent = particleSystem->component<MeshParticleComponent>();
 		auto& transformComponent = particleSystem->component<TransformComponent>();
 		auto& mesh = particleComponent.mesh;
 		auto& material = particleComponent.material;

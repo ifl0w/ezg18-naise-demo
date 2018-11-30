@@ -16,7 +16,7 @@
 
 #include <functional>
 #include <systems/physics/BulletDebugDrawer.hpp>
-#include <systems/particle-system/GPUParticleComponent.hpp>
+#include <systems/particle-system/MeshParticleComponent.hpp>
 
 namespace NAISE {
 namespace Engine {
@@ -27,7 +27,7 @@ struct GeometrySignature: public Signature<TransformComponent, MeshComponent> {}
 struct VisualSignature: public Signature<TransformComponent, VisualComponent> {};
 struct CameraSignature: public Signature<CameraComponent, TransformComponent> {};
 struct DebugDrawSignature: public Signature<PhysicsDebugComponent> {};
-struct ParticleRenderSignature: public Signature<TransformComponent, GPUParticleComponent> {};
+struct ParticleRenderSignature: public Signature<TransformComponent, MeshParticleComponent> {};
 
 using InstanceID = std::pair<Mesh*, Material*>;
 

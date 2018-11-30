@@ -130,6 +130,17 @@ endif ()
 ### stb ###
 include_directories(external/stb)
 
+### json ###
+# Typically you don't care so much for a third party library's tests to be
+# run from your own project's code.
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+
+# Don't use include(nlohmann_json/CMakeLists.txt) since that carries with it
+# inintended consequences that will break the build.  It's generally
+# discouraged (although not necessarily well documented as such) to use
+# include(...) for pulling in other CMake projects anyways.
+add_subdirectory(external/nlohmann_json)
+
 ### tinygltf ###
 include_directories(external/tinygltf)
 
@@ -196,7 +207,9 @@ add_library(engine STATIC ${SRC_FILES}
         include/resource-loader/ModelLoaderAdapter.hpp include/scene/Signature.hpp
         src/systems/animations/AnimationSystem.cpp include/systems/animations/AnimationSystem.hpp
         src/resource-loader/GLTFLoader.cpp include/resource-loader/GLTFLoader.hpp include/components/AnimationComponent.hpp
-        include/components/VisualComponent.hpp)
+        include/components/VisualComponent.hpp
+        src/systems/particle-system/GPUMeshParticleSystem.cpp include/systems/particle-system/GPUMeshParticleSystem.hpp
+        src/systems/particle-system/GPUParticleData.cpp include/systems/particle-system/GPUParticleData.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include
@@ -215,14 +228,18 @@ if (MINGW OR MSVC)
             glbinding-aux # for additionaly, auxiliary features as logging, meta information, or debugging 
             SDL2main SDL2-static
             ${FREETYPE_LIBRARIES}
-            Bullet3Common BulletDynamics BulletCollision LinearMath)
+            Bullet3Common BulletDynamics BulletCollision LinearMath
+            nlohmann_json::nlohmann_json
+            -static # link libstdc++, winpthread, gcc_s_seh in mingw
+            )
 else()
     target_link_libraries(engine PUBLIC
             glbinding
             glbinding-aux # for additionaly, auxiliary features as logging, meta information, or debugging functionality
             SDL2
             ${FREETYPE_LIBRARIES}
-            Bullet3Common BulletDynamics BulletCollision LinearMath)
+            Bullet3Common BulletDynamics BulletCollision LinearMath
+            nlohmann_json::nlohmann_json)
 endif ()
 
 ######## COPY ASSETS ########

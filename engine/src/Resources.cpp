@@ -64,6 +64,8 @@ std::map<pair<type_index, std::string>, std::shared_ptr<Mesh>> Resources::meshes
 std::map<pair<type_index, std::string>, std::shared_ptr<Material>> Resources::materials =
 		std::map<pair<type_index, std::string>, std::shared_ptr<Material>>();
 
+std::map<std::string, nlohmann::json> Resources::configs = std::map<std::string, nlohmann::json>();
+
 std::shared_ptr<Texture> Resources::loadTexture(const std::string& path) {
 	return loadTexture(path, path);
 }
@@ -296,4 +298,25 @@ std::shared_ptr<Texture> Resources::loadWithSTB(const std::string& path) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return texture;
+}
+
+json Resources::loadConfig(const std::string& path, bool forceReload) {
+	const auto& key = path;
+	auto it = Resources::configs.find(key);
+
+	if (Resources::configs.count(key) && !forceReload) {
+		return it->second;
+	}
+
+	std::ifstream inputFile(path);
+	json data;
+
+	try {
+		inputFile >> data;
+	} catch (nlohmann::detail::parse_error& e) {
+		NAISE_ERROR_LOG("Could not load config file! ({})", path)
+	}
+
+	Resources::configs[key] = data;
+	return Resources::configs[key];
 }

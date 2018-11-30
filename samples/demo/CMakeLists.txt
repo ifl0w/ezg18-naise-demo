@@ -7,16 +7,18 @@ include_directories(include)
 include_directories(${NAISE_Engine_SOURCE_DIR}/engine/include)
 
 add_executable(sample-demo
-        src/Game.cpp
-        src/Game.hpp
+        src/Demo.cpp
+        src/Demo.hpp
         ../common/FPSCameraSystem/FPSCameraInputMapper.cpp
         ../common/FPSCameraSystem/FPSCameraInputMapper.hpp
         ../common/FPSCameraSystem/FPSCameraMovementSystem.cpp
         ../common/FPSCameraSystem/FPSCameraMovementSystem.hpp
         ../common/VisualDebugging/VisualDebuggingInputMapper.cpp
         ../common/VisualDebugging/VisualDebuggingInputMapper.hpp
-        src/RaisingParticleSystem.cpp
-        src/RaisingParticleSystem.hpp)
+        src/SceneLoaderAdapter.hpp
+        src/SceneLoaderAdapter.cpp
+        src/CameraSelectionSystem/CameraSelectionInputMapper.hpp
+        src/CameraSelectionSystem/CameraSelectionInputMapper.cpp)
 
 add_dependencies(sample-demo engine)
 
