@@ -54,12 +54,12 @@ Font::Font(std::string fontFile, int characterSize) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		// Store character
-		Glyph glyph = {
-				texture,
-				glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-				glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-				(GLuint) (face->glyph->advance.x)
-		};
+		Glyph glyph;
+		glyph.TextureID = texture;
+		glyph.Size = glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows);
+		glyph.Bearing = glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top);
+		glyph.Advance = (GLuint) (face->glyph->advance.x);
+
 		glyphs.insert(std::pair<GLchar, Glyph>(c, glyph));
 	}
 	// Unbind
