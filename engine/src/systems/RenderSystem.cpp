@@ -136,7 +136,15 @@ void RenderSystem::process(microseconds deltaTime) {
 //		_renderEngine->backfaceCulling = false;
 	_renderEngine->activateRenderState();
 	for (auto& instanceID: meshInstances) {
-		_renderEngine->drawMeshInstanced(*instanceID.first.first, instanceID.first.second, instanceID.second);
+		if(!instanceID.second.empty()) {
+			if(instanceID.second.size() > 1) {
+				_renderEngine->drawMeshInstanced(*instanceID.first.first, instanceID.first.second, instanceID.second);
+			} else {
+				for (auto transform: instanceID.second) {
+					_renderEngine->drawMesh(*instanceID.first.first, instanceID.first.second, transform);
+				}
+			}
+		}
 	}
 	_renderEngine->executeCommandBuffer(particleSystemCommandBuffer);
 	_renderEngine->deactivateRenderState();
