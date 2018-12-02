@@ -669,9 +669,11 @@ void RenderEngine::executeCommandBuffer(RenderCommandBuffer commandBuffer) {
 			  executeCommand(arg);
 		  else if constexpr (std::is_same_v<T, DrawInstanced>)
 			  executeCommand(arg);
-		  else if constexpr (std::is_same_v<T, SetShader>)
+		  else if constexpr (std::is_same_v<T, DrawMesh>)
 			  executeCommand(arg);
 		  else if constexpr (std::is_same_v<T, DrawMeshDirect>)
+			  executeCommand(arg);
+		  else if constexpr (std::is_same_v<T, SetShader>)
 			  executeCommand(arg);
 		  else if constexpr (std::is_same_v<T, SetViewProjectionData>)
 			  executeCommand(arg);
@@ -683,7 +685,7 @@ void RenderEngine::executeCommandBuffer(RenderCommandBuffer commandBuffer) {
 }
 
 void RenderEngine::executeCommand(DrawMesh& command) {
-
+	drawMesh(*command.mesh, command.material, command.transform);
 }
 
 void RenderEngine::executeCommand(DrawInstanced& command) {

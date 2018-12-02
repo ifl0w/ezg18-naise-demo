@@ -6,7 +6,7 @@ using namespace NAISE::Engine;
 using namespace gl;
 
 Text::Text(std::string fontFile, int characterSize, int viewportWidth, int viewportHeight)
-		: glyphs(std::make_shared<Glyph>(fontFile, characterSize)),
+		: font(std::make_shared<Font>(fontFile, characterSize)),
 		  textShader(std::make_shared<TextShader>()),
 		  viewportWidth(viewportWidth),
 		  viewportHeight(viewportHeight) {
@@ -27,14 +27,15 @@ void Text::configureVAOVBOforTextureQuads() {
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
 
-void Text::renderText() {
+RenderCommandBuffer Text::createCommandBuffer() {
+	RenderCommandBuffer buffer;
 
 	GLfloat xPosition = position.x;
 	GLfloat yPosition = position.y;
@@ -57,7 +58,7 @@ void Text::renderText() {
 	std::string::const_iterator c;
 	for (c = textString.begin(); c != textString.end(); c++) {
 
-		Glyph::Character ch = glyphs->Characters[*c];
+		Glyph ch = font->glyphs[*c];
 
 		GLfloat xpos = xPosition + ch.Bearing.x * xScale;
 		GLfloat ypos = yPosition - (ch.Size.y - ch.Bearing.y) * yScale;
@@ -77,8 +78,6 @@ void Text::renderText() {
 				{xpos + w, ypos + h, 1.0, 0.0}
 		};
 
-		// Render glyph texture over quad
-		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
 		// Update content of VBO memory
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);

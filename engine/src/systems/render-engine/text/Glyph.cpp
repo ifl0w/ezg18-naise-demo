@@ -6,17 +6,17 @@
 using namespace NAISE::RenderCore;
 using namespace gl;
 
-Glyph::Glyph(std::string fontFile, int characterSize) {
+Font::Font(std::string fontFile, int characterSize) {
 	// initialize the FreeType library
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft)) {
-		std::runtime_error("NAISE::GAMES::Engine :: Could not init FreeType Library");
+		throw std::runtime_error("Could not init FreeType Library");
 	}
 
 	// load a font as a face
 	FT_Face face;
 	if (FT_New_Face(ft, fontFile.c_str(), 0, &face)) {
-		std::runtime_error("NAISE::GAMES::Engine :: Font could not be loaded");
+		throw std::runtime_error("Font could not be loaded");
 	}
 
 	// define the font size with width = 0 and height = characterSize
@@ -28,8 +28,7 @@ Glyph::Glyph(std::string fontFile, int characterSize) {
 	for (GLubyte c = 0; c < 128; c++) {
 		// Load character glyph
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-			std::runtime_error("NAISE::GAMES::Engine :: Failed to load Glyph");
-			continue;
+			throw std::runtime_error("Failed to load Glyph");
 		}
 
 		// Generate texture
@@ -55,13 +54,13 @@ Glyph::Glyph(std::string fontFile, int characterSize) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		// Store character
-		Character character = {
+		Glyph glyph = {
 				texture,
 				glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
 				glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
 				(GLuint) (face->glyph->advance.x)
 		};
-		Characters.insert(std::pair<GLchar, Character>(c, character));
+		glyphs.insert(std::pair<GLchar, Glyph>(c, glyph));
 	}
 	// Unbind
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -69,4 +68,9 @@ Glyph::Glyph(std::string fontFile, int characterSize) {
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
 
+}
+
+void Glyph::useMaterial() const {
+	// Render glyph texture over quad
+	glBindTexture(GL_TEXTURE_2D, TextureID);
 }

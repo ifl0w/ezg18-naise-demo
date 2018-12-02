@@ -4,26 +4,27 @@
 #include <glm/glm.hpp>
 #include <glbinding/gl/gl.h>
 #include <map>
+#include <systems/render-engine/materials/Material.hpp>
 
 namespace NAISE {
 namespace RenderCore {
 
-class Glyph {
+/// Holds all state information relevant to a character as loaded using FreeType
+class Glyph: NAISE::RenderCore::Material {
 public:
-	Glyph(std::string fontFile, int characterSize);
+  gl::GLuint TextureID;   // ID handle of the glyph texture
+  glm::ivec2 Size;    // Size of glyph
+  glm::ivec2 Bearing;  // Offset from baseline to left/top of glyph
+  gl::GLuint Advance;    // Horizontal offset to advance to next glyph
 
-	/// Holds all state information relevant to a character as loaded using FreeType
-	struct Character {
-	  gl::GLuint TextureID;   // ID handle of the glyph texture
-	  glm::ivec2 Size;    // Size of glyph
-	  glm::ivec2 Bearing;  // Offset from baseline to left/top of glyph
-	  gl::GLuint Advance;    // Horizontal offset to advance to next glyph
-	};
+  void useMaterial() const override;
+};
 
-	std::map<gl::GLchar, Character> Characters;
+class Font {
+public:
+	Font(std::string fontFile, int characterSize);
 
-private:
-
+	std::map<gl::GLchar, Glyph> glyphs;
 };
 
 }

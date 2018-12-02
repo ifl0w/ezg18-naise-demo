@@ -8,6 +8,8 @@
 #include <string>
 #include <memory>
 
+#include <systems/render-engine/RenderEngine.hpp>
+
 namespace NAISE {
 namespace RenderCore {
 
@@ -16,7 +18,7 @@ public:
 
 	Text(std::string fontFile, int characterSize = 48, int viewportWidth = 400, int viewportHeight = 400);
 
-	void renderText();
+	RenderCommandBuffer createCommandBuffer();
 
 	std::string textString = "Default Text";
 	glm::vec2 position = glm::vec2(25.0f, 25.0f);
@@ -34,7 +36,7 @@ private:
 
 	glm::mat4x4 modelMatrix;
 
-	std::shared_ptr<Glyph> glyphs;
+	std::shared_ptr<Font> font;
 	std::shared_ptr<TextShader> textShader;
 
 	gl::GLuint VAO, VBO;

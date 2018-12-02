@@ -22,10 +22,10 @@ layout(std140, binding = 1) uniform projectionData
     vec3 cameraPosition;    // size = 16B
 };
 
-uniform mat4 modelMatrix;
+uniform mat4 modelMatrix = mat4(1);
 
 void main()
 {
-    gl_Position = modelMatrix * vec4(position, 1.0);
+    gl_Position = viewProjection * modelMatrix * vec4(position, 1.0);
     //TexCoords = vertex.zw;
 }

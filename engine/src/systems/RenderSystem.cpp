@@ -1,13 +1,15 @@
 #include <systems/RenderSystem.hpp>
 #include <systems/WindowSystem.hpp>
 #include <systems/particle-system/SimpleGPUParticleSystem.hpp>
-#include <components/AABBComponent.hpp>
 
 #include <Engine.hpp>
 
 using namespace NAISE::Engine;
 
-RenderSystem::RenderSystem() {
+
+RenderSystem::RenderSystem(): RenderSystem(std::make_shared<RenderEngine>()) { }
+
+RenderSystem::RenderSystem(std::shared_ptr<RenderEngine> renderEngine): _renderEngine(renderEngine) {
 	Engine::getEntityManager().addSignature<SunSignature>();
 	Engine::getEntityManager().addSignature<LightSignature>();
 	Engine::getEntityManager().addSignature<GeometrySignature>();
@@ -16,8 +18,8 @@ RenderSystem::RenderSystem() {
 	Engine::getEntityManager().addSignature<VisualSignature>();
 	Engine::getEntityManager().addSignature<ParticleRenderSignature>();
 
-	Engine::getEventManager().event<WindowEvents::SetResolution>().subscribe([&](uint32_t width, uint32_t height){
-	  renderEngine.setResolution(width, height);
+	Engine::getEventManager().event<WindowEvents::SetResolution>().subscribe([&](uint32_t width, uint32_t height) {
+	  _renderEngine->setResolution(width, height);
 	});
 }
 
@@ -27,9 +29,9 @@ void RenderSystem::process(microseconds deltaTime) {
 
 	// TODO: move somewhere to render engine
 	// reset draw call count
-	renderEngine.drawCallCount = 0;
+	_renderEngine->drawCallCount = 0;
 
-	renderEngine.setSkybox(&skybox);
+	_renderEngine->setSkybox(&skybox);
 
 	auto& cameraEntities = Engine::getEntityManager().getEntities<CameraSignature>();
 	camera = cameraEntities.front();
@@ -54,8 +56,8 @@ void RenderSystem::process(microseconds deltaTime) {
 	}
 
 	auto& geometryEntities = Engine::getEntityManager().getEntities<GeometrySignature>();
-	for (auto& instanceID: meshInstances) {	instanceID.second.clear(); } // clear instances
-	for (auto& instanceID: shadowMeshInstances) {	instanceID.second.clear(); } // clear instances
+	for (auto& instanceID: meshInstances) { instanceID.second.clear(); } // clear instances
+	for (auto& instanceID: shadowMeshInstances) { instanceID.second.clear(); } // clear instances
 	for (auto entity: geometryEntities) {
 		Mesh* mesh = entity->component<MeshComponent>().mesh.get();
 
@@ -118,31 +120,31 @@ void RenderSystem::process(microseconds deltaTime) {
 	}
 
 	if (sun != nullptr) {
-		renderEngine.activateShadowPass(*sun, *camera);
+		_renderEngine->activateShadowPass(*sun, *camera);
 		for (auto& instance: shadowMeshInstances) {
-			renderEngine.drawMeshInstancedDirect(*instance.first, instance.second);
+			_renderEngine->drawMeshInstancedDirect(*instance.first, instance.second);
 		}
 
-//		renderEngine.executeCommandBuffer(particleSystemCommandBuffer);
+//		_renderEngine->executeCommandBuffer(particleSystemCommandBuffer);
 
-		renderEngine.deactivateShadowPass();
+		_renderEngine->deactivateShadowPass();
 	}
 
-	renderEngine.initFrame(camera->component<CameraComponent>(), camera->component<TransformComponent>());
+	_renderEngine->initFrame(camera->component<CameraComponent>(), camera->component<TransformComponent>());
 
-//		renderEngine.wireframe = true;
-//		renderEngine.backfaceCulling = false;
-	renderEngine.activateRenderState();
+//		_renderEngine->wireframe = true;
+//		_renderEngine->backfaceCulling = false;
+	_renderEngine->activateRenderState();
 	for (auto& instanceID: meshInstances) {
-		renderEngine.drawMeshInstanced(*instanceID.first.first, instanceID.first.second, instanceID.second);
+		_renderEngine->drawMeshInstanced(*instanceID.first.first, instanceID.first.second, instanceID.second);
 	}
-	renderEngine.executeCommandBuffer(particleSystemCommandBuffer);
-	renderEngine.deactivateRenderState();
+	_renderEngine->executeCommandBuffer(particleSystemCommandBuffer);
+	_renderEngine->deactivateRenderState();
 
-//	NAISE_DEBUG_CONSOL("Draw calls: {}", renderEngine.drawCallCount)
+//	NAISE_DEBUG_CONSOL("Draw calls: {}", _renderEngine->drawCallCount)
 
 	auto& lightEntities = Engine::getEntityManager().getEntities<LightSignature>();
-	renderEngine.prepareLightPass();
+	_renderEngine->prepareLightPass();
 	for (auto entity: lightEntities) {
 		auto& light = *entity->component<LightComponent>().light.get();
 		auto transComp = entity->component<TransformComponent>();
@@ -155,23 +157,23 @@ void RenderSystem::process(microseconds deltaTime) {
 			transform = glm::scale(transform, scale);
 		}
 
-		renderEngine.renderLights(light, transform, *camera);
+		_renderEngine->renderLights(light, transform, *camera);
 	}
-	renderEngine.cleanupLightPass();
+	_renderEngine->cleanupLightPass();
 
 	//SKYBOX
-	renderEngine.skyboxPass();
+	_renderEngine->skyboxPass();
 
 	//GLOW
-	renderEngine.glowPass();
+	_renderEngine->glowPass();
 
 	auto& debugDrawEntities = Engine::getEntityManager().getEntities<DebugDrawSignature>();
-//		renderEngine.activateRenderState();
+//		_renderEngine->activateRenderState();
 	for (auto& entity: debugDrawEntities) {
 		auto& p = entity->component<PhysicsDebugComponent>();
-		renderEngine.drawDebugMesh(p.mesh, p.color);
+		_renderEngine->drawDebugMesh(p.mesh, p.color);
 	}
-//		renderEngine.deactivateRenderState();
+//		_renderEngine->deactivateRenderState();
 }
 
 bool RenderSystem::cullEntity(Entity& camera, Entity& entity) {

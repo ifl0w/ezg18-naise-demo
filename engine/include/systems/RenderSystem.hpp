@@ -1,3 +1,7 @@
+#include <utility>
+
+#include <utility>
+
 #pragma once
 
 #include "System.hpp"
@@ -36,6 +40,8 @@ public:
 
 	RenderSystem();
 
+	explicit RenderSystem(std::shared_ptr<RenderEngine> renderEngine);
+
 	void process(microseconds deltaTime) override;
 
 	void setSkybox(Skybox& skybox){
@@ -45,7 +51,7 @@ public:
 private:
 	bool cullEntity(Entity& camera, Entity& entity);
 
-	RenderEngine renderEngine;
+	std::shared_ptr<RenderEngine> _renderEngine;
 
 	Skybox skybox = Skybox(glm::vec3(0.3,0.3,0.3));
 
