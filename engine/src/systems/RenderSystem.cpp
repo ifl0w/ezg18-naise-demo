@@ -2,6 +2,8 @@
 #include <systems/WindowSystem.hpp>
 #include <systems/particle-system/SimpleGPUParticleSystem.hpp>
 
+#include <glm/gtx/quaternion.hpp>
+
 #include <Engine.hpp>
 
 using namespace NAISE::Engine;
@@ -158,6 +160,7 @@ void RenderSystem::process(microseconds deltaTime) {
 		auto transComp = entity->component<TransformComponent>();
 		auto transform = transComp.getModelMatrix();
 
+		// TODO: move to light system
 		if (entity->component<LightComponent>().isType<PointLight>()) {
 			auto& l = dynamic_cast<PointLight&>(light);
 			light.data.lightPosition = vec4(glm::vec3(transform[3]), 1); // write back position
@@ -165,7 +168,17 @@ void RenderSystem::process(microseconds deltaTime) {
 			transform = glm::scale(transform, scale);
 		}
 
-		_renderEngine->renderLights(light, transform, *camera);
+		if (entity->component<LightComponent>().isType<SpotLight>()) {
+			auto* l = dynamic_cast<SpotLight*>(&light);
+			light.data.lightPosition = vec4(glm::vec3(transform[3]), 1); // write back position
+			light.data.direction = glm::vec4(glm::rotate(transComp.globalRotation, vec3(0,0,-1)), 1) ; // default direction is (0, 0, -1)
+			vec3 scale = vec3(l->calculateLightVolumeRadius());
+			transform = glm::scale(transform, scale);
+		}
+
+		if (!cullEntity(*camera, *entity)) {
+			_renderEngine->renderLights(light, transform, *camera);
+		}
 	}
 	_renderEngine->cleanupLightPass();
 

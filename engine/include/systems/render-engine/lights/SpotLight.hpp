@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Light.hpp"
+#include "PointLight.hpp"
 
 namespace NAISE {
-namespace Engine {
+namespace RenderCore {
 
 class SpotLight :
-		public LightComponent {
+		public PointLight {
 public:
 	SpotLight();
 
@@ -15,7 +16,7 @@ public:
 	/*
 	default attenuation is 1, 0, 0
 	*/
-	void setAttenuation(float constant, float linear, float quadratic);
+//	void setAttenuation(float constant, float linear, float quadratic);
 };
 
 }

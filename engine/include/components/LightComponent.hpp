@@ -25,6 +25,8 @@ using LightType = type_index;
 public:
 	LightComponent(): light(make_shared<Light>()), type(type_index(typeid(Light))) {};
 
+	explicit LightComponent(shared_ptr<Light> light): light(light), type(type_index(typeid(light))) {};
+
 	LightType type;
 	shared_ptr<Light> light;
 

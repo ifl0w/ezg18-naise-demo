@@ -73,6 +73,8 @@ private:
 									   const std::string& idPrefix);
 
 	static void addCameraComponents(std::shared_ptr<Entity>& entity,  const tinygltf::Node& node, const tinygltf::Model& model);
+
+	static void addLightComponent(std::shared_ptr<Entity>& entity,  const tinygltf::Node& node, const tinygltf::Model& model);
 };
 
 template<typename T>

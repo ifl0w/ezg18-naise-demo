@@ -17,6 +17,7 @@
 #include <components/VisualComponent.hpp>
 
 #include <systems/render-engine/lights/PointLight.hpp>
+#include <systems/render-engine/lights/SpotLight.hpp>
 
 #include <functional>
 #include <systems/physics/BulletDebugDrawer.hpp>

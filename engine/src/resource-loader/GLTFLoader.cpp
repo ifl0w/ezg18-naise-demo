@@ -8,12 +8,17 @@
 #include <components/ParentComponent.hpp>
 #include <components/AnimationComponent.hpp>
 #include <components/CameraComponent.hpp>
+#include <components/LightComponent.hpp>
 
 #include <glm/gtx/spline.hpp>
 #include <glm/gtx/string_cast.hpp>
 
 #include <systems/render-engine/materials/PBRMaterial.hpp>
 #include <components/VisualComponent.hpp>
+#include <systems/render-engine/lights/PointLight.hpp>
+#include <systems/render-engine/lights/SpotLight.hpp>
+#include <systems/render-engine/lights/DirectionalLight.hpp>
+#include <factories/LightFactory.hpp>
 
 #include "Resources.hpp"
 
@@ -125,6 +130,8 @@ vector<shared_ptr<Entity>> GLTFLoader::entityFromGLTFNode(const ModelLoaderAdapt
 
 	addCameraComponents(entity, node, model);
 
+	addLightComponent(entity, node, model);
+
 	if (adapter != nullptr) {
 		bool stopEvaluation = adapter->adapt(entity, parent, node, model);
 
@@ -215,6 +222,63 @@ void GLTFLoader::addCameraComponents(std::shared_ptr<Entity>& entity, const tiny
 	}
 
 }
+
+void GLTFLoader::addLightComponent(std::shared_ptr<Entity>& entity, const tinygltf::Node& node,
+								   const tinygltf::Model& model) {
+	auto lightExtensionString = "KHR_lights";
+
+	if (node.extensions.count("KHR_lights_punctual")) {
+		lightExtensionString = "KHR_lights_punctual";
+	}
+
+	if (node.extensions.count(lightExtensionString)) {
+		auto lightIdx = node.extensions.at(lightExtensionString).Get("light").Get<int>();
+		auto& light = model.extensions.at(lightExtensionString).Get("lights").Get(lightIdx);
+
+		auto t = light.Get("type").Get<std::string>();
+		if(t == "point") {
+			entity->add(LightFactory::createLight<PointLight>(vec3(0), vec3(10)));
+		} else if (t == "spot") {
+			entity->add<LightComponent>(LightFactory::createLight<SpotLight>());
+			auto& lc = entity->component<LightComponent>();
+
+			auto outerAngle = light.Get("spot").Get("outerConeAngle").Get<double>();
+			auto innerAngle = light.Get("spot").Get("innerConeAngle").Get<double>();
+
+			lc.light->data.coneAngle = static_cast<float>(glm::degrees(outerAngle) * 2);
+			lc.light->data.coneBlend = static_cast<float>((outerAngle - innerAngle) / glm::max(outerAngle, 0.0001));
+
+		} else if (t == "directional") {
+			entity->add<LightComponent>(LightFactory::createLight<DirectionalLight>());
+			auto& lc = entity->component<LightComponent>();
+		}
+
+		auto& lc = entity->component<LightComponent>();
+
+		auto colorData = light.Get("color");
+		auto intensityData = light.Get("intensity");
+
+		vec4 color = vec4(colorData.Get(0).Get<double>(), colorData.Get(1).Get<double>(), colorData.Get(2).Get<double>(), 0);
+		auto intensity = static_cast<float>(intensityData.Get<double>());
+
+		lc.light->data.diffuse = color * intensity;
+
+		if (t == "point" || t == "spot") {
+			// TODO: maybe add in factory and adapt on change
+			auto l = dynamic_cast<PointLight*>(lc.light.get()); // TODO: kinda dangerous
+			auto radius = l->calculateLightVolumeRadius();
+			entity->add<AABBComponent>(AABB({
+													vec3(0,0,radius),
+													vec3(0,radius,0),
+													vec3(radius,0,0),
+													vec3(0,0,-radius),
+													vec3(0,-radius,0),
+													vec3(-radius,0,0)
+											}));
+		}
+	}
+}
+
 
 void GLTFLoader::addAnimationComponents(std::shared_ptr<Entity>& entity, int nodeIdx, const tinygltf::Node& node,
 										const tinygltf::Model& model, const std::string& idPrefix) {
