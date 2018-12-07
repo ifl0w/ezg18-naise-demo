@@ -1,12 +1,12 @@
 #version 430
 
-//layout (location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>
+layout (location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>
 out vec2 TexCoords;
 
-layout(location = 0) in vec3 position;
-layout(location = 1) in vec3 normal;
-layout(location = 2) in vec2 uv;
-layout(location = 3) in vec3 tangent;
+//layout(location = 0) in vec3 position;
+//layout(location = 1) in vec3 normal;
+//layout(location = 2) in vec2 uv;
+//layout(location = 3) in vec3 tangent;
 
 uniform bool useInstancing = false;
 layout(std430, binding = 0) buffer InstanceTransforms
@@ -26,6 +26,6 @@ uniform mat4 modelMatrix = mat4(1);
 
 void main()
 {
-    gl_Position = viewProjection * modelMatrix * vec4(position, 1.0);
-    //TexCoords = vertex.zw;
+    gl_Position = viewProjection * modelMatrix * vec4(vertex.xy, 0, 1.0);
+    TexCoords = vertex.zw;
 }

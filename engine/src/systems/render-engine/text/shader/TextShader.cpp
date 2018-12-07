@@ -3,5 +3,5 @@
 using namespace NAISE::RenderCore;
 
 TextShader::TextShader()
-		: Shader("assets/shaders/text/text.vert", "assets/shaders/text/text.frag") {
+		: Shader("engine/resources/shaders/text/text.vert", "engine/resources/shaders/text/text.frag") {
 }

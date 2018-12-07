@@ -1,28 +1,22 @@
 #include <glm/gtc/matrix_transform.hpp>
-#include <systems/render-engine/text/Text.hpp>
+#include <systems/render-engine/text/TextRenderer.hpp>
 
 using namespace NAISE::RenderCore;
 using namespace NAISE::Engine;
 using namespace gl;
 
-Text::Text(std::string fontFile, int characterSize, int viewportWidth, int viewportHeight)
-		: font(std::make_shared<Font>(fontFile, characterSize)),
-		  textShader(std::make_shared<TextShader>()),
-		  viewportWidth(viewportWidth),
-		  viewportHeight(viewportHeight) {
-
+TextRenderer::TextRenderer()
+		: textShader(std::make_unique<TextShader>()) {
 	initText();
 }
 
-void Text::initText() {
-	//modelMatrix = glm::ortho(0, viewportWidth, 0, viewportHeight, -1, 1);
-	modelMatrix = getOrthogonalModelMatrix(0.0f, (float) viewportWidth, 0.0f, (float) viewportHeight, -1.0f, 1.0f);
+void TextRenderer::initText() {
 	// Configure VAO/VBO for texture quadsgetOrthogonalModelMatrix
 	configureVAOVBOforTextureQuads();
 	this->colorLocation = uniformLocation(textShader->shaderID, "textColor");
 }
 
-void Text::configureVAOVBOforTextureQuads() {
+void TextRenderer::configureVAOVBOforTextureQuads() {
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(VAO);
@@ -34,21 +28,24 @@ void Text::configureVAOVBOforTextureQuads() {
 	glBindVertexArray(0);
 }
 
-RenderCommandBuffer Text::createCommandBuffer() {
-	RenderCommandBuffer buffer;
+void TextRenderer::render(std::string text, Font* font, glm::vec3 color, mat4 transform) {
 
-	GLfloat xPosition = position.x;
-	GLfloat yPosition = position.y;
-	GLfloat xScale = scale.x;
-	GLfloat yScale = scale.y;
+	GLfloat xPosition = 0;
+	GLfloat yPosition = 0;
+	GLfloat xScale = 1;
+	GLfloat yScale = 1;
 	GLfloat xbound = 0;
 	GLfloat ybound = 0;
+
+	bool centerText = true;
+
+	vec2 bound = calculateBound(text, font);
 
 	if (textShader->shaderID != Shader::activeShader) {
 		textShader->useShader();
 	}
 
-	textShader->setModelMatrix(modelMatrix);
+	textShader->setModelMatrix(transform);
 
 	glUniform3f(colorLocation, color.x, color.y, color.z);
 	glActiveTexture(GL_TEXTURE0);
@@ -56,12 +53,17 @@ RenderCommandBuffer Text::createCommandBuffer() {
 
 	// Iterate through all characters and calculate globalBound
 	std::string::const_iterator c;
-	for (c = textString.begin(); c != textString.end(); c++) {
+	for (c = text.begin(); c != text.end(); c++) {
 
 		Glyph ch = font->glyphs[*c];
 
 		GLfloat xpos = xPosition + ch.Bearing.x * xScale;
 		GLfloat ypos = yPosition - (ch.Size.y - ch.Bearing.y) * yScale;
+
+		if (centerText) {
+			xpos -= bound.x/2;
+			ypos -= bound.y/2;
+		}
 
 		GLfloat w = ch.Size.x * xScale;
 		GLfloat h = ch.Size.y * yScale;
@@ -78,10 +80,14 @@ RenderCommandBuffer Text::createCommandBuffer() {
 				{xpos + w, ypos + h, 1.0, 0.0}
 		};
 
+		// Render glyph texture over quad
+		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+
 		// Update content of VBO memory
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 		// Render quad
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -90,28 +96,24 @@ RenderCommandBuffer Text::createCommandBuffer() {
 		xbound += (ch.Advance / 64) * xScale;
 	}
 
-	globalBound.x = xbound;
-	globalBound.y = ybound;
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-glm::mat4 Text::getOrthogonalModelMatrix(float left, float right, float bottom, float top, float zNear, float zFar) {
-	// https://stackoverflow.com/questions/12230312/is-glmortho-actually-wrong
+vec2 TextRenderer::calculateBound(std::string text, Font* font) {
+	vec2 bound = vec2(0,0);
+	vec2 scale = vec2(1,1);
 
-	glm::mat4 result = glm::mat4(1.0f);
-	result[0][0] = 2 / (right - left);
-	result[1][1] = 2 / (top - bottom);
-	result[2][2] = -2 / (zFar - zNear);
-	result[3][0] = -(right + left) / (right - left);
-	result[3][1] = -(top + bottom) / (top - bottom);
-	result[3][2] = -(zFar + zNear) / (zFar - zNear);
-	return result;
+	// Iterate through all characters and calculate globalBound
+	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++) {
+		Glyph ch = font->glyphs[*c];
 
-}
+		GLfloat h = ch.Size.y * scale.y;
 
-void Text::setViewPort(int viewportWidth, int viewportHeight) {
-	this->viewportWidth = viewportWidth;
-	this->viewportHeight = viewportHeight;
-	modelMatrix = getOrthogonalModelMatrix(0.0f, (float) viewportWidth, 0.0f, (float) viewportHeight, -1.0f, 1.0f);
+		bound.y = std::max(bound.y, h);
+		bound.x += (ch.Advance / 64) * scale.x;
+	}
+
+	return bound;
 }

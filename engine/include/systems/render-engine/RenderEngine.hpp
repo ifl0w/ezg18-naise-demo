@@ -28,7 +28,9 @@
 #include "shadow-map/ShadowMap.hpp"
 #include "shadow-map/ShadowShader.hpp"
 #include "shaders/GlowShader.hpp"
-//#include "../text/Text.h"
+
+#include "text/TextRenderer.hpp"
+#include "text/Glyph.hpp"
 
 #include <variant>
 
@@ -63,6 +65,22 @@ struct DrawMesh {
   mat4 transform;
 };
 
+struct DrawText {
+  Font* font;
+  std::string text;
+  mat4 transform;
+};
+
+enum RenderProperty {
+  DEPTH_TEST,
+  BACKFACE_CULLING
+};
+
+struct SetRenderProperty {
+  RenderProperty property;
+  bool state;
+};
+
 struct SetRenderTarget {
   using RenderTargetID = type_index;
   RenderTargetID renderTargetID;
@@ -94,8 +112,10 @@ using RenderCommand = std::variant<
 		DrawMesh,
 		SetRenderTarget,
 		SetViewProjectionData,
+		SetRenderProperty,
 		DrawInstanced,
-		DrawInstancedSSBO
+		DrawInstancedSSBO,
+		DrawText
 >;
 
 using RenderCommandBuffer = vector<RenderCommand>;
@@ -130,10 +150,12 @@ public:
 	void executeCommand(DrawMesh& command);
 	void executeCommand(DrawInstanced& command);
 	void executeCommand(DrawInstancedSSBO& command);
+	void executeCommand(DrawText& command);
 	void executeCommand(SetRenderTarget& command);
 	void executeCommand(SetShader& command);
 	void executeCommand(DrawMeshDirect& command);
 	void executeCommand(SetViewProjectionData& command);
+	void executeCommand(SetRenderProperty& command);
 
 	uint8_t debugFlags = 0;
 	uint32_t drawCallCount = 0;
@@ -187,7 +209,7 @@ private:
 //	void textPass(const std::shared_ptr<Scene>& scene);
 //	void skyboxPass(const std::shared_ptr<Scene>& scene);
 
-//	std::shared_ptr<Text> text;
+	TextRenderer textRenderer;
 
 	void activateRenderState();
 	void deactivateRenderState();

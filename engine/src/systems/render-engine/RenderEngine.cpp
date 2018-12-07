@@ -673,9 +673,13 @@ void RenderEngine::executeCommandBuffer(RenderCommandBuffer commandBuffer) {
 			  executeCommand(arg);
 		  else if constexpr (std::is_same_v<T, DrawMeshDirect>)
 			  executeCommand(arg);
+		  else if constexpr (std::is_same_v<T, DrawText>)
+			  executeCommand(arg);
 		  else if constexpr (std::is_same_v<T, SetShader>)
 			  executeCommand(arg);
 		  else if constexpr (std::is_same_v<T, SetViewProjectionData>)
+			  executeCommand(arg);
+		  else if constexpr (std::is_same_v<T, SetRenderProperty>)
 			  executeCommand(arg);
 		  else
 			  NAISE_DEBUG_CONSOL("Render command not handled! ({})", typeid(arg).name())
@@ -729,3 +733,36 @@ void RenderEngine::executeCommand(DrawMeshDirect& command) {
 void RenderEngine::executeCommand(SetViewProjectionData& command) {
 	setProjectionData(command.projectionMatrix, command.viewMatrix, command.cameraPosition);
 }
+
+void RenderEngine::executeCommand(DrawText& command) {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	textRenderer.render(command.text, command.font, vec3(1,1,1), command.transform);
+	glDisable(GL_BLEND);
+}
+
+void RenderEngine::executeCommand(SetRenderProperty& command) {
+	switch (command.property) {
+	case RenderProperty::BACKFACE_CULLING:
+	{
+		if (command.state) {
+			glEnable(GL_CULL_FACE);
+		} else {
+			glDisable(GL_CULL_FACE);
+		}
+
+		break;
+	}
+	case RenderProperty::DEPTH_TEST: {
+		if (command.state) {
+			glEnable(GL_DEPTH_TEST);
+		} else {
+			glDisable(GL_DEPTH_TEST);
+		}
+		break;
+	}
+	default:
+		break;
+	}
+}
+
