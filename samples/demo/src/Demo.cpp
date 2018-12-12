@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
 	sun->add<TransformComponent>();
 	sun->add(LightFactory::createLight<DirectionalLight>());
 	sun->component<LightComponent>().light->data.direction = vec4(-1, -2, -1, 1);
-	sun->component<LightComponent>().light->data.ambient = vec4(1);
+	sun->component<LightComponent>().light->data.ambient = vec4(0.25);
 
 	SceneLoaderAdapter loaderAdapter;
 	auto hangar = GLTFLoader::loadModel(&loaderAdapter, "resources/models/main-scene/main-scene.gltf");
@@ -129,6 +129,15 @@ int main(int argc, char **argv) {
 			anim.loopBehaviour = LOOP;
 		}
 	}
+
+	// load city
+//	auto city = GLTFLoader::loadModel(&loaderAdapter, "resources/models/main-scene/city-scene.gltf");
+//	for (auto& entity: city) {
+//		if(auto transComp = entity->get<TransformComponent>()) {
+//			transComp->position = transComp->position - vec3(0,50,0);
+//		}
+//	}
+//	Engine::getEntityManager().addEntities(city);
 
 	auto platformParticles = make_shared<NAISE::Engine::Entity>();
 	platformParticles->add<TransformComponent>();
