@@ -151,7 +151,7 @@ std::shared_ptr<Texture> Resources::loadSkyboxTexture(const std::string& identif
 	return Resources::textures[key];
 }
 
-std::shared_ptr<Texture> Resources::loadTexture(const tinygltf::Texture& texture, const tinygltf::Model& model) {
+std::shared_ptr<Texture> Resources::loadTexture(const tinygltf::Texture& texture, const tinygltf::Model& model, bool sRGB) {
 	auto gltfImage = model.images[texture.source];
 
 	const auto& key = gltfImage.uri;
@@ -161,7 +161,7 @@ std::shared_ptr<Texture> Resources::loadTexture(const tinygltf::Texture& texture
 		return it->second;
 	}
 
-	Resources::textures[key] = std::make_shared<GLTFTexture>(gltfImage);
+	Resources::textures[key] = std::make_shared<GLTFTexture>(gltfImage, sRGB);
 	return Resources::textures[key];
 }
 

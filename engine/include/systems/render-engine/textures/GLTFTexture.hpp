@@ -13,7 +13,7 @@ namespace RenderCore {
 class GLTFTexture:
 		public Texture {
 public:
-	GLTFTexture(const tinygltf::Image& image);
+	GLTFTexture(const tinygltf::Image& image, bool sRGB = false);
 
 };
 

@@ -142,6 +142,9 @@ void RenderEngine::prepareLightPass() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
 
+	// enable gamma correction
+	glEnable(GL_FRAMEBUFFER_SRGB);
+
 	glBlendFunc(GL_ONE, GL_ONE);
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
@@ -175,6 +178,9 @@ void RenderEngine::activateRenderState() {
 void RenderEngine::deactivateRenderState() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDisable(GL_CULL_FACE);
+
+	// disable gamma correction
+	glDisable(GL_FRAMEBUFFER_SRGB);
 }
 
 void RenderEngine::setScreenData() {

@@ -91,7 +91,7 @@ PBRMaterial::PBRMaterial(const tinygltf::Material& material, const tinygltf::Mod
 
 		auto texID = gltfTexture.TextureIndex();
 		if (texID >= 0) {
-			albedoTexture = Resources::loadTexture(model.textures[texID], model);
+			albedoTexture = Resources::loadTexture(model.textures[texID], model, true);
 		}
 	} catch (std::out_of_range& e) {
 		// swollow
@@ -140,7 +140,7 @@ PBRMaterial::PBRMaterial(const tinygltf::Material& material, const tinygltf::Mod
 
 		auto texID = gltfTexture.TextureIndex();
 		if (texID >= 0) {
-			emissionTexture = Resources::loadTexture(model.textures[texID], model);
+			emissionTexture = Resources::loadTexture(model.textures[texID], model, true);
 		}
 	} catch (std::out_of_range& e) {
 		// swollow

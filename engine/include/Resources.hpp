@@ -95,7 +95,7 @@ public:
 	 * @param path
 	 * @return
 	 */
-	static std::shared_ptr<Texture> loadTexture(const tinygltf::Texture& texture, const tinygltf::Model& model);
+	static std::shared_ptr<Texture> loadTexture(const tinygltf::Texture& texture, const tinygltf::Model& model, bool sRGB = false);
 
 	/**
 	 * Load a texture and store it under the given identifier.
