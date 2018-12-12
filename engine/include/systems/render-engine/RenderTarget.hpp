@@ -14,7 +14,6 @@ public:
 
 	virtual void use() = 0;
 
-protected:
 	GLuint fbo;
 };
 

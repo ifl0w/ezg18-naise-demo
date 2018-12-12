@@ -34,6 +34,9 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	}
 
 	postProcessingTarget = make_unique<PostProcessingTarget>(glowTextureWidth, glowTextureHeight, multiSampling);
+	// TODO: update on resize
+	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 
 	shadowMap = make_unique<ShadowMap>(1024 * 4, 1024 * 4);
 
@@ -133,17 +136,15 @@ void RenderEngine::geometryPass(const Mesh& mesh, const Material* material, mat4
 //}
 
 void RenderEngine::prepareLightPass() {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	lightTarget->use();
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	deferredTarget->retrieveDepthBuffer();
+	deferredTarget->retrieveDepthBuffer(lightTarget.get());
 
 	// do not write to the depth buffer
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_FALSE);
-
-	// enable gamma correction
-	glEnable(GL_FRAMEBUFFER_SRGB);
 
 	glBlendFunc(GL_ONE, GL_ONE);
 	glEnable(GL_BLEND);
@@ -178,9 +179,6 @@ void RenderEngine::activateRenderState() {
 void RenderEngine::deactivateRenderState() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDisable(GL_CULL_FACE);
-
-	// disable gamma correction
-	glDisable(GL_FRAMEBUFFER_SRGB);
 }
 
 void RenderEngine::setScreenData() {
@@ -468,7 +466,8 @@ void RenderEngine::glowPass() {
 	GLenum attachmentpoints[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
 
 	//first blur step (horizontal)
-	//reading from gEmissionMetallic and writing to ping (GL_COLOR_ATTACHMENT0)
+	//reading from gEmissionMetallic and writing to input (GL_COLOR_ATTACHMENT0)
+	glDrawBuffer(attachmentpoints[0]);
 	glowShader.useShader();
 	glowShader.setHorizontalUnit(true);
 	glowShader.setTextureUnit(deferredTarget->gEmissionMetallic);
@@ -476,37 +475,37 @@ void RenderEngine::glowPass() {
 	drawMeshDirect(quad);
 
 	//second blur step (vertical)
-	//reading from ping and writing to pong (GL_COLOR_ATTACHMENT1)
+	//reading from input and writing to output (GL_COLOR_ATTACHMENT1)
 	glDrawBuffer(attachmentpoints[1]);
 	glowShader.useShader();
 	glowShader.setHorizontalUnit(false);
-	glowShader.setTextureUnit(postProcessingTarget->ping);
+	glowShader.setTextureUnit(postProcessingTarget->input);
 	glowShader.setModelMatrix(mat4(1.0));
 	drawMeshDirect(quad);
 
 	//second blur step (vertical)
-	//reading from ping and writing to pong (GL_COLOR_ATTACHMENT1)
+	//reading from input and writing to output (GL_COLOR_ATTACHMENT1)
 	glDrawBuffer(attachmentpoints[0]);
 	glowShader.useShader();
 	glowShader.setHorizontalUnit(true);
-	glowShader.setTextureUnit(postProcessingTarget->pong);
+	glowShader.setTextureUnit(postProcessingTarget->output);
 	glowShader.setModelMatrix(mat4(1.0));
 	drawMeshDirect(quad);
 
 	//second blur step (vertical)
-	//reading from ping and writing to pong (GL_COLOR_ATTACHMENT1)
+	//reading from input and writing to output (GL_COLOR_ATTACHMENT1)
 	glDrawBuffer(attachmentpoints[1]);
 	glowShader.useShader();
 	glowShader.setHorizontalUnit(false);
-	glowShader.setTextureUnit(postProcessingTarget->ping);
+	glowShader.setTextureUnit(postProcessingTarget->input);
 	glowShader.setModelMatrix(mat4(1.0));
 	drawMeshDirect(quad);
 
-	//bind ping
+	//bind input
 	glDrawBuffer(attachmentpoints[0]);
 
 	/** DRAW STEP **/
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	lightTarget->use();
 	glBlendFunc(GL_ONE, GL_ONE);
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
@@ -517,7 +516,7 @@ void RenderEngine::glowPass() {
 	setScreenData();
 	glViewport(0, 0, viewportWidth, viewportHeight);
 	textureDebugShader.useShader();
-	textureDebugShader.setTextureUnit(postProcessingTarget->pong);
+	textureDebugShader.setTextureUnit(postProcessingTarget->output);
 	textureDebugShader.setModelMatrix(mat4(1));
 	drawMeshDirect(quad);
 
@@ -636,6 +635,38 @@ void RenderEngine::drawDebugMesh(const Mesh& mesh, glm::vec3 color) {
 	glDrawElements(GL_LINES, static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
 
 }
+
+void RenderEngine::hdrPass() {
+	hdrTarget->use();
+
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	hdrShader.useShader();
+	glUniform1i(glGetUniformLocation(hdrShader.shaderID, "imageInput"), 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, deferredTarget->gAlbedoRoughness);
+	hdrShader.setModelMatrix(mat4(1.0));
+	drawMeshDirect(quad);
+}
+
+void RenderEngine::resolveFrameBufferObject() {
+	auto lastFrameBuffer = hdrTarget.get();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	// enable gamma correction
+	glEnable(GL_FRAMEBUFFER_SRGB);
+
+	textureDebugShader.useShader();
+	textureDebugShader.setTextureUnit(lightTarget->output);
+	textureDebugShader.setModelMatrix(mat4(1));
+	drawMeshDirect(quad);
+
+	// disable gamma correction
+	glDisable(GL_FRAMEBUFFER_SRGB);
+}
+
 
 void RenderEngine::skyboxPass() {
 	if(_skybox != nullptr){
@@ -771,4 +802,3 @@ void RenderEngine::executeCommand(SetRenderProperty& command) {
 		break;
 	}
 }
-

@@ -15,8 +15,9 @@ public:
 
 	void use() override;
 
-	GLuint ping;
-	GLuint pong;
+	GLuint input;
+	GLuint output;
+	GLuint depth_rbo;
 
 	const int width;
 	const int height;

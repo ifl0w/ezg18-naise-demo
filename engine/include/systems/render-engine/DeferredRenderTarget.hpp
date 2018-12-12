@@ -19,7 +19,7 @@ public:
 	void setTextureUnits(const LightShader& lightShader);
 //	void setTextureUnits(const std::unique_ptr<DirectionalLightShader>& lightShader);
 
-	void retrieveDepthBuffer();
+	void retrieveDepthBuffer(RenderTarget* target);
 
 	GLuint gEmissionMetallic;
 	GLuint gPosition;

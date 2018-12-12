@@ -36,7 +36,7 @@ DeferredRenderTarget::DeferredRenderTarget(int width, int height, int samples)
 
 	glGenTextures(1, &gAlbedoRoughness);
 	glBindTexture(GL_TEXTURE_2D, gAlbedoRoughness);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoRoughness, 0);
@@ -98,9 +98,9 @@ void DeferredRenderTarget::setTextureUnits(const LightShader& lightShader) {
 	glBindTexture(GL_TEXTURE_2D, gEmissionMetallic);
 }
 
-void DeferredRenderTarget::retrieveDepthBuffer() {
+void DeferredRenderTarget::retrieveDepthBuffer(RenderTarget* target) {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target->fbo); // write to default framebuffer
 	glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

@@ -145,6 +145,8 @@ public:
 	void toggleLightVolumeDebugging();
 
 	void skyboxPass();
+	void hdrPass();
+	void resolveFrameBufferObject();
 
 	void executeCommandBuffer(RenderCommandBuffer commandBuffer);
 	void executeCommand(DrawMesh& command);
@@ -162,6 +164,9 @@ public:
 private:
 	std::unique_ptr<DeferredRenderTarget> deferredTarget;
 	std::unique_ptr<PostProcessingTarget> postProcessingTarget;
+	std::unique_ptr<PostProcessingTarget> combineTarget;
+	std::unique_ptr<PostProcessingTarget> lightTarget;
+	std::unique_ptr<PostProcessingTarget> hdrTarget;
 
 	std::unique_ptr<ShadowMap> shadowMap;
 	ShadowShader shadowShader;
@@ -171,6 +176,7 @@ private:
 	TextureDebugShader textureDebugShader;
 	SolidColorShader solidColorShader; // used for debugging
 	GlowShader glowShader;
+	Shader hdrShader = Shader("engine/resources/shaders/post-processing/quad.vert", "engine/resources/shaders/post-processing/hdr.frag");
 
 	Sphere sphereLightVolume = Sphere(1.0f, 16, 8);
 

@@ -185,6 +185,9 @@ void RenderSystem::process(microseconds deltaTime) {
 	//SKYBOX
 	_renderEngine->skyboxPass();
 
+	// HDR
+	_renderEngine->hdrPass();
+
 	//GLOW
 	_renderEngine->glowPass();
 
@@ -195,6 +198,8 @@ void RenderSystem::process(microseconds deltaTime) {
 		_renderEngine->drawDebugMesh(p.mesh, p.color);
 	}
 //		_renderEngine->deactivateRenderState();
+
+	_renderEngine->resolveFrameBufferObject();
 }
 
 bool RenderSystem::cullEntity(Entity& camera, Entity& entity) {

@@ -25,11 +25,11 @@ SkyboxTexture::SkyboxTexture(std::vector<NAISE::RenderCore::SkyboxImageData> dat
 
 	for (unsigned int i = 0; i < data.size(); i++) {
 		if (data[i].nrChannels == 3) {
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, data[i].width, data[i].height, 0, GL_RGB,
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_SRGB, data[i].width, data[i].height, 0, GL_RGB,
 						 GL_UNSIGNED_BYTE, data[i].data);
 
 		} else if (data[i].nrChannels == 4) {
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, data[i].width, data[i].height, 0, GL_RGB,
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_SRGB_ALPHA, data[i].width, data[i].height, 0, GL_RGB,
 						 GL_UNSIGNED_BYTE, data[i].data);
 		} else if (data[i].nrChannels == 0) {
 			//ignore
