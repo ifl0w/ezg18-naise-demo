@@ -95,7 +95,7 @@ float calculateShadowFactor(vec3 pos, vec3 normal, vec3 lightDir) {
 
 vec3 fresnelSchlick(float cosTheta, vec3 f0)
 {
-    return f0 + (1.0 - f0) * pow(1.0 - cosTheta, 5.0);
+    return f0 + (1.0 - f0) * pow(max(1.0 - cosTheta, 0), 5.0);
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
@@ -109,7 +109,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
     float denom = (NdotH2 * (a2 - 1.0) + 1.0);
     denom = PI * denom * denom;
 
-    return num / denom;
+    return num / max(denom, 0.0001);
 }
 
 float DistributionBeckmann(vec3 N, vec3 H, float roughness)
