@@ -185,11 +185,11 @@ void RenderSystem::process(microseconds deltaTime) {
 	//SKYBOX
 	_renderEngine->skyboxPass();
 
-	// HDR
-	_renderEngine->hdrPass();
-
 	//GLOW
 	_renderEngine->glowPass();
+
+	// HDR
+	_renderEngine->hdrPass();
 
 	auto& debugDrawEntities = Engine::getEntityManager().getEntities<DebugDrawSignature>();
 //		_renderEngine->activateRenderState();

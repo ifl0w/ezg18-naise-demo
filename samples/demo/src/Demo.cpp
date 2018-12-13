@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
 	sun->add<TransformComponent>();
 	sun->add(LightFactory::createLight<DirectionalLight>());
 	sun->component<LightComponent>().light->data.direction = vec4(-1, -2, -1, 1);
-	sun->component<LightComponent>().light->data.ambient = vec4(0.25);
+	sun->component<LightComponent>().light->data.ambient = vec4(0.1);
 
 	SceneLoaderAdapter loaderAdapter;
 	auto hangar = GLTFLoader::loadModel(&loaderAdapter, "resources/models/main-scene/main-scene.gltf");

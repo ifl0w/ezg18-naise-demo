@@ -638,13 +638,21 @@ void RenderEngine::drawDebugMesh(const Mesh& mesh, glm::vec3 color) {
 
 void RenderEngine::hdrPass() {
 	hdrTarget->use();
-
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	hdrShader.useShader();
+
+	glActiveTexture(GL_TEXTURE0 + 0);
+	glBindTexture(GL_TEXTURE_2D, lightTarget->output);
+
+	auto mipmapCount = (int)(log(glm::max(hdrTarget->width, hdrTarget->height))/log(2));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmapCount);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+
 	glUniform1i(glGetUniformLocation(hdrShader.shaderID, "imageInput"), 0);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, deferredTarget->gAlbedoRoughness);
+	glUniform1i(glGetUniformLocation(hdrShader.shaderID, "mipmapCount"), mipmapCount);
+
 	hdrShader.setModelMatrix(mat4(1.0));
 	drawMeshDirect(quad);
 }
@@ -659,7 +667,7 @@ void RenderEngine::resolveFrameBufferObject() {
 	glEnable(GL_FRAMEBUFFER_SRGB);
 
 	textureDebugShader.useShader();
-	textureDebugShader.setTextureUnit(lightTarget->output);
+	textureDebugShader.setTextureUnit(lastFrameBuffer->output);
 	textureDebugShader.setModelMatrix(mat4(1));
 	drawMeshDirect(quad);
 
