@@ -645,10 +645,9 @@ void RenderEngine::hdrPass() {
 	glActiveTexture(GL_TEXTURE0 + 0);
 	glBindTexture(GL_TEXTURE_2D, lightTarget->output);
 
-	auto mipmapCount = (int)(log(glm::max(hdrTarget->width, hdrTarget->height))/log(2));
+	auto mipmapCount = (int)(log(glm::max(lightTarget->width, lightTarget->height))/log(2));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmapCount);
 	glGenerateMipmap(GL_TEXTURE_2D);
-
 
 	glUniform1i(glGetUniformLocation(hdrShader.shaderID, "imageInput"), 0);
 	glUniform1i(glGetUniformLocation(hdrShader.shaderID, "mipmapCount"), mipmapCount);

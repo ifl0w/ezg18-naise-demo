@@ -24,14 +24,19 @@ void main() {
 	int level = 0;
     ivec2 s = textureSize(imageInput, level);
     vec3 color = texelFetch(imageInput, ivec2(gl_FragCoord.xy/resolution * s) , level).rgb;
+    vec3 avgCol = texelFetch(imageInput, ivec2(0,0), mipmapCount).rgb;
 
-    // simple hdr from learnopengl.com
-    // TODO: has to be replaced
-    vec3 hdrColor = color;
-    float exposure = 2;
-    // Exposure tone mapping
-    vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);
-    // Gamma correction
 
-    fragColor = vec4(mapped, 1);
+    float key = 1;
+
+    float l_av = (avgCol.r + avgCol.g + avgCol.b) / 3;
+    float l_col = (color.r + color.g + color.b) / 3;
+
+    float l_scaled = key * l_col / l_av;
+
+    vec3 scaledColor = color * l_scaled;
+
+    vec3 hdrColor = (scaledColor / (scaledColor + 1));
+
+    fragColor = vec4(hdrColor, 1);
 }
