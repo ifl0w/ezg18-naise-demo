@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glbinding/gl/gl.h>
+#include <glm/glm.hpp>
 
 using namespace gl;
 
@@ -23,6 +24,12 @@ namespace TextureTarget { constexpr GLenum TARGET = GL_TEXTURE_2D; }
 class Texture {
 public:
 	Texture();
+	~Texture();
+
+	explicit Texture(glm::ivec2 size,
+			GLenum internalFormat = GL_RGBA16F,
+			GLenum format = GL_RGBA,
+			GLenum type = GL_FLOAT);
 
 	GLuint textureID = 0;
 

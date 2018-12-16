@@ -4,8 +4,6 @@
 using namespace NAISE::RenderCore;
 
 GLTFTexture::GLTFTexture(const tinygltf::Image& image, bool sRGB) {
-	glGenTextures(1, &textureID);
-
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
