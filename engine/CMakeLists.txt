@@ -176,9 +176,8 @@ add_custom_target(
 ### FreeType2 ###
 if(MSVC)
     # use windows binaries in MSVC
-    # TODO
-    #include_directories(external/freetype-windows-binaries/include)
-    #set(FREETYPE_LIBRARIES ${PROJECT_SOURCE_DIR}/external/freetype-windows-binaries/win64/freetype.lib)
+    include_directories(external/windows-binaries/freetype2/include)
+    set(FREETYPE_LIBRARIES ${PROJECT_SOURCE_DIR}/external/windows-binaries/freetype2/win64/freetype.lib)
 else(MSVC)
     find_package(Freetype REQUIRED)
     include_directories(${FREETYPE_INCLUDE_DIRS})

@@ -22,3 +22,6 @@
 [submodule "nlohmann_json"]
 	path = engine/external/nlohmann_json
 	url = git@github.com:nlohmann/json.git
+[submodule "windows-binaries-freetype2"]
+	path = engine/external/windows-binaries/freetype2
+	url = git@github.com:ubawurinna/freetype-windows-binaries.git
