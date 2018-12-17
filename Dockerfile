@@ -22,4 +22,4 @@ RUN sudo -u yaourt yaourt -S --noconfirm sdl2 mingw-w64-sdl2
 RUN sudo -u yaourt yaourt -S --noconfirm bullet mingw-w64-bullet
 
 # Bullet Physics Engine
-RUN sudo -u yaourt yaourt -S --noconfirm freetype2 mingw-w64-freetype2
+RUN sudo -u yaourt yaourt -S --noconfirm freetype2 mingw-w64-freetype2-bootstrap mingw-w64-freetype2
