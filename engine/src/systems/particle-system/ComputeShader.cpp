@@ -22,3 +22,7 @@ void ComputeShader::useShader()const {
 void ComputeShader::compute(uint64_t groups) const {
 	glDispatchCompute(groups, 1, 1);
 }
+
+void ComputeShader::compute(glm::ivec3 groups) const {
+	glDispatchCompute(groups.x, groups.y, groups.z);
+}

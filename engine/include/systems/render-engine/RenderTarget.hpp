@@ -14,6 +14,8 @@ public:
 
 	virtual void use() = 0;
 
+//	void attachTexture(shared_ptr<Texture>& texture) {};
+
 	GLuint fbo;
 };
 

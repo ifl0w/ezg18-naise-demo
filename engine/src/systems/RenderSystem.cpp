@@ -189,7 +189,8 @@ void RenderSystem::process(microseconds deltaTime) {
 	_renderEngine->glowPass();
 
 	// HDR
-	_renderEngine->hdrPass();
+	std::chrono::duration<float> sec = deltaTime;
+	_renderEngine->hdrPass(sec.count());
 
 	auto& debugDrawEntities = Engine::getEntityManager().getEntities<DebugDrawSignature>();
 //		_renderEngine->activateRenderState();

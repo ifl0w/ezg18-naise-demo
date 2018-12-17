@@ -37,6 +37,8 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	// TODO: update on resize
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
+	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 
 	shadowMap = make_unique<ShadowMap>(1024 * 4, 1024 * 4);
 
@@ -408,6 +410,8 @@ void RenderEngine::activateShadowPass(const Entity& light, const Entity& camera)
 	setShadowProjectionData(l.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(45))), l.getShadowMatrix(),
 							t.position);
 
+	glEnable(GL_DEPTH_TEST);
+
 	// disable back face culling
 	glDisable(GL_CULL_FACE);
 	glViewport(0, 0, shadowMap->width, shadowMap->height);
@@ -636,7 +640,37 @@ void RenderEngine::drawDebugMesh(const Mesh& mesh, glm::vec3 color) {
 
 }
 
-void RenderEngine::hdrPass() {
+void RenderEngine::hdrPass(float deltaTime) {
+	glDepthMask(GL_FALSE);
+
+	auto mipmapCount = (int)(log(glm::max(lightTarget->width, lightTarget->height))/log(2));
+
+	// generate luminance image
+	luminanceCompute.useShader();
+
+	glBindImageTexture(0, lightTarget->output, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, luminanceTexture->textureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA16F);
+
+	auto groups = ivec3((viewportWidth / 16) + 1,  (viewportHeight / 16) + 1, 1);
+	luminanceCompute.compute(groups);
+
+	// reduce luminance image
+//	luminanceReductionCompute.useShader();
+//
+//	glBindImageTexture(0, luminanceTexture->textureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA16F);
+//	for (int i = 0; i <= mipmapCount; ++i) {
+//		int iteration = i;
+//
+//		glUniform1i(glGetUniformLocation(luminanceReductionCompute.shaderID, "iteration"), iteration);
+//
+//		groups = ivec3((viewportWidth / (16 * (iteration + 1))) + 1,  (viewportHeight / (16 * (iteration + 1))) + 1, 1);
+//		luminanceCompute.compute(groups);
+//	}
+
+	glBindTexture(GL_TEXTURE_2D, luminanceTexture->textureID);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmapCount);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
 	hdrTarget->use();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -645,21 +679,25 @@ void RenderEngine::hdrPass() {
 	glActiveTexture(GL_TEXTURE0 + 0);
 	glBindTexture(GL_TEXTURE_2D, lightTarget->output);
 
-	auto mipmapCount = (int)(log(glm::max(lightTarget->width, lightTarget->height))/log(2));
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmapCount);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindImageTexture(0, luminanceTexture->textureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA16F);
+	glBindImageTexture(1, luminanceTexture->textureID, mipmapCount - 1, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
 
+	glUniform1f(glGetUniformLocation(hdrShader.shaderID, "deltaTime"), deltaTime);
 	glUniform1i(glGetUniformLocation(hdrShader.shaderID, "imageInput"), 0);
 	glUniform1i(glGetUniformLocation(hdrShader.shaderID, "mipmapCount"), mipmapCount);
 
 	hdrShader.setModelMatrix(mat4(1.0));
 	drawMeshDirect(quad);
+
+	glDepthMask(GL_TRUE);
 }
 
 void RenderEngine::resolveFrameBufferObject() {
 	auto lastFrameBuffer = hdrTarget.get();
 
+	deferredTarget->retrieveDepthBuffer((GLuint) 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDepthMask(GL_FALSE);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// enable gamma correction
@@ -670,6 +708,7 @@ void RenderEngine::resolveFrameBufferObject() {
 	textureDebugShader.setModelMatrix(mat4(1));
 	drawMeshDirect(quad);
 
+	glDepthMask(true);
 	// disable gamma correction
 	glDisable(GL_FRAMEBUFFER_SRGB);
 }

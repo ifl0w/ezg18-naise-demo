@@ -33,6 +33,7 @@
 #include "text/Glyph.hpp"
 
 #include <variant>
+#include <systems/particle-system/ComputeShader.hpp>
 
 #define BIT(x) (1<<(x))
 
@@ -145,7 +146,7 @@ public:
 	void toggleLightVolumeDebugging();
 
 	void skyboxPass();
-	void hdrPass();
+	void hdrPass(float deltaTime);
 	void resolveFrameBufferObject();
 
 	void executeCommandBuffer(RenderCommandBuffer commandBuffer);
@@ -166,7 +167,12 @@ private:
 	std::unique_ptr<PostProcessingTarget> postProcessingTarget;
 	std::unique_ptr<PostProcessingTarget> combineTarget;
 	std::unique_ptr<PostProcessingTarget> lightTarget;
+
 	std::unique_ptr<PostProcessingTarget> hdrTarget;
+	ComputeShader luminanceReductionCompute = ComputeShader("engine/resources/shaders/post-processing/luminance_reduction.glsl");
+	ComputeShader luminanceCompute = ComputeShader("engine/resources/shaders/post-processing/luminance.glsl");
+	std::unique_ptr<Texture> luminanceTexture;
+	std::unique_ptr<Texture> luminanceTexture2;
 
 	std::unique_ptr<ShadowMap> shadowMap;
 	ShadowShader shadowShader;
