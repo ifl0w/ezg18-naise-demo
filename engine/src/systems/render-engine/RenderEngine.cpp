@@ -817,7 +817,7 @@ void RenderEngine::executeCommand(SetViewProjectionData& command) {
 	setProjectionData(command.projectionMatrix, command.viewMatrix, command.cameraPosition);
 }
 
-void RenderEngine::executeCommand(DrawText& command) {
+void RenderEngine::executeCommand(NAISE::Engine::DrawText& command) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	textRenderer.render(command.text, command.font, vec3(1,1,1), command.transform);
