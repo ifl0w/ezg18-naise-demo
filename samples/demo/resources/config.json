@@ -3,5 +3,11 @@
     "width": 1024,
     "height": 768,
     "fullscreen": false
-  }
+  },
+  "scenes": [
+    {
+      "name": "hangar",
+      "path": "resources/models/main-scene/main-scene.gltf"
+    }
+  ]
 }
