@@ -426,19 +426,6 @@ void RenderEngine::deactivateShadowPass() {
 void RenderEngine::shadowPass( const vector<Entity*> entities) {
 	for (auto const& e: entities) {
 
-		// TODO fix shadow frustum culling
-//		if (e->has<AABBComponent>()) {
-//			auto& entityAABB = e->component<AABBComponent>().aabb;
-//			auto aabb = AABB(c.frustum.getBoundingVolume(20));
-//			auto f = Frustum(aabb, glm::inverse(l.getShadowMatrix()), 500);
-//
-//			if (!f.intersect(entityAABB)) {
-//				continue;
-//			} else {
-//				continue;
-//			}
-//		}
-
 		auto& mesh = *e->component<MeshComponent>().mesh.get();
 
 		Material* material = nullptr;
@@ -627,6 +614,7 @@ void RenderEngine::drawMesh(const Mesh& mesh, const Material* material, mat4 tra
 
 void RenderEngine::drawDebugMesh(const Mesh& mesh, glm::vec3 color) {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glDisable(GL_DEPTH_TEST);
 
 	if (solidColorShader.shaderID != Shader::activeShader) {
 		solidColorShader.useShader();
@@ -638,6 +626,8 @@ void RenderEngine::drawDebugMesh(const Mesh& mesh, glm::vec3 color) {
 	glBindVertexArray(mesh.vao);
 	glDrawElements(GL_LINES, static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
 
+	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void RenderEngine::hdrPass(float deltaTime) {

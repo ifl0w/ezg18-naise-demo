@@ -19,6 +19,7 @@ namespace RenderCore {
 class Mesh {
 public:
 	Mesh();
+	explicit Mesh(std::vector<vec3> vertices);
 	Mesh(const tinygltf::Mesh& mesh, const tinygltf::Model& model);
 	Mesh(const tinygltf::Primitive& primitive, const tinygltf::Model& model);
 	~Mesh();

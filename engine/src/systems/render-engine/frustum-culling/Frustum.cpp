@@ -10,6 +10,7 @@ Frustum::Frustum(double fovX, double fovY, double nearDistance, double farDistan
 
 	invViewMat = mat4(1);
 	planes = vector<pair<vec3, vec3>>(6);
+	frustumMesh = std::make_unique<Mesh>();
 
 	setCameraSettings(fovX, fovY, nearDistance, farDistance);
 }
@@ -27,7 +28,7 @@ void Frustum::setCameraSettings(double fovX, double fovY, double nearDistance, d
 	fh = farDistance * tan(fovY / 2);
 }
 
-vector<vec4> Frustum::getBoundingVolume(double maxDistance) const {
+vector<vec4> Frustum::getBoundingVolume(double maxDistance) {
 	double localFar = farDistance;
 	if (maxDistance < farDistance) {
 		localFar = maxDistance;
@@ -57,6 +58,9 @@ vector<vec4> Frustum::getBoundingVolume(double maxDistance) const {
 			invViewMat * vec4(-xf, -yf, -localFar, 1.0),
 			invViewMat * vec4(xf, -yf, -localFar, 1.0)
 	});
+
+	std::vector<vec3> points(result.begin(), result.end());
+	frustumMesh = std::make_unique<Mesh>(points);
 
 	return result;
 }
@@ -177,4 +181,11 @@ Frustum::Frustum(AABB aabb, mat4 invViewMatrix, float extend) {
 
 	planes[Planes::LEFT_PLANE] = pair(X, X * maxX);
 	planes[Planes::RIGHT_PLANE] = pair(-X, X * minX);
+
+//	std::vector<vec3> points({Z * (maxZ + extend), Z * minZ,  Y * maxY, Y * minY ,  X * maxX, X * minX});
+	std::vector<vec3> points({
+		vec3(minX, minY, minZ), vec3(maxX, minY, minZ), vec3(maxX, maxY, minZ), vec3(minX, maxY, minZ),
+		vec3(minX, minY, maxZ), vec3(maxX, minY, maxZ), vec3(maxX, maxY, maxZ), vec3(minX, maxY, maxZ)
+	});
+	frustumMesh = std::make_unique<Mesh>(points);
 }

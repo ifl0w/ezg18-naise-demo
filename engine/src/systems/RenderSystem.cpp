@@ -64,7 +64,20 @@ void RenderSystem::process(microseconds deltaTime) {
 		Mesh* mesh = entity->component<MeshComponent>().mesh.get();
 
 		// TODO: cull shadow meshes
-		shadowMeshInstances[mesh].push_back(entity->component<TransformComponent>().getModelMatrix());
+		if(auto lightComp = sun->get<LightComponent>()) {
+			// TODO fix shadow frustum culling
+//			if (entity->has<AABBComponent>()) {
+//				auto& entityAABB = entity->component<AABBComponent>().aabb;
+//				auto* camComp = camera->get<CameraComponent>();
+//				auto aabb = AABB(camComp->frustum.getBoundingVolume(20));
+//				auto f = Frustum(aabb, glm::inverse(lightComp->light->getShadowMatrix()), 500);
+//
+//				if (f.intersect(entityAABB)) {
+//					shadowMeshInstances[mesh].push_back(entity->component<TransformComponent>().getModelMatrix());
+//				}
+//			}
+
+		}
 
 		if (cullEntity(*camera, *entity)) {
 			continue;
@@ -86,7 +99,20 @@ void RenderSystem::process(microseconds deltaTime) {
 			Mesh* mesh = meshes[i].get();
 
 			// TODO: cull shadow meshes
-			shadowMeshInstances[mesh].push_back(entity->component<TransformComponent>().getModelMatrix());
+			if(auto lightComp = sun->get<LightComponent>()) {
+				// TODO fix shadow frustum culling
+//				if (entity->has<AABBComponent>()) {
+//					auto& entityAABB = entity->component<AABBComponent>().aabb;
+//					auto* camComp = camera->get<CameraComponent>();
+//					auto aabb = AABB(camComp->frustum.getBoundingVolume(20));
+//					auto f = Frustum(aabb, glm::inverse(lightComp->light->getShadowMatrix()), 500);
+//
+//					if (f.intersect(entityAABB)) {
+//						shadowMeshInstances[mesh].push_back(entity->component<TransformComponent>().getModelMatrix());
+//					}
+//				}
+
+			}
 
 			if (cullEntity(*camera, *entity)) {
 				continue;
@@ -197,6 +223,22 @@ void RenderSystem::process(microseconds deltaTime) {
 	for (auto& entity: debugDrawEntities) {
 		auto& p = entity->component<PhysicsDebugComponent>();
 		_renderEngine->drawDebugMesh(p.mesh, p.color);
+	}
+
+	for (auto& entity: cameraEntities) {
+		auto& c = entity->component<CameraComponent>();
+		if (c.active) {
+			continue;
+		}
+
+		auto& lc = sun->component<LightComponent>();
+		auto aabb = AABB(c.frustum.getBoundingVolume(20));
+		auto f = Frustum(aabb, (lc.light->getShadowMatrix()), 500);
+
+
+		_renderEngine->drawDebugMesh(Mesh(aabb.obb), vec3(0,1,1));
+		_renderEngine->drawDebugMesh(*f.frustumMesh.get(), vec3(1,0,1));
+		_renderEngine->drawDebugMesh(*c.frustum.frustumMesh.get(), vec3(1,1,0));
 	}
 //		_renderEngine->deactivateRenderState();
 

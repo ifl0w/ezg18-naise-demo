@@ -71,8 +71,8 @@ public:
 	 */
 	std::pair<glm::vec3, glm::vec3> values;
 
-protected:
 	std::vector<vec3> obb;
+protected:
 };
 
 }
