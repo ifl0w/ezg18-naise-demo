@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "Mesh.h"
+#include "Mesh.hpp"
 
 using namespace glm;
 

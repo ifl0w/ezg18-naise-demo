@@ -1,6 +1,7 @@
-#include "Box.hpp"
+#include <systems/render-engine/meshes/Box.hpp>
 
 using namespace glm;
+using namespace NAISE::RenderCore;
 
 Box::Box(float width, float height, float depth)
 		: width(width),

@@ -66,16 +66,16 @@ void RenderSystem::process(microseconds deltaTime) {
 		// TODO: cull shadow meshes
 		if(auto lightComp = sun->get<LightComponent>()) {
 			// TODO fix shadow frustum culling
-//			if (entity->has<AABBComponent>()) {
-//				auto& entityAABB = entity->component<AABBComponent>().aabb;
-//				auto* camComp = camera->get<CameraComponent>();
-//				auto aabb = AABB(camComp->frustum.getBoundingVolume(20));
-//				auto f = Frustum(aabb, glm::inverse(lightComp->light->getShadowMatrix()), 500);
-//
-//				if (f.intersect(entityAABB)) {
-//					shadowMeshInstances[mesh].push_back(entity->component<TransformComponent>().getModelMatrix());
-//				}
-//			}
+			if (entity->has<AABBComponent>()) {
+				auto& entityAABB = entity->component<AABBComponent>().aabb;
+				auto* camComp = camera->get<CameraComponent>();
+				auto aabb = AABB(camComp->frustum.getBoundingVolume(20));
+				auto f = Frustum(aabb, glm::inverse(lightComp->light->getShadowMatrix()), 500);
+
+				if (f.intersect(entityAABB)) {
+					shadowMeshInstances[mesh].push_back(entity->component<TransformComponent>().getModelMatrix());
+				}
+			}
 
 		}
 
@@ -101,16 +101,16 @@ void RenderSystem::process(microseconds deltaTime) {
 			// TODO: cull shadow meshes
 			if(auto lightComp = sun->get<LightComponent>()) {
 				// TODO fix shadow frustum culling
-//				if (entity->has<AABBComponent>()) {
-//					auto& entityAABB = entity->component<AABBComponent>().aabb;
-//					auto* camComp = camera->get<CameraComponent>();
-//					auto aabb = AABB(camComp->frustum.getBoundingVolume(20));
-//					auto f = Frustum(aabb, glm::inverse(lightComp->light->getShadowMatrix()), 500);
-//
-//					if (f.intersect(entityAABB)) {
-//						shadowMeshInstances[mesh].push_back(entity->component<TransformComponent>().getModelMatrix());
-//					}
-//				}
+				if (entity->has<AABBComponent>()) {
+					auto& entityAABB = entity->component<AABBComponent>().aabb;
+					auto* camComp = camera->get<CameraComponent>();
+					auto aabb = AABB(camComp->frustum.getBoundingVolume(20));
+					auto f = Frustum(aabb, glm::inverse(lightComp->light->getShadowMatrix()), 500);
+
+					if (f.intersect(entityAABB)) {
+						shadowMeshInstances[mesh].push_back(entity->component<TransformComponent>().getModelMatrix());
+					}
+				}
 
 			}
 
@@ -233,7 +233,8 @@ void RenderSystem::process(microseconds deltaTime) {
 
 		auto& lc = sun->component<LightComponent>();
 		auto aabb = AABB(c.frustum.getBoundingVolume(20));
-		auto f = Frustum(aabb, (lc.light->getShadowMatrix()), 500);
+		auto m = (lc.light->getShadowMatrix()); // * glm::inverse(c.getViewMatrix());
+		auto f = Frustum(aabb, m, 500);
 
 
 		_renderEngine->drawDebugMesh(Mesh(aabb.obb), vec3(0,1,1));
