@@ -3,6 +3,9 @@ project(NAISE_Engine)
 
 set(CMAKE_CXX_STANDARD 17)
 
+### OPTIONS
+option(NAISE_ENGINE_BUILD_SAMPLES "Build the engine samples" OFF)
+
 if (MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd /W3 /EHsc")
@@ -30,8 +33,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 
 set(NAISE_BUILD_ARTIFACTS_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/artifacts)
 
-subdirs(engine samples)
-
 ### functions ###
 
 # This function sets up a post build command that copies the required resources to the
@@ -39,12 +40,25 @@ subdirs(engine samples)
 function(NAISE_COPY_RESOURCES_POST_BUILD target)
     add_custom_command(TARGET ${target} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
-            $<TARGET_FILE_DIR:engine>/engine
-            $<TARGET_FILE_DIR:${target}>/engine)
+            ${NAISE_Engine_SOURCE_DIR}/engine/resources
+            $<TARGET_FILE_DIR:${target}>/engine/resources)
 endfunction(NAISE_COPY_RESOURCES_POST_BUILD PARENT_SCOPE)
 
-function(NAISE_COPY_RESOURCE_DIR NAISE_ENGINE_PATH NAISE_RESOURCE_PATH)
-    NAISE_BUILD_LOG("NAISE >> Engine base path: ${NAISE_ENGINE_PATH}")
+function(NAISE_COPY_DIRECTORY_POST_BUILD target from to)
+    add_custom_command(TARGET ${target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan
+            "Copy directory ${from} to ${to}!")
+    add_custom_command(TARGET ${target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${from}
+            ${to})
+endfunction(NAISE_COPY_DIRECTORY_POST_BUILD PARENT_SCOPE)
+
+function(NAISE_COPY_RESOURCE_DIR)
+    set(NAISE_ENGINE_PATH ${NAISE_Engine_SOURCE_DIR})
+    set(NAISE_RESOURCE_PATH ${NAISE_Engine_SOURCE_DIR}/engine/resources)
+
+    NAISE_BUILD_LOG("Base path: ${NAISE_ENGINE_PATH}")
     NAISE_BUILD_LOG("Resource path: ${NAISE_RESOURCE_PATH}")
 
     file(GLOB_RECURSE shader_files
@@ -67,3 +81,22 @@ endfunction(NAISE_COPY_RESOURCE_DIR PARENT_SCOPE)
 function(NAISE_BUILD_LOG message)
     message("NAISE Engine >> ${message}")
 endfunction(NAISE_BUILD_LOG PARENT_SCOPE)
+
+function(NAISE_ENGINE_COPY_SHARED_LIBS target)
+    if (MSVC)
+        add_custom_command(TARGET ${target} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${NAISE_Engine_SOURCE_DIR}/engine/external/windows-binaries/freetype2/win64/freetype.dll
+                $<TARGET_FILE_DIR:${target}>)
+    endif (MSVC)
+endfunction(NAISE_ENGINE_COPY_SHARED_LIBS PARENT_SCOPE)
+
+### Subdirectories
+
+add_subdirectory(engine)
+if (NAISE_ENGINE_BUILD_SAMPLES)
+    add_subdirectory(samples)
+else()
+    add_subdirectory(samples EXCLUDE_FROM_ALL)
+endif ()
+

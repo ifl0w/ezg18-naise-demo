@@ -19,9 +19,8 @@ add_dependencies(${PROJECT_NAME} engine)
 target_link_libraries(${PROJECT_NAME} engine)
 
 ######## COPY ENGINE SHADERS ########
-set(NAISE_ENGINE_PATH "${NAISE_Engine_SOURCE_DIR}")
-set(NAISE_RESOURCE_PATH "${NAISE_Engine_SOURCE_DIR}/engine/resources")
-NAISE_COPY_RESOURCE_DIR(${NAISE_ENGINE_PATH} ${NAISE_RESOURCE_PATH})
+NAISE_ENGINE_COPY_SHARED_LIBS(${PROJECT_NAME})
+NAISE_COPY_RESOURCE_DIR()
 
 ######## COPY ASSETS ########
 # Collect list of asset files.

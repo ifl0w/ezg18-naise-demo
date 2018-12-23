@@ -9,7 +9,7 @@ export CXXFLAGS=-m64
 export CFLAGS=-m64
 export LDFLAGS=-m64
 
-cmake -DCMAKE_TOOLCHAIN_FILE=../Toolchain-mingw32.cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_TOOLCHAIN_FILE=../Toolchain-mingw32.cmake -DCMAKE_BUILD_TYPE=Release -DNAISE_ENGINE_BUILD_SAMPLES=ON ..
 
 if [[ $? != 0 ]]; then
     exit 1 # terminate and indicate error
