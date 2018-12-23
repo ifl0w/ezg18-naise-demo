@@ -642,6 +642,7 @@ void RenderEngine::drawDebugMesh(const Mesh& mesh, glm::vec3 color) {
 
 void RenderEngine::hdrPass(float deltaTime) {
 	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
 
 	auto mipmapCount = (int)(log(glm::max(lightTarget->width, lightTarget->height))/log(2));
 
@@ -689,6 +690,7 @@ void RenderEngine::hdrPass(float deltaTime) {
 	hdrShader.setModelMatrix(mat4(1.0));
 	drawMeshDirect(quad);
 
+	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
 }
 
@@ -698,6 +700,7 @@ void RenderEngine::resolveFrameBufferObject() {
 	deferredTarget->retrieveDepthBuffer((GLuint) 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// enable gamma correction
@@ -708,6 +711,7 @@ void RenderEngine::resolveFrameBufferObject() {
 	textureDebugShader.setModelMatrix(mat4(1));
 	drawMeshDirect(quad);
 
+	glEnable(GL_DEPTH_TEST);
 	glDepthMask(true);
 	// disable gamma correction
 	glDisable(GL_FRAMEBUFFER_SRGB);
