@@ -97,7 +97,7 @@ if (SDL2_FOUND AND NOT MINGW)
     message(">>> SDL2 found!")
 else()
     message(">>> Building SDL from source!")
-    add_subdirectory(external/sdl2)
+    add_subdirectory(external/sdl2 EXCLUDE_FROM_ALL)
 
     COPY_INCLUDE_DIR(${SDL2_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/include/sdl2/SDL2)
     include_directories(${CMAKE_CURRENT_BINARY_DIR}/include/sdl2/)
@@ -118,7 +118,7 @@ else()
     set(OPTION_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
     set(OPTION_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-    add_subdirectory(external/glbinding)
+    add_subdirectory(external/glbinding EXCLUDE_FROM_ALL)
     include_directories(external/glbinding/source)
 
 endif ()
@@ -135,7 +135,7 @@ set(JSON_BuildTests OFF CACHE INTERNAL "")
 # inintended consequences that will break the build.  It's generally
 # discouraged (although not necessarily well documented as such) to use
 # include(...) for pulling in other CMake projects anyways.
-add_subdirectory(external/nlohmann_json)
+add_subdirectory(external/nlohmann_json EXCLUDE_FROM_ALL)
 
 ### tinygltf ###
 include_directories(external/tinygltf)
@@ -160,7 +160,7 @@ if (CMAKE_FIND_ROOT_PATH)
     unset(CMAKE_FIND_ROOT_PATH)
 endif (CMAKE_FIND_ROOT_PATH)
 
-add_subdirectory(external/bullet3)
+add_subdirectory(external/bullet3 EXCLUDE_FROM_ALL)
 include_directories(external/bullet3/src)
 
 if (WTF_BULLET)
@@ -182,6 +182,11 @@ else(MSVC)
     find_package(Freetype REQUIRED)
     include_directories(${FREETYPE_INCLUDE_DIRS})
 endif(MSVC)
+
+if (MINGW)
+    set(FREETYPE_LIBRARIES "-lfreetype -lharfbuzz -lbz2 -lgraphite2 -lfreetype")
+endif ()
+
 
 add_library(engine STATIC ${SRC_FILES}
         src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp
@@ -236,9 +241,3 @@ else()
             Bullet3Common BulletDynamics BulletCollision LinearMath
             nlohmann_json::nlohmann_json)
 endif ()
-
-######## COPY ASSETS ########
-add_custom_command(TARGET engine POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/resources/shaders
-        $<TARGET_FILE_DIR:engine>/engine/resources/shaders)

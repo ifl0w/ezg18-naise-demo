@@ -1,5 +1,5 @@
 #pragma once
 
-void loadVideoSettings();
+void initVideoSettings(json config);
 
 

@@ -9,7 +9,7 @@ if (MINGW)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lmingw32 -lSDL2main")
 endif ()
 
-subdirs(demo
-        performance-test
-        material-showcase
-        animation-demo)
+add_subdirectory(demo)
+add_subdirectory(performance-test)
+add_subdirectory(material-showcase)
+add_subdirectory(animation-demo)

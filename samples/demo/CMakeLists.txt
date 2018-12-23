@@ -25,9 +25,8 @@ add_dependencies(sample-demo engine)
 target_link_libraries(sample-demo engine)
 
 ######## COPY ENGINE SHADERS ########
-set(NAISE_ENGINE_PATH "${NAISE_Engine_SOURCE_DIR}")
-set(NAISE_RESOURCE_PATH "${NAISE_Engine_SOURCE_DIR}/engine/resources")
-NAISE_COPY_RESOURCE_DIR(${NAISE_ENGINE_PATH} ${NAISE_RESOURCE_PATH})
+NAISE_ENGINE_COPY_SHARED_LIBS(${PROJECT_NAME})
+NAISE_COPY_RESOURCE_DIR()
 
 ######## COPY ASSETS ########
 # Collect list of asset files.
@@ -43,3 +42,11 @@ foreach (file ${asset_files})
     set(binary_file ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${file})
     configure_file(${source_file} ${binary_file} COPYONLY)
 endforeach ()
+
+#file(GLOB_RECURSE RES_FILES ${CMAKE_CURRENT_SOURCE_DIR}/resources/**/*)
+#add_custom_target(dummy_target SOURCES ${RES_FILES})
+#add_dependencies(${PROJECT_NAME} dummy_target)
+#
+#NAISE_COPY_DIRECTORY_POST_BUILD(dummy_target
+#        ${CMAKE_CURRENT_SOURCE_DIR}/resources/
+#        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources/)

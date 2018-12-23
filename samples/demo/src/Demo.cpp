@@ -116,30 +116,6 @@ int main(int argc, char **argv) {
 	sun->component<LightComponent>().light->data.diffuse = vec4(5000, 5000, 5000, 1);
 	sun->component<LightComponent>().light->data.ambient = vec4(5);
 
-	SceneLoaderAdapter loaderAdapter;
-	auto hangar = GLTFLoader::loadModel(&loaderAdapter, "resources/models/main-scene/main-scene.gltf");
-	Engine::getEntityManager().addEntities(hangar);
-
-	auto& animEntities = Engine::getEntityManager().getEntities<TransformAnimationSignature>();
-	for (auto& entity: animEntities) {
-		auto& animComp = entity->component<TransformAnimationComponent>();
-		auto& transformComp = entity->component<TransformComponent>();
-
-		for (auto& anim: animComp.animations) {
-			anim.playing = true;
-			anim.loopBehaviour = LOOP;
-		}
-	}
-
-	// load city
-//	auto city = GLTFLoader::loadModel(&loaderAdapter, "resources/models/main-scene/city-scene.gltf");
-//	for (auto& entity: city) {
-//		if(auto transComp = entity->get<TransformComponent>()) {
-//			transComp->position = transComp->position - vec3(0,50,0);
-//		}
-//	}
-//	Engine::getEntityManager().addEntities(city);
-
 	auto platformParticles = make_shared<NAISE::Engine::Entity>();
 	platformParticles->add<TransformComponent>();
 	platformParticles->component<TransformComponent>().position = vec3(-1.2, 1.2, 2);
@@ -155,33 +131,54 @@ int main(int argc, char **argv) {
 	particleMaterial->glow = vec3(0,1,1);
 	platformParticles->component<MeshParticleComponent>().material = particleMaterial;
 	platformParticles->add<AABBComponent>();
-	Engine::getEntityManager().addEntity(platformParticles);
 
+	// load config file
+	json config = Resources::loadConfig("resources/config.json");
+
+	// setup video settings
+	initVideoSettings(config);
+
+	// load scenes
+	SceneLoaderAdapter loaderAdapter;
+	for (json& scene: config["scenes"]) {
+		auto sceneEntities = GLTFLoader::loadModel(&loaderAdapter, scene["path"].get<std::string>());
+		Engine::getEntityManager().addEntities(sceneEntities);
+	}
+
+	// kick off animations
+	auto& animEntities = Engine::getEntityManager().getEntities<TransformAnimationSignature>();
+	for (auto& entity: animEntities) {
+		auto& animComp = entity->component<TransformAnimationComponent>();
+		auto& transformComp = entity->component<TransformComponent>();
+
+		for (auto& anim: animComp.animations) {
+			anim.playing = true;
+			anim.loopBehaviour = LOOP;
+		}
+	}
+
+	Engine::getEntityManager().addEntity(platformParticles);
 	Engine::getEntityManager().addEntity(sun);
 	Engine::getEntityManager().addEntity(camera);
 	Engine::getEntityManager().addEntity(sphere);
 	Engine::getEntityManager().addEntity(box);
 	Engine::getEntityManager().addEntity(wall);
 
-	loadVideoSettings();
-
 	engine.run();
 
 	return 0;
 }
 
-void loadVideoSettings() {
-	json videoConfig = Resources::loadConfig("resources/config.json");
-
+void initVideoSettings(json config) {
 	auto width = 1024;
 	auto height = 768;
 	auto fullscreen = false;
 
-	if (videoConfig["window"].is_object()) {
+	if (config["window"].is_object()) {
 		try {
-			width = videoConfig["window"].value("width", 1024);
-			height = videoConfig["window"].value("height", 768);
-			fullscreen = videoConfig["window"].value("fullscreen", false);
+			width = config["window"].value("width", 1024);
+			height = config["window"].value("height", 768);
+			fullscreen = config["window"].value("fullscreen", false);
 		} catch (nlohmann::detail::type_error& e) {
 			NAISE_WARN_LOG("Video config invalid! Using default values.")
 		}
