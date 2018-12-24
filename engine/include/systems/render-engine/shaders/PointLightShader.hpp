@@ -7,7 +7,7 @@
 namespace NAISE {
 namespace Engine {
 
-class PointLightShader: public LightShader {
+class PointLightShader: public RenderCore::LightShader {
 public:
 	PointLightShader();
 

@@ -28,29 +28,27 @@ void Frustum::setCameraSettings(double fovX, double fovY, double nearDistance, d
 	fh = farDistance * tan(fovY / 2);
 }
 
-vector<vec4> Frustum::getBoundingVolume(double maxDistance) {
-	double localFar = farDistance;
-	if (maxDistance < farDistance) {
-		localFar = maxDistance;
-	}
+vector<vec4> Frustum::getBoundingVolume(double start, double maxDistance) {
+	double localFar = (maxDistance < farDistance) ? maxDistance : farDistance;
+	double localNear = (start > nearDistance) ? start : nearDistance;
 
 	vector<vec4> result = vector<vec4>(0);
 
 	double tanHalfHorizonalFOV = glm::tan(fovX / 2.0f);
 	double tanHalfVerticalFOV = glm::tan(fovY / 2.0f);
 
-	double xn = nearDistance * tanHalfHorizonalFOV;
+	double xn = localNear * tanHalfHorizonalFOV;
 	double xf = localFar * tanHalfHorizonalFOV;
-	double yn = nearDistance * tanHalfVerticalFOV;
+	double yn = localNear * tanHalfVerticalFOV;
 	double yf = localFar * tanHalfVerticalFOV;
 
 	// insert in world space
 	result.insert(result.begin(), {
 			// near face (ntl, ntr, nbl, nbr)
-			invViewMat * vec4(-xn, yn, -nearDistance, 1.0),
-			invViewMat * vec4(xn, yn, -nearDistance, 1.0),
-			invViewMat * vec4(-xn, -yn, -nearDistance, 1.0),
-			invViewMat * vec4(xn, -yn, -nearDistance, 1.0),
+			invViewMat * vec4(-xn, yn, -localNear, 1.0),
+			invViewMat * vec4(xn, yn, -localNear, 1.0),
+			invViewMat * vec4(-xn, -yn, -localNear, 1.0),
+			invViewMat * vec4(xn, -yn, -localNear, 1.0),
 
 			// far face (ftl, ftr, fbl, fbr)
 			invViewMat * vec4(-xf, yf, -localFar, 1.0),

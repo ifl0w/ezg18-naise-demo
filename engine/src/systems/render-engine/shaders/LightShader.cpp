@@ -3,6 +3,7 @@
 
 #include <systems/render-engine/shaders/LightShader.hpp>
 
+using namespace NAISE::RenderCore;
 using namespace NAISE::Engine;
 
 LightShader::LightShader(std::string vertexShaderPath, std::string fragmentShaderPath)

@@ -9,6 +9,8 @@
 #include <systems/render-engine/meshes/Mesh.hpp>
 #include <systems/render-engine/materials/Material.hpp>
 
+using namespace NAISE::RenderCore;
+
 namespace NAISE {
 namespace Engine {
 

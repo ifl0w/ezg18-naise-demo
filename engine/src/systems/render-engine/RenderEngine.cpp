@@ -1,5 +1,6 @@
 #include <systems/render-engine/RenderEngine.hpp>
 #include <systems/render-engine/materials/PBRMaterial.hpp>
+#include <systems/render-engine/shaders/LightShader.hpp>
 
 #include <components/MaterialComponent.hpp>
 #include <components/LightComponent.hpp>
@@ -40,7 +41,9 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 
-	shadowMap = make_unique<ShadowMap>(1024 * 4, 1024 * 4);
+	shadowMap = make_unique<ShadowMap>(1024, 1024);
+	shadowMap2 = make_unique<ShadowMap>(512, 512);
+	shadowMap3 = make_unique<ShadowMap>(256, 256);
 
 	// enable back face culling
 	glEnable(GL_CULL_FACE);
@@ -309,6 +312,11 @@ void RenderEngine::setViewportSize(int width, int height) {
 	viewportHeight = height;
 	setScreenData();
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
+
+	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
+	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 //	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 }
 
@@ -388,7 +396,7 @@ void RenderEngine::renderLights(const Light& light, mat4 transform, const Entity
 		dlShader.setLightProperties(light);
 		auto& c = camera.component<CameraComponent>();
 		dlShader.setShadowMapViewProjection(
-				light.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(45))) * light.getShadowMatrix());
+				light.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(5))) * light.getShadowMatrix());
 		drawMeshDirect(quad);
 
 		glEnable(GL_DEPTH_TEST);
@@ -407,7 +415,7 @@ void RenderEngine::activateShadowPass(const Entity& light, const Entity& camera)
 	auto& t = camera.component<TransformComponent>();
 	auto& c = camera.component<CameraComponent>();
 
-	setShadowProjectionData(l.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(45))), l.getShadowMatrix(),
+	setShadowProjectionData(l.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(5))), l.getShadowMatrix(),
 							t.position);
 
 	glEnable(GL_DEPTH_TEST);

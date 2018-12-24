@@ -5,7 +5,7 @@
 namespace NAISE {
 namespace Engine {
 
-class DirectionalLightShader: public LightShader {
+class DirectionalLightShader: public NAISE::RenderCore::LightShader {
 public:
 	DirectionalLightShader();
 

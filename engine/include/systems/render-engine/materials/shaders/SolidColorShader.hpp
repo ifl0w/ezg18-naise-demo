@@ -6,7 +6,7 @@ namespace NAISE {
 namespace Engine {
 
 class SolidColorShader :
-		public Shader {
+		public RenderCore::Shader {
 public:
 	SolidColorShader();
 

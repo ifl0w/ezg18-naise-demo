@@ -175,6 +175,8 @@ private:
 	std::unique_ptr<Texture> luminanceTexture2;
 
 	std::unique_ptr<ShadowMap> shadowMap;
+	std::unique_ptr<ShadowMap> shadowMap2;
+	std::unique_ptr<ShadowMap> shadowMap3;
 	ShadowShader shadowShader;
 	PointLightShader plShader;
 	DirectionalLightShader dlShader;

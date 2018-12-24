@@ -5,6 +5,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include <Engine.hpp>
+#include <systems/render-engine/shadow-map/CascadedShadowMapper.hpp>
 
 using namespace NAISE::Engine;
 
@@ -57,27 +58,34 @@ void RenderSystem::process(microseconds deltaTime) {
 		return;
 	}
 
+	auto lightComp = sun->get<LightComponent>();
+	auto cascadeShadowMapper = dynamic_cast<CascadedShadowMapper*>(lightComp->light->shadowMapper.get());
+
+	auto* camComp = camera->get<CameraComponent>();
+	auto aabb = AABB(camComp->frustum.getBoundingVolume(5));
+	auto f = Frustum(aabb, glm::inverse(lightComp->light->getShadowMatrix()), 500);
+
+	vector<Frustum> shadowCascadeAABBs;
+	shadowCascadeAABBs.emplace_back(AABB(camComp->frustum.getBoundingVolume(5)), (lightComp->light->getShadowMatrix()), 500);
+	shadowCascadeAABBs.emplace_back(AABB(camComp->frustum.getBoundingVolume(5, 50)), (lightComp->light->getShadowMatrix()), 500);
+	shadowCascadeAABBs.emplace_back(AABB(camComp->frustum.getBoundingVolume(50, 500)), (lightComp->light->getShadowMatrix()), 500);
+
+	vector<map<Mesh*, vector<glm::mat4>>> cascadeInstances = vector<map<Mesh*, vector<glm::mat4>>>(3); // TODO: get size from cascade number
+	vector<RenderCommandBuffer> shadowCascadeBuffer = vector<RenderCommandBuffer>(3); // TODO: get size from cascade number
+
 	auto& geometryEntities = Engine::getEntityManager().getEntities<GeometrySignature>();
 	for (auto& instanceID: meshInstances) { instanceID.second.clear(); } // clear instances
 	for (auto& instanceID: shadowMeshInstances) { instanceID.second.clear(); } // clear instances
 	for (auto entity: geometryEntities) {
 		Mesh* mesh = entity->component<MeshComponent>().mesh.get();
 
-		// TODO: cull shadow meshes
-		if(auto lightComp = sun->get<LightComponent>()) {
-			// TODO fix shadow frustum culling
-			if (entity->has<AABBComponent>()) {
-				auto& entityAABB = entity->component<AABBComponent>().aabb;
-				auto* camComp = camera->get<CameraComponent>();
-				auto aabb = AABB(camComp->frustum.getBoundingVolume(20));
-				auto f = Frustum(aabb, glm::inverse(lightComp->light->getShadowMatrix()), 500);
-
-				if (f.intersect(entityAABB)) {
-					shadowMeshInstances[mesh].push_back(entity->component<TransformComponent>().getModelMatrix());
+			if (auto aabb = entity->get<AABBComponent>()) {
+				for (int i = 0; i < shadowCascadeAABBs.size(); ++i) {
+					if (shadowCascadeAABBs[i].intersect(aabb->aabb)) {
+						cascadeInstances[i][mesh].push_back(entity->component<TransformComponent>().getModelMatrix());
+					}
 				}
 			}
-
-		}
 
 		if (cullEntity(*camera, *entity)) {
 			continue;
@@ -98,20 +106,12 @@ void RenderSystem::process(microseconds deltaTime) {
 		for (int i = 0; i < meshes.size(); i++) {
 			Mesh* mesh = meshes[i].get();
 
-			// TODO: cull shadow meshes
-			if(auto lightComp = sun->get<LightComponent>()) {
-				// TODO fix shadow frustum culling
-				if (entity->has<AABBComponent>()) {
-					auto& entityAABB = entity->component<AABBComponent>().aabb;
-					auto* camComp = camera->get<CameraComponent>();
-					auto aabb = AABB(camComp->frustum.getBoundingVolume(20));
-					auto f = Frustum(aabb, glm::inverse(lightComp->light->getShadowMatrix()), 500);
-
-					if (f.intersect(entityAABB)) {
-						shadowMeshInstances[mesh].push_back(entity->component<TransformComponent>().getModelMatrix());
+			if (auto aabb = entity->get<AABBComponent>()) {
+				for (int i = 0; i < shadowCascadeAABBs.size(); ++i) {
+					if (shadowCascadeAABBs[i].intersect(aabb->aabb)) {
+						cascadeInstances[i][mesh].push_back(entity->component<TransformComponent>().getModelMatrix());
 					}
 				}
-
 			}
 
 			if (cullEntity(*camera, *entity)) {
@@ -149,11 +149,11 @@ void RenderSystem::process(microseconds deltaTime) {
 
 	if (sun != nullptr) {
 		_renderEngine->activateShadowPass(*sun, *camera);
-		for (auto& instance: shadowMeshInstances) {
+		for (auto& instance: cascadeInstances[0]) {
 			_renderEngine->drawMeshInstancedDirect(*instance.first, instance.second);
 		}
 
-//		_renderEngine->executeCommandBuffer(particleSystemCommandBuffer);
+//		_renderEngine->executeCommandBuffer(shadowCascadeBuffer[0]);
 
 		_renderEngine->deactivateShadowPass();
 	}
@@ -232,14 +232,17 @@ void RenderSystem::process(microseconds deltaTime) {
 		}
 
 		auto& lc = sun->component<LightComponent>();
-		auto aabb = AABB(c.frustum.getBoundingVolume(20));
-		auto m = (lc.light->getShadowMatrix()); // * glm::inverse(c.getViewMatrix());
-		auto f = Frustum(aabb, m, 500);
 
+		vector<Frustum> fs;
+		fs.emplace_back(AABB(c.frustum.getBoundingVolume(5)), (lc.light->getShadowMatrix()), 500);
+		fs.emplace_back(AABB(c.frustum.getBoundingVolume(5, 50)), (lc.light->getShadowMatrix()), 500);
+		fs.emplace_back(AABB(c.frustum.getBoundingVolume(50, 500)), (lc.light->getShadowMatrix()), 500);
 
-		_renderEngine->drawDebugMesh(Mesh(aabb.obb), vec3(0,1,1));
-		_renderEngine->drawDebugMesh(*f.frustumMesh.get(), vec3(1,0,1));
 		_renderEngine->drawDebugMesh(*c.frustum.frustumMesh.get(), vec3(1,1,0));
+
+		for (auto& f: fs) {
+			_renderEngine->drawDebugMesh(*f.frustumMesh.get(), vec3(1,0,1));
+		}
 	}
 //		_renderEngine->deactivateRenderState();
 

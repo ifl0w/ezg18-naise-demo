@@ -1,9 +1,10 @@
 #pragma once
 
 #include <systems/render-engine/materials/shaders/Shader.hpp>
+#include <systems/render-engine/lights/Light.hpp>
 
 namespace NAISE {
-namespace Engine {
+namespace RenderCore {
 
 class LightShader: public Shader {
 public:
@@ -21,7 +22,7 @@ public:
 	GLenum shadowMapUnit = GL_TEXTURE0 + 3;
 	GLenum glowBufferUnit = GL_TEXTURE0 + 4;
 
-	void setLightProperties(const Light& light);
+	void setLightProperties(const NAISE::RenderCore::Light& light);
 
 protected:
 	std::string buildLightPropName(std::string propertyName);

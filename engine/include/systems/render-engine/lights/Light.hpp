@@ -2,8 +2,11 @@
 
 #include <components/Component.hpp>
 #include <systems/render-engine/frustum-culling/AABB.hpp>
+#include <systems/render-engine/shadow-map/ShadowMapper.hpp>
 
 #include <glm/glm.hpp>
+
+#include <memory>
 
 #define MAX_LIGHTS 300
 
@@ -52,13 +55,13 @@ public:
 	virtual mat4 getProjectionMatrix() const { return mat4(1); };
 	virtual mat4 getProjectionMatrix(AABB aabb) const { return mat4(1); };
 
-	bool isShadowCaster = false;
-
 	/**
 	 * Defines whether the light has to be added allways.
 	 * Lights that are not flagged as required, may be excluded from rendering if a certain threshold is exeeded.
 	 */
 	bool required = true;
+
+	std::unique_ptr<ShadowMapper> shadowMapper;
 
 protected:
 	virtual bool cull();

@@ -6,7 +6,7 @@ namespace NAISE {
 namespace Engine {
 
 class SkyboxShader :
-		public Shader {
+		public RenderCore::Shader {
 public:
 	SkyboxShader(): Shader("engine/resources/shaders/skybox/skybox.vert", "engine/resources/shaders/skybox/skybox.frag") {
 		//this->backgroundColorLocation = uniformLocation(this->shaderID, "backgroundColor");

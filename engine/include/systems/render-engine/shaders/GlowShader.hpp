@@ -5,7 +5,7 @@
 namespace NAISE {
 namespace Engine {
 
-class GlowShader : public Shader {
+class GlowShader : public NAISE::RenderCore::Shader {
 public:
 	GlowShader();
 

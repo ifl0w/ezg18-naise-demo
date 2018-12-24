@@ -19,6 +19,8 @@ public:
 	mat4 getShadowMatrix() const override;
 	mat4 getProjectionMatrix(AABB aabb) const override;
 
+	void addShadowMapper();
+
 //	Frustum frustum;
 	float maxShadowDistance = 5000;
 };

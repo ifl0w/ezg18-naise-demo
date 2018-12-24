@@ -53,7 +53,8 @@ public:
 
 	void recalculate(mat4 invViewMatrix);
 
-	vector<vec4> getBoundingVolume(double maxDistance = INFINITY);
+	vector<vec4> getBoundingVolume(double maxDistance = INFINITY) { return getBoundingVolume(-INFINITY, maxDistance); };
+	vector<vec4> getBoundingVolume(double start, double maxDistance);
 
 	/**
 	 * Check whether an AABB intersects with the frustum.

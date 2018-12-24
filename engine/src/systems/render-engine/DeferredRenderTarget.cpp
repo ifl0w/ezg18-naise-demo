@@ -7,6 +7,7 @@
 #include <spdlog/spdlog.h>
 
 using namespace NAISE::Engine;
+using namespace NAISE::RenderCore;
 
 DeferredRenderTarget::DeferredRenderTarget() = default;
 

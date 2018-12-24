@@ -1,7 +1,8 @@
 #include <systems/render-engine/shadow-map/ShadowMap.hpp>
+#include <systems/render-engine/shaders/LightShader.hpp>
 #include <spdlog/spdlog.h>
 
-using namespace NAISE::Engine;
+using namespace NAISE::RenderCore;
 
 ShadowMap::ShadowMap(int width, int height): width(width), height(height) {
 	glGenTextures(1, &shadowMap);
