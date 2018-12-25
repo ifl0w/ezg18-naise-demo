@@ -112,6 +112,8 @@ PBRMaterial::PBRMaterial(const tinygltf::Material& material, const tinygltf::Mod
 
 		roughness = static_cast<float>(factor.Factor());
 	} catch (std::out_of_range& e) {
+		// IMPORTANT TODO: Rework default values of loader
+		roughness = 1.0;
 		// swollow
 	}
 
