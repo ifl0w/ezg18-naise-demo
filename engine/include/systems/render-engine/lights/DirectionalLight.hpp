@@ -22,7 +22,7 @@ public:
 	void addShadowMapper();
 
 //	Frustum frustum;
-	float maxShadowDistance = 5000;
+	float maxShadowDistance = 500;
 };
 
 }

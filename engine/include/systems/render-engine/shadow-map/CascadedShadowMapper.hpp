@@ -30,7 +30,6 @@ public:
 
 	void deactivate() override;
 
-private:
 	std::vector<std::unique_ptr<ShadowMap>> _shadowCascades;
 	std::vector<Cascade> _cascades;
 };

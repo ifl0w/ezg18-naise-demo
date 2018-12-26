@@ -34,6 +34,7 @@
 
 #include <variant>
 #include <systems/particle-system/ComputeShader.hpp>
+#include <systems/render-engine/shadow-map/CascadedShadowMapper.hpp>
 
 #define BIT(x) (1<<(x))
 
@@ -209,7 +210,7 @@ private:
 	bool lightVolumeDebugging = false;
 	void geometryPass(const Mesh& mesh, const Material* material, mat4 transform);
 
-	void activateShadowPass(const Entity& light, const Entity& camera);
+	void activateShadowPass(const Entity& light, const Entity& camera, ShadowMap* shadowMap, Cascade cascade);
 	void shadowPass(vector<Entity*> entities);
 	void deactivateShadowPass();
 	void prepareLightPass();
@@ -217,7 +218,8 @@ private:
 
 	void cleanupLightPass();
 
-	void renderLights(const Light& light, mat4 transform, const Entity& camera);
+	void renderLights(const Light& light, mat4 transform, const Entity& camera,
+						  std::vector<std::unique_ptr<ShadowMap>>& maps, std::vector<Cascade> cascades);
 //	void forwardPass(const std::shared_ptr<Scene>& scene);
 	void glowPass();
 //	void textPass(const std::shared_ptr<Scene>& scene);

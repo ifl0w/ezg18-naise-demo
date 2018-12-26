@@ -11,7 +11,9 @@ LightShader::LightShader(std::string vertexShaderPath, std::string fragmentShade
 	this->positionBufferLocation = uniformLocation(shaderID, "gPosition");
 	this->normalBufferLocation = uniformLocation(shaderID, "gNormal");
 	this->albedoRoughnessBufferLocation = uniformLocation(shaderID, "gAlbedoRoughness");
-	this->shadowMapLocation = uniformLocation(shaderID, "shadowMap");
+	this->shadowMapLocation1 = uniformLocation(shaderID, "shadowMap[0]");
+	this->shadowMapLocation2 = uniformLocation(shaderID, "shadowMap[1]");
+	this->shadowMapLocation3 = uniformLocation(shaderID, "shadowMap[2]");
 	this->emissionMetallicBufferLocation = uniformLocation(shaderID, "gEmissionMetallic");
 }
 

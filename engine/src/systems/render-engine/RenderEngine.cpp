@@ -337,7 +337,8 @@ void RenderEngine::setBrightness(float brightness) {
 	setScreenData();
 }
 
-void RenderEngine::renderLights(const Light& light, mat4 transform, const Entity& camera) {
+void RenderEngine::renderLights(const Light& light, mat4 transform, const Entity& camera,
+								std::vector<std::unique_ptr<ShadowMap>>& maps, std::vector<Cascade> cascades) {
 
 	// stencil test for light volumes
 	glEnable(GL_STENCIL_TEST);
@@ -391,12 +392,33 @@ void RenderEngine::renderLights(const Light& light, mat4 transform, const Entity
 		glStencilFunc(GL_ALWAYS, 0, 0);
 
 		deferredTarget->setTextureUnits(dlShader);
-		shadowMap->setTextureUnits(dlShader);
+
+		glUniform1i(dlShader.shadowMapLocation1, 5);
+		glActiveTexture(dlShader.shadowMap1Unit);
+		glBindTexture(GL_TEXTURE_2D, maps[0]->shadowMap);
+
+		glUniform1i(dlShader.shadowMapLocation2, 6);
+		glActiveTexture(dlShader.shadowMap2Unit);
+		glBindTexture(GL_TEXTURE_2D, maps[1]->shadowMap);
+
+		glUniform1i(dlShader.shadowMapLocation3, 7);
+		glActiveTexture(dlShader.shadowMap3Unit);
+		glBindTexture(GL_TEXTURE_2D, maps[2]->shadowMap);
 
 		dlShader.setLightProperties(light);
 		auto& c = camera.component<CameraComponent>();
-		dlShader.setShadowMapViewProjection(
-				light.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(5))) * light.getShadowMatrix());
+
+		dlShader.setShadowMapViewProjection(0, light.getProjectionMatrix(
+				AABB(c.frustum.getBoundingVolume(cascades[0].range.x, cascades[0].range.y))) * light.getShadowMatrix());
+		dlShader.setShadowMapViewProjection(1, light.getProjectionMatrix(
+				AABB(c.frustum.getBoundingVolume(cascades[1].range.x, cascades[1].range.y))) * light.getShadowMatrix());
+		dlShader.setShadowMapViewProjection(2, light.getProjectionMatrix(
+				AABB(c.frustum.getBoundingVolume(cascades[2].range.x, cascades[2].range.y))) * light.getShadowMatrix());
+
+		dlShader.setCascadeEnd(0, c.getProjectionMatrix(), cascades[0].range.y);
+		dlShader.setCascadeEnd(1, c.getProjectionMatrix(), cascades[1].range.y);
+		dlShader.setCascadeEnd(2, c.getProjectionMatrix(), cascades[2].range.y);
+
 		drawMeshDirect(quad);
 
 		glEnable(GL_DEPTH_TEST);
@@ -406,7 +428,7 @@ void RenderEngine::renderLights(const Light& light, mat4 transform, const Entity
 	glDisable(GL_STENCIL_TEST);
 }
 
-void RenderEngine::activateShadowPass(const Entity& light, const Entity& camera) {
+void RenderEngine::activateShadowPass(const Entity& light, const Entity& camera, ShadowMap* shadowMap, Cascade cascade) {
 	shadowMap->use();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	shadowShader.useShader();
@@ -415,7 +437,7 @@ void RenderEngine::activateShadowPass(const Entity& light, const Entity& camera)
 	auto& t = camera.component<TransformComponent>();
 	auto& c = camera.component<CameraComponent>();
 
-	setShadowProjectionData(l.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(5))), l.getShadowMatrix(),
+	setShadowProjectionData(l.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(cascade.range.x, cascade.range.y))), l.getShadowMatrix(),
 							t.position);
 
 	glEnable(GL_DEPTH_TEST);

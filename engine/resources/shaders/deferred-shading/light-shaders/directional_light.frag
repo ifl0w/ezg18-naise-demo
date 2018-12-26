@@ -11,8 +11,9 @@ uniform sampler2D gNormal;
 uniform sampler2D gAlbedoRoughness;
 uniform sampler2D gEmissionMetallic;
 
-uniform sampler2DShadow shadowMap;
-uniform mat4 depthShadowProjection;
+uniform sampler2DShadow shadowMap[3];
+uniform mat4 depthShadowProjection[3];
+uniform float cascadeEnd[3];
 
 layout(std140, binding = 0) uniform screenData
 {
@@ -45,11 +46,22 @@ uniform struct Light {
 } light;
 
 float calculateShadowFactor(vec3 pos, vec3 normal, vec3 lightDir) {
-	vec4 shadowPos = (depthShadowProjection) * vec4(pos,1);
+    int cascadeIdx = 0;
+    vec4 proj = viewProjection * vec4(pos, 1);
+    float depth = proj.z / proj.w;
+
+    for (int i = 0 ; i < 3 ; i++) {
+        if (depth <= cascadeEnd[i]) {
+            cascadeIdx = i;
+            break;
+        }
+    }
+
+	vec4 shadowPos = (depthShadowProjection[cascadeIdx]) * vec4(pos,1);
 	vec3 ProjCoords =  0.5 * (shadowPos.xyz) + 0.5;
 
 	float cosTheta = clamp(dot(normal, lightDir), 0.0, 1.0);
-    float bias = 0.00001 * tan(acos(cosTheta));
+    float bias = 0.0001 * tan(acos(cosTheta)) * pow(10,cascadeIdx);
     bias = clamp(bias, 0.0, 0.01);
 
     // 2x2 hardware pcf + blurring with a 3x3 kernel for prettier results
@@ -57,7 +69,7 @@ float calculateShadowFactor(vec3 pos, vec3 normal, vec3 lightDir) {
     for(int x=-1; x<=1; x++) {
         for(int y=-1; y<=1; y++) {
             vec2 off = vec2(x,y)/3000; // blurring factor depends on cascade size
-            shadowFactor += texture(shadowMap, vec3(ProjCoords.xy+off, ProjCoords.z-bias));
+            shadowFactor += texture(shadowMap[cascadeIdx], vec3(ProjCoords.xy+off, ProjCoords.z-bias));
         }
     }
     shadowFactor /= 9;
@@ -187,6 +199,17 @@ vec3 processLight(Light light, vec3 pos, vec3 norm, vec3 albedo, float roughness
 
     vec3 color = (kD * albedo / PI + specular) * radiance * NdotL;
     float shadowFactor = calculateShadowFactor(pos, norm, toLight);
+
+    // code for cascade visualization
+//    vec4 proj = viewProjection * vec4(pos, 1);
+//    float depth = proj.z / proj.w;
+//    if (depth <= cascadeEnd[0]) {
+//        color = vec3(1,0,0);
+//    } else if(depth <= cascadeEnd[1]) {
+//        color = vec3(0,1,0);
+//    } else if(depth <= cascadeEnd[2]) {
+//        color = vec3(0,0,1);
+//    }
 
     return color * shadowFactor;
 }

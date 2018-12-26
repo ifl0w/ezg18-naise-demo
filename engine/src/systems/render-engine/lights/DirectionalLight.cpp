@@ -36,9 +36,9 @@ mat4 DirectionalLight::getProjectionMatrix(AABB aabb) const {
 
 void DirectionalLight::addShadowMapper() {
 	std::vector cascades = {
-			Cascade{vec2(1024,1024), vec2(0, 5)},
-			Cascade{vec2(512,512), vec2(5, 50)},
-			Cascade{vec2(256,256), vec2(50, 100)},
+			Cascade{vec2(1024 * 4,1024 * 4), vec2(0, 50)},
+			Cascade{vec2(1024 * 2,1024 * 2), vec2(50, 150)},
+			Cascade{vec2(1024,1024), vec2(150, 300)},
 	};
 
 	this->shadowMapper = std::make_unique<CascadedShadowMapper>(cascades);
