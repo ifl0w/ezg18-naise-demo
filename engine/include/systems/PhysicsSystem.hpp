@@ -69,6 +69,9 @@ public:
 	template<typename T>
 	void removeSubSystem();
 
+	const double simulationsPerSecond = 60.0;
+	const double fixedTimestep = 1.0f / simulationsPerSecond; // timeStep < substeps * fixedTime
+
 private:
 	/* Physic properties */
 	std::unique_ptr<btBroadphaseInterface> broadphase;

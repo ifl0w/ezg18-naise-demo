@@ -66,7 +66,7 @@ PhysicsSystem::PhysicsSystem() {
 
 void PhysicsSystem::process(microseconds deltaTime) {
 	std::chrono::duration<float> sec = deltaTime;
-	dynamicsWorld->stepSimulation(sec.count(), PHYSICS_SUBSTEPS, 1.0f / 60.0f); // timeStep < substeps * fixedTime
+	dynamicsWorld->stepSimulation(sec.count(), PHYSICS_SUBSTEPS, fixedTimestep);
 
 	// TODO: check if the following code should be moved to the sub step callback
 	auto& rgd = Engine::getEntityManager().getEntities<RigidBodySignature>();
