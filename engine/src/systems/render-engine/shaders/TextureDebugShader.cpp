@@ -18,7 +18,7 @@ void TextureDebugShader::setMSTextureUnit(GLint textureHandle) {
 
 void TextureDebugShader::setTextureUnit(GLint textureHandle) {
 	glUniform1i(isMultiSampledLocation, GL_FALSE);
-	glUniform1i(debugTexturePosition, 0);
-	glActiveTexture(GL_TEXTURE0 + 0);
+	glUniform1i(debugTexturePosition, 1);
+	glActiveTexture(GL_TEXTURE0 + 1); // Caution! Unit zero might cause rendering issues (no output) on hybrid graphics
 	glBindTexture(GL_TEXTURE_2D, textureHandle);
 }
