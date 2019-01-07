@@ -97,7 +97,10 @@ void main() {
     uint idx = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * gl_NumWorkGroups.x * gl_WorkGroupSize.x;
 
     if(idx < lastCount) {
-        addParticleToOutput(updateParticle(particlesIn[idx]));
+        GPUParticle tmp; // tmp variable needed since passing particlesIn[idx] does not work on some platforms.
+        tmp.position = particlesIn[idx].position;
+        tmp.velocity = particlesIn[idx].velocity;
+        addParticleToOutput(updateParticle(tmp));
     }
 
     uint localSpawnCount = spawnCount / (invocationCount * 16 * 16);
