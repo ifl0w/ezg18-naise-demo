@@ -37,6 +37,7 @@ layout (binding = 1, offset = 0) uniform atomic_uint spawnCounter; // needed for
 uniform uint lastCount;
 uniform uint maxCount;
 uniform uint spawnCount;
+uniform uint invocationCount;
 uniform float deltaTime;
 uniform mat4 originTransformation;
 
@@ -99,7 +100,8 @@ void main() {
         addParticleToOutput(updateParticle(particlesIn[idx]));
     }
 
-    while (atomicCounter(spawnCounter) < spawnCount) {
+    uint localSpawnCount = spawnCount / (invocationCount * 16 * 16);
+    for(int i = 0; i <= localSpawnCount; i++) {
         spawnParticle(vec3(gl_GlobalInvocationID));
     }
 }

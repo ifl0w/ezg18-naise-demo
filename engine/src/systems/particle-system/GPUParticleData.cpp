@@ -14,6 +14,7 @@ GPUParticleData::GPUParticleData(std::string computeShaderPath, uint32_t maxPart
 	this->spawnCountLocation = uniformLocation(computeShader->shaderID, "spawnCount");
 	this->deltaTimeLocation = uniformLocation(computeShader->shaderID, "deltaTime");
 	this->originTransformationLocation = uniformLocation(computeShader->shaderID, "originTransformation");
+	this->invocationCountLocation = uniformLocation(computeShader->shaderID, "invocationCount");
 
 	glGenBuffers(1, &atomicCounter);
 	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, atomicCounter);
