@@ -2,7 +2,7 @@
 
 using namespace NAISE::RenderCore;
 
-Plane::Plane(float width, float height) {
+Plane::Plane(float width, float height): width(width), height(height) {
 	vertices.insert(vertices.end(), {
 		glm::vec3(-1 * width/2, 1 * height/2, 0),
 		glm::vec3(-1 * width/2, -1 * height/2, 0),
