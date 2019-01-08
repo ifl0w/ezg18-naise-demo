@@ -34,7 +34,6 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	}
 
 	postProcessingTarget = make_unique<PostProcessingTarget>(glowTextureWidth, glowTextureHeight, multiSampling);
-	// TODO: update on resize
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
@@ -309,14 +308,22 @@ void RenderEngine::setViewportSize(int width, int height) {
 	viewportHeight = height;
 	setScreenData();
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
-//	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
+	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 }
 
 void RenderEngine::setMultiSampling(int sampling) {
 	multiSampling = sampling;
 	setScreenData();
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
-//	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
+	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 }
 
 void RenderEngine::setResolution(int width, int height, int sampling) {
@@ -764,9 +771,13 @@ void RenderEngine::executeCommandBuffer(RenderCommandBuffer commandBuffer) {
 			  executeCommand(arg);
 		  else if constexpr (std::is_same_v<T, SetShader>)
 			  executeCommand(arg);
+		  else if constexpr (std::is_same_v<T, BindTexture>)
+			  executeCommand(arg);
 		  else if constexpr (std::is_same_v<T, SetViewProjectionData>)
 			  executeCommand(arg);
 		  else if constexpr (std::is_same_v<T, SetRenderProperty>)
+			  executeCommand(arg);
+		  else if constexpr (std::is_same_v<T, SetBlendMode>)
 			  executeCommand(arg);
 		  else
 			  NAISE_DEBUG_CONSOL("Render command not handled! ({})", typeid(arg).name())
@@ -848,7 +859,42 @@ void RenderEngine::executeCommand(SetRenderProperty& command) {
 		}
 		break;
 	}
+	case RenderProperty::BLEND: {
+		if (command.state) {
+			glEnable(GL_BLEND);
+		} else {
+			glDisable(GL_BLEND);
+		}
+		break;
+	}
 	default:
 		break;
 	}
+}
+
+void RenderEngine::executeCommand(BindTexture& command) {
+	command.texture->useTexture(command.slot);
+	glProgramUniform1i((GLuint) command.shader->shaderID, command.location, command.slot);
+}
+
+void RenderEngine::executeCommand(SetBlendMode& command) {
+	switch (command.mode) {
+	case BlendMode::ADD:
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBlendEquation(GL_FUNC_ADD);
+		break;
+	case BlendMode::SUBTRACT:
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBlendEquation(GL_FUNC_SUBTRACT);
+		break;
+	case BlendMode::OVERLAY:
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendEquation(GL_FUNC_ADD);
+		break;
+	default: break;
+	}
+}
+
+void RenderCommandBuffer::append(const RenderCommandBuffer& commandBuffer) {
+	this->insert(this->end(), commandBuffer.begin(), commandBuffer.end());
 }
