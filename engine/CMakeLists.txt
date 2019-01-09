@@ -209,7 +209,7 @@ add_library(engine STATIC ${SRC_FILES}
         src/resource-loader/GLTFLoader.cpp include/resource-loader/GLTFLoader.hpp include/components/AnimationComponent.hpp
         include/components/VisualComponent.hpp
         src/systems/particle-system/GPUMeshParticleSystem.cpp include/systems/particle-system/GPUMeshParticleSystem.hpp
-        src/systems/particle-system/GPUParticleData.cpp include/systems/particle-system/GPUParticleData.hpp include/systems/render-engine/shaders/ScreenSpaceReflectionsShader.hpp src/systems/render-engine/shaders/ScreenSpaceReflectionsShader.cpp)
+        src/systems/particle-system/GPUParticleData.cpp include/systems/particle-system/GPUParticleData.hpp include/systems/render-engine/shaders/ScreenSpaceReflectionsShader.hpp src/systems/render-engine/shaders/ScreenSpaceReflectionsShader.cpp include/debug/DebugInputMapper.hpp src/debug/DebugInputMapper.cpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include
