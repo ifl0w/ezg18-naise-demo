@@ -106,6 +106,8 @@ public:
 	 */
 	static std::shared_ptr<Texture> loadTexture(const std::string& identifier, const std::string& path);
 
+	static std::shared_ptr<Texture> loadTexture(const std::string& path, ImageFileType type);
+
 	/**
 	 * Load 6 textures for the skybox and store it under the given identifier.
 	 *
