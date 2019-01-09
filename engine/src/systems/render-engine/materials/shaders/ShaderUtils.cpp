@@ -25,6 +25,12 @@ std::string readFile(const std::string path) {
 	return content;
 }
 
+GLuint NAISE::Engine::reloadShaderProgram(std::string vertexShaderFile, std::string fragmentShaderFile) {
+	GLuint program = 0;
+	//glCreateProgram();
+	return program;
+}
+
 GLuint NAISE::Engine::createShaderProgram(std::string vertexShaderFile, std::string fragmentShaderFile) {
 	//Read our shaders into the appropriate buffers
 	std::string vertexSource = readFile(vertexShaderFile); //Get source code for vertex shader.

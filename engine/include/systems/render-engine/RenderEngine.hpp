@@ -28,6 +28,7 @@
 #include "shadow-map/ShadowMap.hpp"
 #include "shadow-map/ShadowShader.hpp"
 #include "shaders/GlowShader.hpp"
+#include "shaders/ScreenSpaceReflectionsShader.hpp"
 
 #include "text/TextRenderer.hpp"
 #include "text/Glyph.hpp"
@@ -172,6 +173,8 @@ public:
 	void hdrPass(float deltaTime);
 	void resolveFrameBufferObject();
 
+    ScreenSpaceReflectionsShader screenSpaceReflectionsShader;
+
 	void executeCommandBuffer(RenderCommandBuffer commandBuffer);
 	void executeCommand(DrawMesh& command);
 	void executeCommand(DrawMeshDirect& command);
@@ -194,6 +197,7 @@ private:
 	std::unique_ptr<PostProcessingTarget> lightTarget;
 
 	std::unique_ptr<PostProcessingTarget> hdrTarget;
+	std::unique_ptr<PostProcessingTarget> screenSpaceReflectionTarget;
 	ComputeShader luminanceReductionCompute = ComputeShader("engine/resources/shaders/post-processing/luminance_reduction.glsl");
 	ComputeShader luminanceCompute = ComputeShader("engine/resources/shaders/post-processing/luminance.glsl");
 	std::unique_ptr<Texture> luminanceTexture;
@@ -208,6 +212,7 @@ private:
 	SolidColorShader solidColorShader; // used for debugging
 	GlowShader glowShader;
 	Shader hdrShader = Shader("engine/resources/shaders/post-processing/quad.vert", "engine/resources/shaders/post-processing/hdr.frag");
+
 
 	Sphere sphereLightVolume = Sphere(1.0f, 16, 8);
 
@@ -243,6 +248,8 @@ private:
 	void renderLights(const Light& light, mat4 transform, const Entity& camera);
 //	void forwardPass(const std::shared_ptr<Scene>& scene);
 	void glowPass();
+
+	void screenSpaceReflectionPass();
 //	void textPass(const std::shared_ptr<Scene>& scene);
 //	void skyboxPass(const std::shared_ptr<Scene>& scene);
 

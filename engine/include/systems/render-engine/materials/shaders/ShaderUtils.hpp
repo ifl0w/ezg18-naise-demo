@@ -10,6 +10,7 @@ namespace Engine {
 
 GLuint createComputeShader(std::string singleShaderFile);
 GLuint createShaderProgram(std::string vertexShaderFile, std::string fragmentShaderFile);
+GLuint reloadShaderProgram(std::string vertexShaderFile, std::string fragmentShaderFile);
 
 GLint uniformLocation(GLint shader, std::string name);
 

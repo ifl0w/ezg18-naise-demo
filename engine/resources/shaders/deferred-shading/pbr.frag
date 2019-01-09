@@ -1,6 +1,6 @@
 #version 430
 
-layout (location = 0) out vec3 gPosition;
+layout (location = 0) out vec4 gPosition;
 layout (location = 1) out vec3 gNormal;
 layout (location = 2) out vec4 gAlbedoRoughness;
 layout (location = 3) out vec4 gEmissionMetallic;
@@ -54,7 +54,7 @@ void main() {
 	vec3 ambientLighting = vec3(1); // should be sum of all ambient light intensities
 
     // fragment position vector
-    gPosition = vPos;
+    gPosition = vec4(vPos, gl_FragCoord.z);
 
     // per-fragment normals
     gNormal = normalize(vNorm);

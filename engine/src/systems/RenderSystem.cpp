@@ -23,6 +23,10 @@ RenderSystem::RenderSystem(std::shared_ptr<RenderEngine> renderEngine): _renderE
 	Engine::getEventManager().event<WindowEvents::SetResolution>().subscribe([&](uint32_t width, uint32_t height) {
 	  _renderEngine->setResolution(width, height);
 	});
+
+	Engine::getEventManager().event<RenderEvents::ReloadShaders>().subscribe([&](){
+		_renderEngine->screenSpaceReflectionsShader.recompile();
+	});
 }
 
 void RenderSystem::process(microseconds deltaTime) {
@@ -191,6 +195,9 @@ void RenderSystem::process(microseconds deltaTime) {
 	// HDR
 	std::chrono::duration<float> sec = deltaTime;
 	_renderEngine->hdrPass(sec.count());
+
+	// SCREEN SPACE REFLECTIONS
+	_renderEngine->screenSpaceReflectionPass();
 
 	auto& debugDrawEntities = Engine::getEntityManager().getEntities<DebugDrawSignature>();
 //		_renderEngine->activateRenderState();

@@ -20,9 +20,14 @@ public:
 
 	~Shader();
 
-	const GLint shaderID;
+	//const GLint shaderID;
+	GLint shaderID;
 
 	virtual void useShader();
+
+	virtual void initUniformLocations();
+
+	void recompile();
 
 	void setModelMatrix(glm::tmat4x4<float> modelMatrix);
 
@@ -34,6 +39,9 @@ public:
 	static std::vector<std::shared_ptr<LightData>> activeLights;
 private:
 	GLint modelMatrixLocation = -1;
+
+	std::string m_vertexShaderFile;
+	std::string m_fragmentShaderFile;
 };
 
 }

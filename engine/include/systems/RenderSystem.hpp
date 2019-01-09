@@ -34,6 +34,11 @@ struct CameraSignature: public Signature<CameraComponent, TransformComponent> {}
 struct DebugDrawSignature: public Signature<PhysicsDebugComponent> {};
 struct ParticleRenderSignature: public Signature<TransformComponent, MeshParticleComponent> {};
 
+namespace RenderEvents {
+	struct ReloadShaders: public Event<> {};
+}
+
+
 using InstanceID = std::pair<Mesh*, Material*>;
 
 class RenderSystem : public System {

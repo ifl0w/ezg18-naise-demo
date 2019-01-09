@@ -36,6 +36,7 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	postProcessingTarget = make_unique<PostProcessingTarget>(glowTextureWidth, glowTextureHeight, multiSampling);
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+    screenSpaceReflectionTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 
@@ -311,6 +312,7 @@ void RenderEngine::setViewportSize(int width, int height) {
 	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	screenSpaceReflectionTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 }
@@ -322,6 +324,7 @@ void RenderEngine::setMultiSampling(int sampling) {
 	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	screenSpaceReflectionTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 }
@@ -534,6 +537,43 @@ void RenderEngine::glowPass() {
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 }
+
+void RenderEngine::screenSpaceReflectionPass(){
+	screenSpaceReflectionTarget->use();
+	deferredTarget->retrieveDepthBuffer((GLuint) screenSpaceReflectionTarget->fbo);
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
+
+//	screenSpaceReflectionTarget->use();
+//	deferredTarget->retrieveDepthBuffer((GLuint) screenSpaceReflectionTarget->fbo);
+
+	//GLenum attachmentpoints[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+
+	//glDrawBuffer(attachmentpoints[0]);
+	screenSpaceReflectionsShader.useShader();
+	screenSpaceReflectionsShader.setModelMatrix(mat4(1.0));
+
+	glUniform1i(uniformLocation(screenSpaceReflectionsShader.shaderID, "gPosition"), 4);
+	glActiveTexture(GL_TEXTURE0 + 4);
+	glBindTexture(GL_TEXTURE_2D, deferredTarget->gPosition);
+    glUniform1i(glGetUniformLocation(screenSpaceReflectionsShader.shaderID, "imageInput"), 3);
+    glActiveTexture(GL_TEXTURE0 + 3);
+    glBindTexture(GL_TEXTURE_2D, lightTarget->output);
+
+
+
+
+	drawMeshDirect(quad);
+
+	//glDrawBuffer(attachmentpoints[1]);
+
+	//screenSpaceReflectionTarget->use();
+
+	//glDisable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+}
+
 //
 //void RenderEngine::textPass(const std::shared_ptr<Scene>& scene) {
 //
@@ -702,7 +742,7 @@ void RenderEngine::hdrPass(float deltaTime) {
 }
 
 void RenderEngine::resolveFrameBufferObject() {
-	auto lastFrameBuffer = hdrTarget.get();
+	auto lastFrameBuffer = screenSpaceReflectionTarget.get();
 
 	deferredTarget->retrieveDepthBuffer((GLuint) 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -711,7 +751,7 @@ void RenderEngine::resolveFrameBufferObject() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// enable gamma correction
-	glEnable(GL_FRAMEBUFFER_SRGB);
+	//glEnable(GL_FRAMEBUFFER_SRGB);
 
 	textureDebugShader.useShader();
 	textureDebugShader.setTextureUnit(lastFrameBuffer->output);
