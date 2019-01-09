@@ -110,18 +110,24 @@ vec3 fresnelSchlick(float cosTheta, vec3 f0)
     return f0 + (1.0 - f0) * pow(max(1.0 - cosTheta, 0), 5.0);
 }
 
+float chiGGX(float v)
+{
+    return v > 0 ? 1 : 0;
+}
+
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
+    roughness = clamp(roughness, 0.025, 1.0);
     float a = roughness*roughness;
     float a2 = a*a;
     float NdotH = max(dot(N, H), 0.0);
     float NdotH2 = NdotH*NdotH;
 
-    float num = a2;
+    float num = chiGGX(NdotH) * a2;
     float denom = (NdotH2 * (a2 - 1.0) + 1.0);
     denom = PI * denom * denom;
 
-    return num / max(denom, 0.0001);
+    return num / denom;
 }
 
 float DistributionBeckmann(vec3 N, vec3 H, float roughness)
@@ -181,8 +187,8 @@ vec3 processLight(Light light, vec3 pos, vec3 norm, vec3 albedo, float roughness
 	f0 = mix(f0, albedo, metallic);
 	vec3 f = fresnelSchlick(max(dot(halfVec, toCam), 0.0), f0);
 
-//	float NDF = DistributionGGX(norm, halfVec, roughness);
-	float NDF = DistributionBeckmann(norm, halfVec, roughness);
+	float NDF = DistributionGGX(norm, halfVec, roughness);
+//	float NDF = DistributionBeckmann(norm, halfVec, roughness);
 	float G = GeometrySmith(norm, toCam, toLight, roughness);
 //	float G = geomAttinuationWikipedia(halfVec, norm, toCam, toLight);
 

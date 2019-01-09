@@ -37,6 +37,7 @@ public:
 	gl::GLint deltaTimeLocation;
 	gl::GLint spawnCountLocation;
 	gl::GLint originTransformationLocation;
+	gl::GLint invocationCountLocation;
 };
 
 }

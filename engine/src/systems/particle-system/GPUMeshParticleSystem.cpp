@@ -31,6 +31,8 @@ void GPUMeshParticleSystem::execute(GPUParticleData& particleData, MeshParticleC
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, meshParticleComponent.ssboTransformations);
 
 	auto groups = static_cast<GLuint>((meshParticleComponent.particleCount / (16 * 16)) + 1);
+	glUniform1ui(particleData.invocationCountLocation, groups);
+
 	particleData.computeShader->compute(groups);
 
 	particleData.currentIdx = static_cast<uint8_t>(!particleData.currentIdx); // ping-pong between buffers

@@ -56,6 +56,23 @@ struct SetShader {
   Shader* shader;
 };
 
+struct BindTexture {
+  Texture* texture;
+  int32_t slot; // OpenGL texture unit; values < 0 considered invalid
+  Shader* shader;
+  int32_t location; // OpenGL uniform location; values < 0 considered invalid
+};
+
+enum BlendMode {
+  ADD,
+  SUBTRACT,
+  OVERLAY
+};
+
+struct SetBlendMode {
+  BlendMode mode;
+};
+
 struct DrawMeshDirect {
   Mesh* mesh;
   mat4 transform;
@@ -75,7 +92,8 @@ struct DrawText {
 
 enum RenderProperty {
   DEPTH_TEST,
-  BACKFACE_CULLING
+  BACKFACE_CULLING,
+  BLEND
 };
 
 struct SetRenderProperty {
@@ -115,12 +133,17 @@ using RenderCommand = std::variant<
 		SetRenderTarget,
 		SetViewProjectionData,
 		SetRenderProperty,
+		SetBlendMode,
 		DrawInstanced,
 		DrawInstancedSSBO,
-		DrawText
+		DrawText,
+		BindTexture
 >;
 
-using RenderCommandBuffer = vector<RenderCommand>;
+class RenderCommandBuffer: public vector<RenderCommand> {
+public:
+	void append(const RenderCommandBuffer& commandBuffer);
+};
 
 class Scene; // forward declaration to break cyclic dependency
 class Object; // forward declaration to break cyclic dependency
@@ -152,14 +175,16 @@ public:
 
 	void executeCommandBuffer(RenderCommandBuffer commandBuffer);
 	void executeCommand(DrawMesh& command);
+	void executeCommand(DrawMeshDirect& command);
 	void executeCommand(DrawInstanced& command);
 	void executeCommand(DrawInstancedSSBO& command);
 	void executeCommand(DrawText& command);
 	void executeCommand(SetRenderTarget& command);
 	void executeCommand(SetShader& command);
-	void executeCommand(DrawMeshDirect& command);
 	void executeCommand(SetViewProjectionData& command);
 	void executeCommand(SetRenderProperty& command);
+	void executeCommand(SetBlendMode& command);
+	void executeCommand(BindTexture& command);
 
 	uint8_t debugFlags = 0;
 	uint32_t drawCallCount = 0;

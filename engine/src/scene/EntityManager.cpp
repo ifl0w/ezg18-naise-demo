@@ -30,6 +30,12 @@ Entity* EntityManager::getEntity(EntityID id) {
 }
 
 void EntityManager::removeEntity(EntityID id) {
+	auto it = entityMap.find(id);
+
+	if (it == entityMap.end()) {
+		return; // entity not in scene. do nothing.
+	}
+
 	Engine::getEventManager().event<RuntimeEvents::EntityRemoved>().emit(id);
 
 	// remove from signatures
@@ -41,7 +47,7 @@ void EntityManager::removeEntity(EntityID id) {
 	}
 
 	// remove from EntityID map
-	entityMap.erase(id);
+	entityMap.erase(it);
 
 	// remove from entity list
 	entities.erase(remove_if(entities.begin(), entities.end(), [&](auto& ptr){
