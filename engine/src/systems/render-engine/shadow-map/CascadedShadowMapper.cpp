@@ -5,7 +5,7 @@
 using namespace NAISE::RenderCore;
 
 CascadedShadowMapper::CascadedShadowMapper() {
-	std::vector cascades = {
+	cascades = {
 			Cascade{vec2(1024 * 4,1024 * 4), vec2(0, 50)},
 			Cascade{vec2(1024 * 2,1024 * 2), vec2(50, 150)},
 			Cascade{vec2(1024,1024), vec2(150, 300)}
