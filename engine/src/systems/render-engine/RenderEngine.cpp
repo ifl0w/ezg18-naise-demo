@@ -39,10 +39,6 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 
-	shadowMap = make_unique<ShadowMap>(1024, 1024);
-	shadowMap2 = make_unique<ShadowMap>(512, 512);
-	shadowMap3 = make_unique<ShadowMap>(256, 256);
-
 	// enable back face culling
 	glEnable(GL_CULL_FACE);
 	// enable depth test
@@ -84,60 +80,6 @@ void RenderEngine::initFrame(const CameraComponent& cameraComponent, const Trans
 					  transform.globalPosition);
 }
 
-void RenderEngine::render(const shared_ptr<Scene>& scene) {
-	/* Shadow Pass */
-	// uses its own projection data
-//	shadowPass(*scene.get());
-
-	/* Geometry Pass */
-//	geometryPass(scene);
-
-	/* Lighting Pass */
-//	lightPass(scene);
-
-	/* Post-processing Passes */
-//	glowPass(scene);
-
-	/* Forward Pass */
-//	forwardPass(scene);
-
-	/* Skybox Pass*/
-//	skyboxPass(scene);
-
-	/* Text Pass */
-//	textPass(scene);
-
-	/* display continuous debug */
-	if (debugFlags != DEBUG_NONE) {
-		displayDebugQuads();
-	}
-}
-
-void RenderEngine::geometryPass(const Mesh& mesh, const Material* material, mat4 transform) {
-//	activateRenderState();
-//	for (auto const& object: scene->retrieveDeferredRenderObjects()) {
-//		if (wireframe) {
-//			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//		} else {
-//			object->material->renderPolygonMode();
-//		}
-
-	drawMesh(mesh, material, transform);
-//	}
-//	deactivateRenderState();
-}
-
-//void RenderEngine::forwardPass(const shared_ptr<Scene>& scene) {
-////	setLightData();
-//
-////	activateRenderState();
-//	deferredTarget->retrieveDepthBuffer();
-//
-//	object->render();
-//
-//	//	deactivateRenderState();
-//}
-
 void RenderEngine::prepareLightPass() {
 //	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	lightTarget->use();
@@ -152,10 +94,6 @@ void RenderEngine::prepareLightPass() {
 	glBlendFunc(GL_ONE, GL_ONE);
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
-}
-
-void RenderEngine::lightPass(const Light& light) {
-//	renderLights(light);
 }
 
 void RenderEngine::cleanupLightPass() {
@@ -211,21 +149,6 @@ void RenderEngine::setProjectionData(const mat4 projectionMatrix, const mat4 vie
 	glBufferSubData(GL_UNIFORM_BUFFER, 64, 64, value_ptr(projectionMatrix));
 	glBufferSubData(GL_UNIFORM_BUFFER, 128, 64, value_ptr(viewMatrix));
 	glBufferSubData(GL_UNIFORM_BUFFER, 192, 16, value_ptr(cameraPosition));
-
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-}
-
-void RenderEngine::setShadowProjectionData(const mat4 projectionMatrix, const mat4 viewMatrix,
-										   const vec3 lightPosition) {
-	glBindBufferBase(GL_UNIFORM_BUFFER, 1, uboProjectionData);
-
-	glBindBuffer(GL_UNIFORM_BUFFER, uboProjectionData);
-
-	mat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
-
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, 64, value_ptr(viewProjectionMatrix));
-
-	glBufferSubData(GL_UNIFORM_BUFFER, 64, 16, value_ptr(lightPosition));
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
@@ -429,49 +352,6 @@ void RenderEngine::renderLights(const Light& light, mat4 transform, const Entity
 	glDisable(GL_STENCIL_TEST);
 }
 
-void RenderEngine::activateShadowPass(const Entity& light, const Entity& camera, ShadowMap* shadowMap,
-									  Cascade cascade) {
-	shadowMap->use();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	shadowShader.useShader();
-
-	auto& l = *light.component<LightComponent>().light.get();
-	auto& t = camera.component<TransformComponent>();
-	auto& c = camera.component<CameraComponent>();
-
-	setShadowProjectionData(l.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(cascade.range.x, cascade.range.y))),
-							l.getShadowMatrix(),
-							t.position);
-
-	glEnable(GL_DEPTH_TEST);
-
-	// disable back face culling
-	glDisable(GL_CULL_FACE);
-	glViewport(0, 0, shadowMap->width, shadowMap->height);
-}
-
-void RenderEngine::deactivateShadowPass() {
-	glViewport(0, 0, viewportWidth, viewportHeight);
-	// enable back face culling
-	glEnable(GL_CULL_FACE);
-}
-
-void RenderEngine::shadowPass(const vector<Entity*> entities) {
-	for (auto const& e: entities) {
-
-		auto& mesh = *e->component<MeshComponent>().mesh.get();
-
-		Material* material = nullptr;
-		if (auto matComp = e->get<MaterialComponent>()) {
-			material = matComp->material.get();
-		}
-
-		auto transform = e->component<TransformComponent>().getModelMatrix();
-
-		drawMesh(mesh, material, transform);
-	}
-}
-
 void RenderEngine::glowPass() {
 
 	//TODO don't write into depth buffer
@@ -546,36 +426,6 @@ void RenderEngine::glowPass() {
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 }
-//
-//void RenderEngine::textPass(const std::shared_ptr<Scene>& scene) {
-//
-//	if(!scene->retrieveTextElements().empty()){
-//		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//
-//		glEnable(GL_BLEND);
-//		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//		glDisable(GL_DEPTH_TEST);
-//
-//		for (auto const& t: scene->retrieveTextElements()) {
-//			t->renderText();
-//		}
-//
-//		quad.draw();
-//
-//		glDisable(GL_BLEND);
-//		glEnable(GL_DEPTH_TEST);
-//	}
-//
-//}
-//
-//void RenderEngine::skyboxPass(const std::shared_ptr<Scene>& scene) {
-//
-//	if(scene->skybox){
-//		glm::mat4 matrix = projectionMatrix * glm::mat4(glm::mat3(viewMatrix)) ;
-//		scene->skybox->useSkybox(matrix);
-//	}
-//
-//}
 
 void RenderEngine::toggleLightVolumeDebugging() {
 	if (lightVolumeDebugging) {

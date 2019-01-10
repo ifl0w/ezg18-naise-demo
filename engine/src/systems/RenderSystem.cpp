@@ -211,7 +211,7 @@ void RenderSystem::process(microseconds deltaTime) {
 		auto& lc = sun->component<LightComponent>();
 
 		_cascadedShadowMapper->update(c.frustum, lc.light.get());
-		_renderEngine->executeCommandBuffer(_cascadedShadowMapper->generateDebugCommandBuffer());
+//		_renderEngine->executeCommandBuffer(_cascadedShadowMapper->generateDebugCommandBuffer());
 	}
 //		_renderEngine->deactivateRenderState();
 

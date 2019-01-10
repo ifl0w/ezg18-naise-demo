@@ -56,10 +56,8 @@ public:
 	RenderEngine(int viewportWidth, int viewportHeight);
 
 	void initFrame(const CameraComponent& cameraComponent, const TransformComponent& transform);
-	void render(const std::shared_ptr<Scene>& scene);
 
 	void setResolution(int width, int height, int sampling = 1);
-
 	void setBrightness(float brightness);
 	void setViewportSize(int width, int height);
 	void setMultiSampling(int sampling);
@@ -70,6 +68,7 @@ public:
 	void toggleLightVolumeDebugging();
 
 	void skyboxPass();
+	void glowPass();
 	void hdrPass(float deltaTime);
 	void resolveFrameBufferObject();
 
@@ -113,10 +112,6 @@ private:
 	std::unique_ptr<Texture> luminanceTexture;
 	std::unique_ptr<Texture> luminanceTexture2;
 
-	std::unique_ptr<ShadowMap> shadowMap;
-	std::unique_ptr<ShadowMap> shadowMap2;
-	std::unique_ptr<ShadowMap> shadowMap3;
-	ShadowShader shadowShader;
 	PointLightShader plShader;
 	DirectionalLightShader dlShader;
 	NullShader nullShader;
@@ -134,34 +129,21 @@ private:
 	int multiSampling = 1;
 	float graphicsBrightness = 1.0;
 
-	void setScreenData();
 	GLuint uboProjectionData;
-	void setProjectionData(mat4 projectionMatrix, mat4 viewMatrix, vec3 cameraPosition);
-
-	void setShadowProjectionData(mat4 projectionMatrix, mat4 viewMatrix, vec3 lightPosition);
 	GLuint ssboLightData;
 
+	void setScreenData();
+	void setProjectionData(mat4 projectionMatrix, mat4 viewMatrix, vec3 cameraPosition);
 //	void setLightData();
+
 	bool wireframe = false;
 	bool backfaceCulling = true;
-
 	bool lightVolumeDebugging = false;
-	void geometryPass(const Mesh& mesh, const Material* material, mat4 transform);
 
-	void activateShadowPass(const Entity& light, const Entity& camera, ShadowMap* shadowMap, Cascade cascade);
-	void shadowPass(vector<Entity*> entities);
-	void deactivateShadowPass();
 	void prepareLightPass();
-	void lightPass(const Light& light);
-
 	void cleanupLightPass();
-
 	void renderLights(const Light& light, mat4 transform, const Entity& camera,
 						  std::vector<std::unique_ptr<ShadowMap>>& maps, std::vector<Cascade> cascades);
-//	void forwardPass(const std::shared_ptr<Scene>& scene);
-	void glowPass();
-//	void textPass(const std::shared_ptr<Scene>& scene);
-//	void skyboxPass(const std::shared_ptr<Scene>& scene);
 
 	TextRenderer textRenderer;
 
@@ -169,9 +151,6 @@ private:
 	void deactivateRenderState();
 
 	void displayDebugQuads();
-
-	glm::mat4 projectionMatrix;
-	glm::mat4 viewMatrix;
 
 	/* Default properties */
 	unique_ptr<Material> _defaultMaterial;
