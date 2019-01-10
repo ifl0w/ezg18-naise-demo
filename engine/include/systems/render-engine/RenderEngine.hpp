@@ -34,116 +34,16 @@
 
 #include <variant>
 #include <systems/particle-system/ComputeShader.hpp>
-#include <systems/render-engine/shadow-map/CascadedShadowMapper.hpp>
 
-#define BIT(x) (1<<(x))
+#include "RenderCommands.hpp"
+
+#include <systems/render-engine/shadow-map/CascadedShadowMapper.hpp>
 
 using namespace gl;
 using namespace NAISE::RenderCore;
 
 namespace NAISE {
 namespace Engine {
-
-enum DebugState {
-  DEBUG_NONE = 0,
-  DEBUG_POSITION = BIT(0),
-  DEBUG_NORMAL = BIT(1),
-  DEBUG_ALBEDO = BIT(2),
-  DEBUG_GLOW = BIT(3)
-};
-
-struct SetShader {
-  Shader* shader;
-};
-
-struct BindTexture {
-  Texture* texture;
-  int32_t slot; // OpenGL texture unit; values < 0 considered invalid
-  Shader* shader;
-  int32_t location; // OpenGL uniform location; values < 0 considered invalid
-};
-
-enum BlendMode {
-  ADD,
-  SUBTRACT,
-  OVERLAY
-};
-
-struct SetBlendMode {
-  BlendMode mode;
-};
-
-struct DrawMeshDirect {
-  Mesh* mesh;
-  mat4 transform;
-};
-
-struct DrawMesh {
-  Mesh* mesh;
-  Material* material;
-  mat4 transform;
-};
-
-struct DrawText {
-  Font* font;
-  std::string text;
-  mat4 transform;
-};
-
-enum RenderProperty {
-  DEPTH_TEST,
-  BACKFACE_CULLING,
-  BLEND
-};
-
-struct SetRenderProperty {
-  RenderProperty property;
-  bool state;
-};
-
-struct SetRenderTarget {
-  using RenderTargetID = type_index;
-  RenderTargetID renderTargetID;
-};
-
-struct SetViewProjectionData {
-  mat4 viewMatrix = glm::mat4(1);
-  mat4 projectionMatrix = glm::mat4(1);
-  vec3 cameraPosition;
-};
-
-struct DrawInstanced {
-  Mesh* mesh;
-  Material* material;
-  std::vector<mat4> transforms;
-};
-
-struct DrawInstancedSSBO {
-  Mesh* mesh;
-  Material* material;
-  glm::mat4 originTransformation = glm::mat4(1);
-  GLuint count;
-  GLuint transformSSBO;
-};
-
-using RenderCommand = std::variant<
-		SetShader,
-		DrawMeshDirect,
-		DrawMesh,
-		SetRenderTarget,
-		SetViewProjectionData,
-		SetRenderProperty,
-		SetBlendMode,
-		DrawInstanced,
-		DrawInstancedSSBO,
-		DrawText,
-		BindTexture
->;
-
-class RenderCommandBuffer: public vector<RenderCommand> {
-public:
-	void append(const RenderCommandBuffer& commandBuffer);
-};
 
 class Scene; // forward declaration to break cyclic dependency
 class Object; // forward declaration to break cyclic dependency
@@ -174,16 +74,29 @@ public:
 	void resolveFrameBufferObject();
 
 	void executeCommandBuffer(RenderCommandBuffer commandBuffer);
+
+	/* Draw commands */
 	void executeCommand(DrawMesh& command);
 	void executeCommand(DrawMeshDirect& command);
 	void executeCommand(DrawInstanced& command);
+	void executeCommand(DrawInstancedDirect& command);
 	void executeCommand(DrawInstancedSSBO& command);
 	void executeCommand(DrawText& command);
+	void executeCommand(DrawWireframeDirect& command);
+
+	/* Render Target commands */
 	void executeCommand(SetRenderTarget& command);
+	void executeCommand(ClearRenderTarget& command);
+
+	/* Shader commands */
 	void executeCommand(SetShader& command);
-	void executeCommand(SetViewProjectionData& command);
 	void executeCommand(SetRenderProperty& command);
 	void executeCommand(SetBlendMode& command);
+	void executeCommand(SetViewProjectionData& command);
+	void executeCommand(SetViewport& command);
+	void executeCommand(ResetViewport& command);
+
+	/* Texture commands */
 	void executeCommand(BindTexture& command);
 
 	uint8_t debugFlags = 0;
@@ -264,6 +177,8 @@ private:
 	unique_ptr<Material> _defaultMaterial;
 	Skybox* _skybox;
 
+	Shader* _activeShader = nullptr;
+
 	// instancing properties
 	GLuint maxInstanceCount = 100000;
 	GLuint ssboInstanceTransformsBindingIndex = 0;
@@ -274,7 +189,8 @@ private:
 	void drawMeshInstancedDirect(const Mesh& mesh, vector<mat4> transforms);
 	void drawMesh(const Mesh& mesh, const Material* material = nullptr, mat4 transform = mat4(1));
 	void drawMeshDirect(const Mesh& mesh);
-	void drawDebugMesh(const Mesh& mesh, glm::vec3 color);
+	void drawMeshDirect(const Mesh& mesh, mat4 transform);
+	void drawDebugMesh(const Mesh& mesh, glm::vec3 color, mat4 transform = mat4(1));
 };
 
 }

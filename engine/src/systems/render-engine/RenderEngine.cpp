@@ -1,6 +1,5 @@
 #include <systems/render-engine/RenderEngine.hpp>
 #include <systems/render-engine/materials/PBRMaterial.hpp>
-#include <systems/render-engine/shaders/LightShader.hpp>
 
 #include <components/MaterialComponent.hpp>
 #include <components/LightComponent.hpp>
@@ -18,7 +17,7 @@ RenderEngine::RenderEngine()
 RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 		: viewportWidth(viewportWidth),
 		  viewportHeight(viewportHeight),
-		  _defaultMaterial(make_unique<PBRMaterial>(vec3(0.9, 0, 0.9), 0, 0.5)){
+		  _defaultMaterial(make_unique<PBRMaterial>(vec3(0.9, 0, 0.9), 0, 0.5)) {
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
 
 	//TODO refactor glow, separate into own classes
@@ -26,7 +25,7 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	float glowTextureHeight;
 	float glowTextureWidth;
 	float glowTextureMaxSize = 512;
-	if(viewportWidth >= viewportHeight){
+	if (viewportWidth >= viewportHeight) {
 		glowTextureHeight = glowTextureMaxSize / aspectRatio;
 		glowTextureWidth = glowTextureMaxSize;
 	} else {
@@ -430,7 +429,8 @@ void RenderEngine::renderLights(const Light& light, mat4 transform, const Entity
 	glDisable(GL_STENCIL_TEST);
 }
 
-void RenderEngine::activateShadowPass(const Entity& light, const Entity& camera, ShadowMap* shadowMap, Cascade cascade) {
+void RenderEngine::activateShadowPass(const Entity& light, const Entity& camera, ShadowMap* shadowMap,
+									  Cascade cascade) {
 	shadowMap->use();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	shadowShader.useShader();
@@ -439,7 +439,8 @@ void RenderEngine::activateShadowPass(const Entity& light, const Entity& camera,
 	auto& t = camera.component<TransformComponent>();
 	auto& c = camera.component<CameraComponent>();
 
-	setShadowProjectionData(l.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(cascade.range.x, cascade.range.y))), l.getShadowMatrix(),
+	setShadowProjectionData(l.getProjectionMatrix(AABB(c.frustum.getBoundingVolume(cascade.range.x, cascade.range.y))),
+							l.getShadowMatrix(),
 							t.position);
 
 	glEnable(GL_DEPTH_TEST);
@@ -455,7 +456,7 @@ void RenderEngine::deactivateShadowPass() {
 	glEnable(GL_CULL_FACE);
 }
 
-void RenderEngine::shadowPass( const vector<Entity*> entities) {
+void RenderEngine::shadowPass(const vector<Entity*> entities) {
 	for (auto const& e: entities) {
 
 		auto& mesh = *e->component<MeshComponent>().mesh.get();
@@ -471,7 +472,6 @@ void RenderEngine::shadowPass( const vector<Entity*> entities) {
 	}
 }
 
-
 void RenderEngine::glowPass() {
 
 	//TODO don't write into depth buffer
@@ -486,7 +486,7 @@ void RenderEngine::glowPass() {
 
 	/** BLUR STEPS **/
 	postProcessingTarget->use();
-	GLenum attachmentpoints[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+	GLenum attachmentpoints[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 
 	//first blur step (horizontal)
 	//reading from gEmissionMetallic and writing to input (GL_COLOR_ATTACHMENT0)
@@ -608,6 +608,7 @@ void RenderEngine::drawMeshInstanced(const Mesh& mesh, const Material* material,
 	_skybox->applyToShader(material->shader);
 
 	material->useMaterial();
+	material->shader->setModelMatrix(mat4(1));
 
 	if (wireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -644,7 +645,7 @@ void RenderEngine::drawMesh(const Mesh& mesh, const Material* material, mat4 tra
 	drawMeshDirect(mesh);
 }
 
-void RenderEngine::drawDebugMesh(const Mesh& mesh, glm::vec3 color) {
+void RenderEngine::drawDebugMesh(const Mesh& mesh, glm::vec3 color, mat4 transform) {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glDisable(GL_DEPTH_TEST);
 
@@ -652,7 +653,7 @@ void RenderEngine::drawDebugMesh(const Mesh& mesh, glm::vec3 color) {
 		solidColorShader.useShader();
 	}
 
-	solidColorShader.setModelMatrix(mat4(1));
+	solidColorShader.setModelMatrix(transform);
 	solidColorShader.setColor(color);
 
 	glBindVertexArray(mesh.vao);
@@ -666,7 +667,7 @@ void RenderEngine::hdrPass(float deltaTime) {
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
 
-	auto mipmapCount = (int)(log(glm::max(lightTarget->width, lightTarget->height))/log(2));
+	auto mipmapCount = (int) (log(glm::max(lightTarget->width, lightTarget->height)) / log(2));
 
 	// generate luminance image
 	luminanceCompute.useShader();
@@ -674,7 +675,7 @@ void RenderEngine::hdrPass(float deltaTime) {
 	glBindImageTexture(0, lightTarget->output, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
 	glBindImageTexture(1, luminanceTexture->textureID, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA16F);
 
-	auto groups = ivec3((viewportWidth / 16) + 1,  (viewportHeight / 16) + 1, 1);
+	auto groups = ivec3((viewportWidth / 16) + 1, (viewportHeight / 16) + 1, 1);
 	luminanceCompute.compute(groups);
 
 	// reduce luminance image
@@ -739,22 +740,17 @@ void RenderEngine::resolveFrameBufferObject() {
 	glDisable(GL_FRAMEBUFFER_SRGB);
 }
 
-
 void RenderEngine::skyboxPass() {
-	if(_skybox != nullptr){
+	if (_skybox != nullptr) {
 		_skybox->drawSkybox();
 	}
 }
 
-void RenderEngine::setSkybox(Skybox *skybox) {
+void RenderEngine::setSkybox(Skybox* skybox) {
 	_skybox = skybox;
 }
 
 void RenderEngine::drawMeshInstancedDirect(const Mesh& mesh, vector<mat4> transforms) {
-
-	gl::GLint modelMatrixLocation = glGetUniformLocation(static_cast<GLuint>(Shader::activeShader), "modelMatrix");
-	glUniformMatrix4fv(modelMatrixLocation, 1, false, glm::value_ptr(mat4(1)));
-
 	glUniform1i(glGetUniformLocation(static_cast<GLuint>(Shader::activeShader), "useInstancing"), true);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssboInstanceTransformsBindingIndex, ssboInstanceTransforms);
 	glNamedBufferSubData(ssboInstanceTransforms, 0, transforms.size() * sizeof(mat4), transforms.data());
@@ -774,28 +770,24 @@ void RenderEngine::executeCommandBuffer(RenderCommandBuffer commandBuffer) {
 	for (int i = 0; i < commandBuffer.size(); ++i) {
 		std::visit([&](auto&& arg) {
 		  using T = std::decay_t<decltype(arg)>;
-		  if constexpr (std::is_same_v<T, DrawInstancedSSBO>)
-			  executeCommand(arg);
-		  else if constexpr (std::is_same_v<T, DrawInstanced>)
-			  executeCommand(arg);
-		  else if constexpr (std::is_same_v<T, DrawMesh>)
-			  executeCommand(arg);
-		  else if constexpr (std::is_same_v<T, DrawMeshDirect>)
-			  executeCommand(arg);
-		  else if constexpr (std::is_same_v<T, DrawText>)
-			  executeCommand(arg);
-		  else if constexpr (std::is_same_v<T, SetShader>)
-			  executeCommand(arg);
-		  else if constexpr (std::is_same_v<T, BindTexture>)
-			  executeCommand(arg);
-		  else if constexpr (std::is_same_v<T, SetViewProjectionData>)
-			  executeCommand(arg);
-		  else if constexpr (std::is_same_v<T, SetRenderProperty>)
-			  executeCommand(arg);
-		  else if constexpr (std::is_same_v<T, SetBlendMode>)
-			  executeCommand(arg);
+		  if constexpr (std::is_same_v<T, DrawInstancedSSBO>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, DrawMesh>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, DrawMeshDirect>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, DrawInstanced>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, DrawInstancedDirect>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, DrawText>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, DrawWireframeDirect>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, SetShader>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, BindTexture>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, SetViewProjectionData>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, SetViewport>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, ResetViewport>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, SetRenderProperty>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, SetBlendMode>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, SetRenderTarget>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, ClearRenderTarget>) { executeCommand(arg); }
 		  else
-			  NAISE_DEBUG_CONSOL("Render command not handled! ({})", typeid(arg).name())
+			  NAISE_WARN_CONSOL("Render command not handled! ({})", typeid(arg).name())
 		}, commandBuffer[i]);
 	}
 
@@ -806,7 +798,11 @@ void RenderEngine::executeCommand(DrawMesh& command) {
 }
 
 void RenderEngine::executeCommand(DrawInstanced& command) {
+	drawMeshInstanced(*command.mesh, command.material, command.transforms);
+}
 
+void RenderEngine::executeCommand(DrawInstancedDirect& command) {
+	drawMeshInstancedDirect(*command.mesh, command.transforms);
 }
 
 void RenderEngine::executeCommand(DrawInstancedSSBO& command) {
@@ -830,34 +826,36 @@ void RenderEngine::executeCommand(DrawInstancedSSBO& command) {
 }
 
 void RenderEngine::executeCommand(SetRenderTarget& command) {
-
+	command.target->use();
 }
 
 void RenderEngine::executeCommand(SetShader& command) {
-	if (command.shader->shaderID != Shader::activeShader) {
+	if (_activeShader == nullptr
+			|| _activeShader->shaderID != command.shader->shaderID
+			|| command.shader->shaderID != Shader::activeShader) {
 		command.shader->useShader();
+		_activeShader = command.shader;
 	}
 }
 
 void RenderEngine::executeCommand(DrawMeshDirect& command) {
-	drawMeshDirect(*command.mesh);
+	drawMeshDirect(*command.mesh, command.transform);
 }
 
 void RenderEngine::executeCommand(SetViewProjectionData& command) {
 	setProjectionData(command.projectionMatrix, command.viewMatrix, command.cameraPosition);
 }
 
-void RenderEngine::executeCommand(NAISE::Engine::DrawText& command) {
+void RenderEngine::executeCommand(NAISE::RenderCore::DrawText& command) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	textRenderer.render(command.text, command.font, vec3(1,1,1), command.transform);
+	textRenderer.render(command.text, command.font, vec3(1, 1, 1), command.transform);
 	glDisable(GL_BLEND);
 }
 
 void RenderEngine::executeCommand(SetRenderProperty& command) {
 	switch (command.property) {
-	case RenderProperty::BACKFACE_CULLING:
-	{
+	case RenderProperty::BACKFACE_CULLING: {
 		if (command.state) {
 			glEnable(GL_CULL_FACE);
 		} else {
@@ -906,10 +904,42 @@ void RenderEngine::executeCommand(SetBlendMode& command) {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBlendEquation(GL_FUNC_ADD);
 		break;
-	default: break;
+	default:
+		break;
 	}
 }
 
-void RenderCommandBuffer::append(const RenderCommandBuffer& commandBuffer) {
-	this->insert(this->end(), commandBuffer.begin(), commandBuffer.end());
+void RenderEngine::executeCommand(ClearRenderTarget& command) {
+	ClearBufferMask mask = GL_NONE_BIT;
+
+	mask = (command.color) ? mask | GL_COLOR_BUFFER_BIT : mask;
+	mask = (command.depth) ? mask | GL_DEPTH_BUFFER_BIT : mask;
+	mask = (command.stencil) ? mask | GL_STENCIL_BUFFER_BIT : mask;
+	mask = (command.accum) ? mask | GL_ACCUM_BUFFER_BIT : mask;
+
+	glClear(mask);
+}
+
+void RenderEngine::executeCommand(ResetViewport& command) {
+	glViewport(0, 0, viewportWidth, viewportHeight);
+}
+
+void RenderEngine::executeCommand(SetViewport& command) {
+	glViewport(command.offset.x, command.offset.y, command.size.x, command.size.y);
+}
+
+void RenderEngine::drawMeshDirect(const Mesh& mesh, mat4 transform) {
+	if(_activeShader != nullptr) {
+		_activeShader->setModelMatrix(transform);
+	}
+
+	//Bind VAO
+	glBindVertexArray(mesh.vao);
+
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
+	drawCallCount++;
+}
+
+void RenderEngine::executeCommand(DrawWireframeDirect& command) {
+	drawDebugMesh(*command.mesh, command.color, command.transform);
 }

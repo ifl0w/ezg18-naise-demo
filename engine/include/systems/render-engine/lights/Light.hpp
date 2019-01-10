@@ -60,9 +60,7 @@ public:
 	 * Lights that are not flagged as required, may be excluded from rendering if a certain threshold is exeeded.
 	 */
 	bool required = true;
-
-	std::unique_ptr<ShadowMapper> shadowMapper;
-
+	
 protected:
 	virtual bool cull();
 };

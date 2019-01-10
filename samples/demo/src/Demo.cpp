@@ -115,7 +115,6 @@ int main(int argc, char **argv) {
 	sun->component<LightComponent>().light->data.direction = vec4(-1, -2, -1, 1);
 	sun->component<LightComponent>().light->data.diffuse = vec4(5000, 5000, 5000, 1);
 	sun->component<LightComponent>().light->data.ambient = vec4(1);
-	dynamic_cast<DirectionalLight*>(sun->component<LightComponent>().light.get())->addShadowMapper();
 
 	auto platformParticles = make_shared<NAISE::Engine::Entity>();
 	platformParticles->add<TransformComponent>();

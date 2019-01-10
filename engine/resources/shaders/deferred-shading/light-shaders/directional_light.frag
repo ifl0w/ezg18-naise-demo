@@ -2,6 +2,8 @@
 
 #define PI 3.1415926535897932384626433832795
 
+#define CASCADE_COUNT 3
+
 out vec4 fragColor;
 
 in vec2 TexCoords;
@@ -11,9 +13,9 @@ uniform sampler2D gNormal;
 uniform sampler2D gAlbedoRoughness;
 uniform sampler2D gEmissionMetallic;
 
-uniform sampler2DShadow shadowMap[3];
-uniform mat4 depthShadowProjection[3];
-uniform float cascadeEnd[3];
+uniform sampler2DShadow shadowMap[CASCADE_COUNT];
+uniform mat4 depthShadowProjection[CASCADE_COUNT];
+uniform float cascadeEnd[CASCADE_COUNT];
 
 layout(std140, binding = 0) uniform screenData
 {
@@ -50,7 +52,7 @@ float calculateShadowFactor(vec3 pos, vec3 normal, vec3 lightDir) {
     vec4 proj = viewProjection * vec4(pos, 1);
     float depth = proj.z / proj.w;
 
-    for (int i = 0 ; i < 3 ; i++) {
+    for (int i = 0 ; i < CASCADE_COUNT; i++) {
         if (depth <= cascadeEnd[i]) {
             cascadeIdx = i;
             break;
@@ -61,14 +63,14 @@ float calculateShadowFactor(vec3 pos, vec3 normal, vec3 lightDir) {
 	vec3 ProjCoords =  0.5 * (shadowPos.xyz) + 0.5;
 
 	float cosTheta = clamp(dot(normal, lightDir), 0.0, 1.0);
-    float bias = 0.0001 * tan(acos(cosTheta)) * pow(10,cascadeIdx);
+    float bias = 0.0001 * tan(acos(cosTheta)) * pow(2,depth + 1);
     bias = clamp(bias, 0.0, 0.01);
 
     // 2x2 hardware pcf + blurring with a 3x3 kernel for prettier results
     float shadowFactor = 0;
     for(int x=-1; x<=1; x++) {
         for(int y=-1; y<=1; y++) {
-            vec2 off = vec2(x,y)/3000; // blurring factor depends on cascade size
+            vec2 off = vec2(x,y)/((cascadeIdx + 1) * 2000); // blurring factor depends on cascade size
             shadowFactor += texture(shadowMap[cascadeIdx], vec3(ProjCoords.xy+off, ProjCoords.z-bias));
         }
     }

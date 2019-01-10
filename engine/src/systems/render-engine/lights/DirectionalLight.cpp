@@ -31,22 +31,5 @@ mat4 DirectionalLight::getProjectionMatrix(AABB aabb) const {
 	float maxY = aabb.values.second.y;
 	float maxZ = aabb.values.second.z;
 
-	return glm::ortho(minX, maxX, minY, maxY, -maxZ - maxShadowDistance, -minZ); // 5000 is the max shadow distance
+	return glm::ortho(minX, maxX, minY, maxY, -maxZ - maxShadowDistance, -minZ);
 }
-
-void DirectionalLight::addShadowMapper() {
-	std::vector cascades = {
-			Cascade{vec2(1024 * 4,1024 * 4), vec2(0, 50)},
-			Cascade{vec2(1024 * 2,1024 * 2), vec2(50, 150)},
-			Cascade{vec2(1024,1024), vec2(150, 300)},
-	};
-
-	this->shadowMapper = std::make_unique<CascadedShadowMapper>(cascades);
-}
-
-//void DirectionalLight::update(std::chrono::microseconds deltaTime) {
-//	Light::update(deltaTime);
-//
-//	auto aabb = AABB(Shader::activeCamera->frustum.getBoundingVolume(50));
-//	frustum = Frustum(aabb, getShadowMatrix(), maxShadowDistance);
-//}

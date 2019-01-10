@@ -23,6 +23,8 @@
 #include <systems/physics/BulletDebugDrawer.hpp>
 #include <systems/particle-system/MeshParticleComponent.hpp>
 
+#include <systems/render-engine/shadow-map/CascadedShadowMapper.hpp>
+
 namespace NAISE {
 namespace Engine {
 
@@ -56,8 +58,9 @@ private:
 
 	Skybox skybox = Skybox(glm::vec3(0.3,0.3,0.3));
 
-	map<Mesh*, vector<glm::mat4>> shadowMeshInstances;
 	map<InstanceID, vector<glm::mat4>> meshInstances;
+
+	std::unique_ptr<CascadedShadowMapper> _cascadedShadowMapper = std::make_unique<CascadedShadowMapper>();
 };
 
 }
