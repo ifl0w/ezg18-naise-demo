@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <utility>
+#include <iostream>
 
 using namespace NAISE::Engine;
 
@@ -34,7 +35,13 @@ void Shader::initUniformLocations(){
 }
 
 void Shader::recompile(){
+
+	try {
+	glEnable(GL_DEBUG_OUTPUT);
 	glDeleteProgram((GLuint) shaderID);
    	shaderID = createShaderProgram(m_vertexShaderFile, m_fragmentShaderFile);
     initUniformLocations();
+	} catch(std::runtime_error& e) {
+		std::cout<< e.what()<<std::endl;
+	}
 }

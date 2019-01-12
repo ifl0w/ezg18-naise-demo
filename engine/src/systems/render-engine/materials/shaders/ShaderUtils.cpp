@@ -49,6 +49,7 @@ GLuint NAISE::Engine::createShaderProgram(std::string vertexShaderFile, std::str
 
 	GLint isCompiled = 0;
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &isCompiled);
+
 	if (isCompiled == 0) {
 		GLint maxLength = 0;
 		glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &maxLength);
@@ -59,6 +60,7 @@ GLuint NAISE::Engine::createShaderProgram(std::string vertexShaderFile, std::str
 
 		//We don't need the shader anymore.
 		glDeleteShader(vertexShader);
+
 
 		throw std::runtime_error("[" + vertexShaderFile + "] Could not compile vertex shaders. " + std::string(infoLog.data()));
 	}
@@ -89,7 +91,7 @@ GLuint NAISE::Engine::createShaderProgram(std::string vertexShaderFile, std::str
 		glDeleteShader(vertexShader);
 
 		// loginfo to stdout.
-//		std::cout << std::string(infoLog.data()) << std::endl;
+		std::cout << std::string(infoLog.data()) << std::endl;
 
 		throw std::runtime_error("[" + fragmentShaderFile + "] Could not compile fragment shaders." + std::string(infoLog.data()));
 	}

@@ -553,9 +553,18 @@ void RenderEngine::screenSpaceReflectionPass(){
 	screenSpaceReflectionsShader.useShader();
 	screenSpaceReflectionsShader.setModelMatrix(mat4(1.0));
 
-	glUniform1i(uniformLocation(screenSpaceReflectionsShader.shaderID, "gPosition"), 4);
+	glUniform1i(glGetUniformLocation(screenSpaceReflectionsShader.shaderID, "gNormal"), 5);
+	glActiveTexture(GL_TEXTURE0 + 5);
+	glBindTexture(GL_TEXTURE_2D, deferredTarget->gNormal);
+
+	glUniform1i(glGetUniformLocation(screenSpaceReflectionsShader.shaderID, "gAlbedoRoughness"), 2);
+	glActiveTexture(GL_TEXTURE0 + 2);
+	glBindTexture(GL_TEXTURE_2D, deferredTarget->gAlbedoRoughness);
+
+	glUniform1i(glGetUniformLocation(screenSpaceReflectionsShader.shaderID, "gPosition"), 4);
 	glActiveTexture(GL_TEXTURE0 + 4);
 	glBindTexture(GL_TEXTURE_2D, deferredTarget->gPosition);
+
     glUniform1i(glGetUniformLocation(screenSpaceReflectionsShader.shaderID, "imageInput"), 3);
     glActiveTexture(GL_TEXTURE0 + 3);
     glBindTexture(GL_TEXTURE_2D, lightTarget->output);
