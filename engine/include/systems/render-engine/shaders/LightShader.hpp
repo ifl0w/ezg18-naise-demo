@@ -10,10 +10,7 @@ class LightShader: public Shader {
 public:
 	LightShader(std::string vertexShaderPath, std::string fragmentShaderPath);
 
-	GLint shadowMapLocation = -1;
-	GLint shadowMapLocation1 = -1;
-	GLint shadowMapLocation2 = -1;
-	GLint shadowMapLocation3 = -1;
+	std::vector<GLint> shadowMapLocation = {-1, -1, -1};
 	GLint positionBufferLocation = -1;
 	GLint normalBufferLocation = -1;
 	GLint albedoRoughnessBufferLocation = -1;
@@ -23,10 +20,7 @@ public:
 	GLenum normalBufferUnit = GL_TEXTURE0 + 1;
 	GLenum diffSpecBufferUnit = GL_TEXTURE0 + 2;
 	GLenum glowBufferUnit = GL_TEXTURE0 + 4;
-	GLenum shadowMapUnit = GL_TEXTURE0 + 3;
-	GLenum shadowMap1Unit = GL_TEXTURE0 + 5;
-	GLenum shadowMap2Unit = GL_TEXTURE0 + 6;
-	GLenum shadowMap3Unit = GL_TEXTURE0 + 7;
+	GLenum shadowMapUnit = GL_TEXTURE0 + 5;
 
 	void setLightProperties(const NAISE::RenderCore::Light& light);
 

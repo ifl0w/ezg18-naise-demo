@@ -8,21 +8,10 @@
 
 #include "../lights/Light.hpp"
 #include "ShadowShader.hpp"
+#include "Cascade.hpp"
 
 namespace NAISE {
 namespace RenderCore {
-
-struct Cascade {
-  /**
-   * width x height
-   */
-  glm::vec2 size;
-
-  /**
-   * near distance, far distance
-   */
-  glm::vec2 range;
-};
 
 class CascadedShadowMapper: public ShadowMapper {
 public:
@@ -43,16 +32,15 @@ public:
 
 	RenderCommandBuffer generateDebugCommandBuffer();
 
-	std::vector<std::unique_ptr<ShadowMap>> shadowCascades;
 	std::vector<Cascade> cascades;
 
 private:
 	ShadowShader _shadowShader;
+	vector<std::unique_ptr<ShadowMap>> _shadowMaps;
 
 	glm::mat4 _shadowViewMatrix = mat4(1);
 	std::vector<AABB> _shadowCascadeAABBs;
 	std::vector<Frustum> _shadowCascadeFrustums;
-	std::vector<glm::mat4> _shadowProjectionMatrix;
 
 	using ShadowCasterInstances = map<Mesh*, vector<glm::mat4>>;
 	vector<ShadowCasterInstances> _cascadeInstances;

@@ -6,16 +6,10 @@
 
 using namespace NAISE::Engine;
 
-PostProcessingTarget::PostProcessingTarget()
-	:width(0),
-	 height(0) {
-}
+PostProcessingTarget::PostProcessingTarget() {};
 
-PostProcessingTarget::PostProcessingTarget(int width, int height, int samples)
-		: width(width),
-		  height(height),
-		  samples(samples) {
-
+PostProcessingTarget::PostProcessingTarget(int width, int height, int samples) : RenderTarget(width, height, 0)
+{
 	samples = glm::max(1, samples);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);

@@ -6,13 +6,14 @@ using namespace NAISE::RenderCore;
 
 CascadedShadowMapper::CascadedShadowMapper() {
 	cascades = {
-			Cascade{vec2(1024 * 4,1024 * 4), vec2(0, 50)},
-			Cascade{vec2(1024 * 2,1024 * 2), vec2(50, 150)},
-			Cascade{vec2(1024,1024), vec2(150, 300)}
+			Cascade(vec2(1024 * 4,1024 * 4), vec2(0, 50)),
+			Cascade(vec2(1024 * 2,1024 * 2), vec2(50, 150)),
+			Cascade(vec2(1024,1024), vec2(150, 300))
 	};
 
-	for (auto& cascade: cascades) {
-		shadowCascades.push_back(std::make_unique<ShadowMap>(cascade.size.x, cascade.size.y));
+	for (int i = 0; i < cascades.size(); ++i) {
+		_shadowMaps.push_back(std::make_unique<ShadowMap>(cascades[i].size.x, cascades[i].size.y));
+		cascades[i].shadowMap = _shadowMaps[i].get();
 	}
 
 	_cascadeInstances = vector<ShadowCasterInstances>(cascades.size());
@@ -20,8 +21,9 @@ CascadedShadowMapper::CascadedShadowMapper() {
 
 CascadedShadowMapper::CascadedShadowMapper(std::vector<Cascade>& cascades)
 		: cascades(cascades) {
+
 	for (auto& cascade: cascades) {
-		shadowCascades.push_back(std::make_unique<ShadowMap>(cascade.size.x, cascade.size.y));
+		_shadowMaps.push_back(std::make_unique<ShadowMap>(cascade.size.x, cascade.size.y));
 	}
 
 	_cascadeInstances = vector<ShadowCasterInstances>(cascades.size());
@@ -48,7 +50,6 @@ void CascadedShadowMapper::addShadowCaster(Mesh* mesh, mat4 transform, AABB aabb
 void CascadedShadowMapper::update(Frustum& cameraFrustum, NAISE::RenderCore::Light* light) {
 	_shadowCascadeAABBs.clear();
 	_shadowCascadeFrustums.clear();
-	_shadowProjectionMatrix.clear();
 
 	_shadowViewMatrix = light->getShadowMatrix();
 
@@ -57,7 +58,9 @@ void CascadedShadowMapper::update(Frustum& cameraFrustum, NAISE::RenderCore::Lig
 
 		_shadowCascadeAABBs.emplace_back(cameraFrustum.getBoundingVolume(cascades[i].range.x, cascades[i].range.y));
 		_shadowCascadeFrustums.emplace_back(_shadowCascadeAABBs[i], _shadowViewMatrix, 500);
-		_shadowProjectionMatrix.emplace_back(light->getProjectionMatrix(_shadowCascadeAABBs[i]));
+
+		cascades[i].viewMatrix = _shadowViewMatrix;
+		cascades[i].projectionMatrix = light->getProjectionMatrix(_shadowCascadeAABBs[i]);
 	}
 }
 
@@ -71,7 +74,7 @@ RenderCommandBuffer CascadedShadowMapper::generateCommandBuffer() {
 
 	for (int i = 0; i < cascades.size(); i++) {
 		buffer.push_back(SetRenderTarget {
-				shadowCascades[i].get()
+				cascades[i].shadowMap
 		});
 
 		buffer.push_back(ClearRenderTarget { true, true, false });
@@ -79,12 +82,12 @@ RenderCommandBuffer CascadedShadowMapper::generateCommandBuffer() {
 		buffer.push_back(SetShader { &_shadowShader });
 
 		buffer.push_back(SetViewProjectionData {
-				_shadowViewMatrix,
-				_shadowProjectionMatrix[i],
+				cascades[i].viewMatrix,
+				cascades[i].projectionMatrix,
 				vec3(0),
 		});
 
-		buffer.push_back(SetViewport { vec2(0), vec2(shadowCascades[i]->width, shadowCascades[i]->height) });
+		buffer.push_back(SetViewport { vec2(0), vec2(cascades[i].shadowMap->width, cascades[i].shadowMap->height) });
 
 		// append draw commands
 		for (auto& shadowCasterInstance: _cascadeInstances[i]) {

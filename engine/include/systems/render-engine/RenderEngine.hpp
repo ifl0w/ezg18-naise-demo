@@ -55,17 +55,11 @@ public:
 	RenderEngine();
 	RenderEngine(int viewportWidth, int viewportHeight);
 
-	void initFrame(const CameraComponent& cameraComponent, const TransformComponent& transform);
-
 	void setResolution(int width, int height, int sampling = 1);
 	void setBrightness(float brightness);
 	void setViewportSize(int width, int height);
 	void setMultiSampling(int sampling);
 	void setSkybox(Skybox* skybox);
-
-	void toggleBackfaceCulling();
-	void toggleWireframe();
-	void toggleLightVolumeDebugging();
 
 	void skyboxPass();
 	void glowPass();
@@ -85,7 +79,9 @@ public:
 
 	/* Render Target commands */
 	void executeCommand(SetRenderTarget& command);
+	void executeCommand(RetrieveDepthBuffer& command);
 	void executeCommand(ClearRenderTarget& command);
+	void executeCommand(SetClearColor& command);
 
 	/* Shader commands */
 	void executeCommand(SetShader& command);
@@ -97,6 +93,10 @@ public:
 
 	/* Texture commands */
 	void executeCommand(BindTexture& command);
+
+	/* Lights */
+	void executeCommand(RenderPointLight& command);
+	void executeCommand(RenderDirectionalLight& command);
 
 	uint8_t debugFlags = 0;
 	uint32_t drawCallCount = 0;
@@ -140,17 +140,7 @@ private:
 	bool backfaceCulling = true;
 	bool lightVolumeDebugging = false;
 
-	void prepareLightPass();
-	void cleanupLightPass();
-	void renderLights(const Light& light, mat4 transform, const Entity& camera,
-						  std::vector<std::unique_ptr<ShadowMap>>& maps, std::vector<Cascade> cascades);
-
 	TextRenderer textRenderer;
-
-	void activateRenderState();
-	void deactivateRenderState();
-
-	void displayDebugQuads();
 
 	/* Default properties */
 	unique_ptr<Material> _defaultMaterial;

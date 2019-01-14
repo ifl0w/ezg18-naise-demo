@@ -52,15 +52,62 @@ public:
 	}
 
 private:
-	bool cullEntity(Entity& camera, Entity& entity);
-
 	std::shared_ptr<RenderEngine> _renderEngine;
+	std::unique_ptr<CascadedShadowMapper> _cascadedShadowMapper = std::make_unique<CascadedShadowMapper>();
 
 	Skybox skybox = Skybox(glm::vec3(0.3,0.3,0.3));
 
 	map<InstanceID, vector<glm::mat4>> meshInstances;
 
-	std::unique_ptr<CascadedShadowMapper> _cascadedShadowMapper = std::make_unique<CascadedShadowMapper>();
+	/**
+	 * Render properties
+	 */
+	Entity* _activeCamera = nullptr;
+	Entity* _activeSun = nullptr;
+
+	bool _drawWireframe = false;
+	bool _drawCameraObjects = false;
+	bool _drawPhysicsDebugObjects = false;
+	bool _drawAABBs = false;
+
+
+	/**
+	 * Produces the commandbuffer for filling the gBuffer and the shadow maps.
+	 * @return
+	 */
+	RenderCore::RenderCommandBuffer _gBufferRenderBuffer();
+	uint64_t _commandBufferSize = 100;
+
+	/**
+	 * Produces the commandbuffer for rendering the particle systems.
+	 * @return
+	 */
+	RenderCore::RenderCommandBuffer _meshParticlesRenderBuffer();
+	uint64_t _particleCommandBufferSize = 100;
+
+	/**
+	 *
+	 */
+	 RenderCore::RenderCommandBuffer _lightsCommandBuffer();
+	uint64_t _lightCommandBufferSize = 10;
+
+	/**
+	 * Iterates over all renderable objects and tests if they are
+	 * relevant for the current frame and inserts them in the
+	 * _meshInstaces vector.
+	 */
+	void _collectGeometries();
+
+	/**
+	 * Cull an entity against the given camera frustum.
+	 * Returns true if the object does not intersect/include with the camera frustum else false.
+	 *
+	 * @param camera
+	 * @param entity
+	 * @return bool
+	 */
+	bool cullEntity(Entity& camera, Entity& entity);
+
 };
 
 }

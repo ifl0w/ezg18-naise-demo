@@ -13,6 +13,9 @@
 #include "text/TextRenderer.hpp"
 #include "text/Glyph.hpp"
 
+#include "lights/Light.hpp"
+#include "shadow-map/Cascade.hpp"
+
 #define BIT(x) (1<<(x))
 
 using namespace NAISE::RenderCore;
@@ -93,6 +96,7 @@ struct DrawInstancedSSBO {
 
 enum RenderProperty {
   DEPTH_TEST,
+  DEPTH_MASK,
   BACKFACE_CULLING,
   BLEND
 };
@@ -104,6 +108,15 @@ struct SetRenderProperty {
 
 struct SetRenderTarget {
   RenderTarget* target;
+};
+
+struct RetrieveDepthBuffer {
+  RenderTarget* source;
+  RenderTarget* destination;
+};
+
+struct SetClearColor {
+  glm::vec4 color;
 };
 
 struct ClearRenderTarget {
@@ -126,8 +139,24 @@ struct SetViewProjectionData {
   vec3 cameraPosition;
 };
 
+/**
+ * Point light command
+ * Spot lights are pointlights as well.
+ */
+struct RenderPointLight {
+  Light* light;
+  mat4 transform;
+};
+
+struct RenderDirectionalLight {
+  Light* light;
+  vector<Cascade> cascades;
+  glm::mat4 cameraProjectionMatrix;
+};
+
 using RenderCommand = std::variant<
 		SetShader,
+
 		DrawMeshDirect,
 		DrawMesh,
 		DrawInstanced,
@@ -135,14 +164,22 @@ using RenderCommand = std::variant<
 		DrawInstancedSSBO,
 		DrawText,
 		DrawWireframeDirect,
+
 		SetRenderTarget,
+		RetrieveDepthBuffer,
 		ClearRenderTarget,
+		SetClearColor,
+
 		SetViewport,
 		ResetViewport,
 		SetViewProjectionData,
 		SetRenderProperty,
 		SetBlendMode,
-		BindTexture
+		BindTexture,
+
+		// Lights
+		RenderPointLight,
+		RenderDirectionalLight
 >;
 
 class RenderCommandBuffer : public vector<RenderCommand> {

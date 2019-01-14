@@ -26,9 +26,6 @@ RenderSystem::RenderSystem(std::shared_ptr<RenderEngine> renderEngine): _renderE
 }
 
 void RenderSystem::process(microseconds deltaTime) {
-	Entity* camera = nullptr;
-	Entity* sun = nullptr;
-
 	// TODO: move somewhere to render engine
 	// reset draw call count
 	_renderEngine->drawCallCount = 0;
@@ -36,10 +33,10 @@ void RenderSystem::process(microseconds deltaTime) {
 	_renderEngine->setSkybox(&skybox);
 
 	auto& cameraEntities = Engine::getEntityManager().getEntities<CameraSignature>();
-	camera = cameraEntities.front();
+	_activeCamera = cameraEntities.front();
 	for (auto entity: cameraEntities) {
 		if (entity->component<CameraComponent>().active) {
-			camera = entity;
+			_activeCamera = entity;
 			break;
 		}
 	}
@@ -47,143 +44,31 @@ void RenderSystem::process(microseconds deltaTime) {
 	auto& sunEntities = Engine::getEntityManager().getEntities<SunSignature>();
 	for (auto entity: sunEntities) {
 		if (entity->component<LightComponent>().light->data.directional) {
-			sun = entity;
+			_activeSun = entity;
 			break;
 		}
 	}
 
-	if (camera == nullptr) {
+	if (_activeCamera == nullptr) {
 		NAISE_WARN_CONSOL("No active camera found.")
 		return;
 	}
 
-	auto lightComp = sun->get<LightComponent>();
-	auto* camComp = camera->get<CameraComponent>();
-	_cascadedShadowMapper->update(camComp->frustum, lightComp->light.get());
-
-	auto& geometryEntities = Engine::getEntityManager().getEntities<GeometrySignature>();
-	for (auto& instanceID: meshInstances) { instanceID.second.clear(); } // clear instances
-	for (auto entity: geometryEntities) {
-		Mesh* mesh = entity->component<MeshComponent>().mesh.get();
-		auto aabb = entity->get<AABBComponent>();
-		auto transform = entity->component<TransformComponent>().getModelMatrix();
-
-		if(aabb != nullptr) {
-			_cascadedShadowMapper->addShadowCaster(mesh, transform, aabb->aabb);
-		}
-
-		if (cullEntity(*camera, *entity)) {
-			continue;
-		}
-
-		Material* material = nullptr;
-		if (auto* matComp = entity->get<MaterialComponent>()) {
-			material = matComp->material.get();
-		}
-
-		InstanceID instanceID(mesh, material);
-
-		meshInstances[instanceID].push_back(transform);
-	}
-	for (auto entity: Engine::getEntityManager().getEntities<VisualSignature>()) {
-		auto meshes = entity->component<VisualComponent>().meshes;
-		auto materials = entity->component<VisualComponent>().materials;
-		for (int i = 0; i < meshes.size(); i++) {
-			Mesh* mesh = meshes[i].get();
-			auto aabb = entity->get<AABBComponent>();
-			auto transform = entity->component<TransformComponent>().getModelMatrix();
-
-			if(aabb != nullptr) {
-				_cascadedShadowMapper->addShadowCaster(mesh, transform, aabb->aabb);
-			}
-
-			if (cullEntity(*camera, *entity)) {
-				continue;
-			}
-
-			Material* material = materials[i].get();
-
-			InstanceID instanceID(mesh, material);
-
-			meshInstances[instanceID].push_back(transform);
-		}
+	if (_activeSun != nullptr) {
+		auto lightComp = _activeSun->get<LightComponent>();
+		auto* camComp = _activeCamera->get<CameraComponent>();
+		_cascadedShadowMapper->update(camComp->frustum, lightComp->light.get());
 	}
 
-	RenderCommandBuffer particleSystemCommandBuffer;
-	auto& particleSystemEntities = Engine::getEntityManager().getEntities<ParticleRenderSignature>();
-	for (auto& particleSystem: particleSystemEntities) {
-		auto& particleComponent = particleSystem->component<MeshParticleComponent>();
-		auto& transformComponent = particleSystem->component<TransformComponent>();
-		auto& mesh = particleComponent.mesh;
-		auto& material = particleComponent.material;
+	_collectGeometries();
 
-		if (mesh && material) {
-			DrawInstancedSSBO command;
-
-			command.mesh = mesh.get();
-			command.material = material.get();
-			command.transformSSBO = particleComponent.ssboTransformations;
-			command.originTransformation = transformComponent.getModelMatrix();
-			command.count = particleComponent.particleCount;
-
-			particleSystemCommandBuffer.push_back(command);
-		}
-	}
-
-	if (sun != nullptr) {
-		_renderEngine->executeCommandBuffer(_cascadedShadowMapper->generateCommandBuffer());
-	}
-
-	_renderEngine->initFrame(camera->component<CameraComponent>(), camera->component<TransformComponent>());
-
-//		_renderEngine->wireframe = true;
-//		_renderEngine->backfaceCulling = false;
-	_renderEngine->activateRenderState();
-	for (auto& instanceID: meshInstances) {
-		if(!instanceID.second.empty()) {
-			if(instanceID.second.size() > 1) {
-				_renderEngine->drawMeshInstanced(*instanceID.first.first, instanceID.first.second, instanceID.second);
-			} else {
-				for (auto transform: instanceID.second) {
-					_renderEngine->drawMesh(*instanceID.first.first, instanceID.first.second, transform);
-				}
-			}
-		}
-	}
-	_renderEngine->executeCommandBuffer(particleSystemCommandBuffer);
-	_renderEngine->deactivateRenderState();
+	_renderEngine->executeCommandBuffer(_cascadedShadowMapper->generateCommandBuffer());
+	_renderEngine->executeCommandBuffer(_gBufferRenderBuffer());
+	_renderEngine->executeCommandBuffer(_meshParticlesRenderBuffer());
 
 //	NAISE_DEBUG_CONSOL("Draw calls: {}", _renderEngine->drawCallCount)
 
-	auto& lightEntities = Engine::getEntityManager().getEntities<LightSignature>();
-	_renderEngine->prepareLightPass();
-	for (auto entity: lightEntities) {
-		auto& light = *entity->component<LightComponent>().light.get();
-		auto transComp = entity->component<TransformComponent>();
-		auto transform = transComp.getModelMatrix();
-
-		// TODO: move to light system
-		if (entity->component<LightComponent>().isType<PointLight>()) {
-			auto& l = dynamic_cast<PointLight&>(light);
-			light.data.lightPosition = vec4(glm::vec3(transform[3]), 1); // write back position
-			vec3 scale = vec3(l.calculateLightVolumeRadius());
-			transform = glm::scale(transform, scale);
-		}
-
-		if (entity->component<LightComponent>().isType<SpotLight>()) {
-			auto* l = dynamic_cast<SpotLight*>(&light);
-			light.data.lightPosition = vec4(glm::vec3(transform[3]), 1); // write back position
-			light.data.direction = glm::vec4(glm::rotate(transComp.globalRotation, vec3(0,0,-1)), 1) ; // default direction is (0, 0, -1)
-			vec3 scale = vec3(l->calculateLightVolumeRadius());
-			transform = glm::scale(transform, scale);
-		}
-
-		if (!cullEntity(*camera, *entity)) {
-			_renderEngine
-					->renderLights(light, transform, *camera, _cascadedShadowMapper->shadowCascades, _cascadedShadowMapper->cascades);
-		}
-	}
-	_renderEngine->cleanupLightPass();
+	_renderEngine->executeCommandBuffer(_lightsCommandBuffer());
 
 	//SKYBOX
 	_renderEngine->skyboxPass();
@@ -208,7 +93,7 @@ void RenderSystem::process(microseconds deltaTime) {
 			continue;
 		}
 
-		auto& lc = sun->component<LightComponent>();
+		auto& lc = _activeSun->component<LightComponent>();
 
 		_cascadedShadowMapper->update(c.frustum, lc.light.get());
 //		_renderEngine->executeCommandBuffer(_cascadedShadowMapper->generateDebugCommandBuffer());
@@ -229,4 +114,209 @@ bool RenderSystem::cullEntity(Entity& camera, Entity& entity) {
 	}
 
 	return false;
+}
+
+RenderCommandBuffer RenderSystem::_gBufferRenderBuffer() {
+	RenderCommandBuffer buffer;
+	buffer.reserve(_commandBufferSize);
+
+	buffer.push_back(SetRenderTarget {_renderEngine->deferredTarget.get()});
+
+	// enable back face culling
+	buffer.push_back(SetRenderProperty { BACKFACE_CULLING, true });
+
+	// enable depth test
+	buffer.push_back(SetRenderProperty { DEPTH_TEST, true });
+
+	buffer.push_back(ClearRenderTarget {true, true});
+
+	buffer.push_back(SetViewProjectionData {
+			glm::inverse(_activeCamera->component<TransformComponent>().getModelMatrix()),
+			_activeCamera->component<CameraComponent>().getProjectionMatrix(),
+			_activeCamera->component<TransformComponent>().globalPosition
+	});
+
+	if (_drawWireframe) {
+		// TODO
+		// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	} else {
+
+	}
+
+	// append draw commands
+	for (auto& instance: meshInstances) {
+		if (instance.second.size() > 1) {
+			buffer.push_back(DrawInstanced { instance.first.first, instance.first.second, instance.second });
+		} else {
+			for (auto transform: instance.second) {
+				buffer.push_back(DrawMesh { instance.first.first, instance.first.second, transform });
+			}
+		}
+	}
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDisable(GL_CULL_FACE);
+
+	_commandBufferSize = glm::max(_commandBufferSize, buffer.size());
+	return buffer;
+}
+
+
+void RenderSystem::_collectGeometries() {
+
+	auto& geometryEntities = Engine::getEntityManager().getEntities<GeometrySignature>();
+	for (auto& instanceID: meshInstances) { instanceID.second.clear(); } // clear instances
+	for (auto entity: geometryEntities) {
+		Mesh* mesh = entity->component<MeshComponent>().mesh.get();
+		auto aabb = entity->get<AABBComponent>();
+		auto transform = entity->component<TransformComponent>().getModelMatrix();
+
+		if(aabb != nullptr) {
+			_cascadedShadowMapper->addShadowCaster(mesh, transform, aabb->aabb);
+		}
+
+		if (cullEntity(*_activeCamera, *entity)) {
+			continue;
+		}
+
+		Material* material = nullptr;
+		if (auto* matComp = entity->get<MaterialComponent>()) {
+			material = matComp->material.get();
+		}
+
+		InstanceID instanceID(mesh, material);
+
+		meshInstances[instanceID].push_back(transform);
+	}
+
+	for (auto entity: Engine::getEntityManager().getEntities<VisualSignature>()) {
+		auto meshes = entity->component<VisualComponent>().meshes;
+		auto materials = entity->component<VisualComponent>().materials;
+		for (int i = 0; i < meshes.size(); i++) {
+			Mesh* mesh = meshes[i].get();
+			auto aabb = entity->get<AABBComponent>();
+			auto transform = entity->component<TransformComponent>().getModelMatrix();
+
+			if(aabb != nullptr) {
+				_cascadedShadowMapper->addShadowCaster(mesh, transform, aabb->aabb);
+			}
+
+			if (cullEntity(*_activeCamera, *entity)) {
+				continue;
+			}
+
+			Material* material = materials[i].get();
+
+			InstanceID instanceID(mesh, material);
+
+			meshInstances[instanceID].push_back(transform);
+		}
+	}
+
+}
+
+RenderCommandBuffer RenderSystem::_meshParticlesRenderBuffer() {
+	RenderCommandBuffer buffer;
+	buffer.reserve(_particleCommandBufferSize);
+
+	auto& particleSystemEntities = Engine::getEntityManager().getEntities<ParticleRenderSignature>();
+	for (auto& particleSystem: particleSystemEntities) {
+		auto& particleComponent = particleSystem->component<MeshParticleComponent>();
+		auto& transformComponent = particleSystem->component<TransformComponent>();
+		auto& mesh = particleComponent.mesh;
+		auto& material = particleComponent.material;
+
+		if (mesh && material) {
+			DrawInstancedSSBO command;
+
+			command.mesh = mesh.get();
+			command.material = material.get();
+			command.transformSSBO = particleComponent.ssboTransformations;
+			command.originTransformation = transformComponent.getModelMatrix();
+			command.count = particleComponent.particleCount;
+
+			buffer.push_back(command);
+		}
+	}
+
+	_particleCommandBufferSize = glm::max(_particleCommandBufferSize, buffer.size());
+	return buffer;
+}
+
+RenderCommandBuffer RenderSystem::_lightsCommandBuffer() {
+	RenderCommandBuffer buffer;
+	buffer.reserve(_lightCommandBufferSize);
+
+	// TODO: rework lighting. (Light culling in compute shader)
+
+	buffer.push_back(SetRenderTarget {_renderEngine->lightTarget.get()});
+
+	buffer.push_back(SetClearColor { vec4(0,0,0,0) });
+	buffer.push_back(ClearRenderTarget {true, true});
+
+	buffer.push_back(RetrieveDepthBuffer {_renderEngine->deferredTarget.get(), _renderEngine->lightTarget.get()});
+
+	// enable depth test
+	buffer.push_back(SetRenderProperty { DEPTH_TEST, true });
+	// do not write to the depth buffer
+	buffer.push_back(SetRenderProperty { DEPTH_MASK, false });
+
+	// "add" light
+	buffer.push_back(SetRenderProperty { BLEND, true });
+	buffer.push_back(SetBlendMode { ADD });
+
+	auto& lightEntities = Engine::getEntityManager().getEntities<LightSignature>();
+	for (auto entity: lightEntities) {
+		if (cullEntity(*_activeCamera, *entity)) {
+			continue;
+		}
+
+		auto& light = *entity->component<LightComponent>().light.get();
+		auto transComp = entity->component<TransformComponent>();
+		auto transform = transComp.getModelMatrix();
+
+		// TODO: move to light system
+		if (entity->component<LightComponent>().isType<PointLight>()) {
+			auto& l = dynamic_cast<PointLight&>(light);
+
+			light.data.lightPosition = vec4(glm::vec3(transform[3]), 1); // write back position
+			vec3 scale = vec3(l.calculateLightVolumeRadius());
+
+			buffer.push_back(RenderPointLight {
+				entity->component<LightComponent>().light.get(),
+				glm::scale(transform, scale)
+			});
+
+			continue;
+		}
+
+		if (entity->component<LightComponent>().isType<SpotLight>()) {
+			auto* l = dynamic_cast<SpotLight*>(&light);
+
+			light.data.lightPosition = vec4(glm::vec3(transform[3]), 1); // write back position
+			light.data.direction = glm::vec4(glm::rotate(transComp.globalRotation, vec3(0,0,-1)), 1) ; // default direction is (0, 0, -1)
+			vec3 scale = vec3(l->calculateLightVolumeRadius());
+
+			buffer.push_back(RenderPointLight {
+					entity->component<LightComponent>().light.get(),
+					glm::scale(transform, scale)
+			});
+
+			continue;
+		}
+
+		buffer.push_back(RenderDirectionalLight {
+				entity->component<LightComponent>().light.get(),
+				_cascadedShadowMapper->cascades,
+				_activeCamera->component<CameraComponent>().getProjectionMatrix()
+		});
+	}
+
+	// write to the depth buffer again
+	buffer.push_back(SetRenderProperty { DEPTH_MASK, true });
+
+	buffer.push_back(SetRenderProperty { BLEND, false });
+
+	_lightCommandBufferSize = glm::max(_lightCommandBufferSize, buffer.size());
+	return buffer;
 }

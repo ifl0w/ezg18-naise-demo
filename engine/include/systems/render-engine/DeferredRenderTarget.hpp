@@ -19,18 +19,12 @@ public:
 	void setTextureUnits(const NAISE::RenderCore::LightShader& lightShader);
 //	void setTextureUnits(const std::unique_ptr<DirectionalLightShader>& lightShader);
 
-	void retrieveDepthBuffer(RenderTarget* target);
-	void retrieveDepthBuffer(GLuint fbo);
-
 	GLuint gEmissionMetallic;
 	GLuint gPosition;
 	GLuint gNormal;
 	GLuint gAlbedoRoughness;
 	GLuint depth_rbo;
-private:
-	int width;
-	int height;
-	int samples;
+
 };
 
 }

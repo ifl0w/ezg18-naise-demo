@@ -15,9 +15,6 @@ public:
 
 	void setTextureUnits(const LightShader& lightShader);
 
-	int width;
-	int height;
-
 	GLuint shadowMap;
 };
 

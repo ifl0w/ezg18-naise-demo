@@ -1,14 +1,10 @@
 #pragma once
 
-#include <components/Component.hpp>
 #include <systems/render-engine/frustum-culling/AABB.hpp>
-#include <systems/render-engine/shadow-map/ShadowMapper.hpp>
 
 #include <glm/glm.hpp>
 
 #include <memory>
-
-#define MAX_LIGHTS 300
 
 using namespace glm;
 

@@ -68,60 +68,6 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
-void RenderEngine::initFrame(const CameraComponent& cameraComponent, const TransformComponent& transform) {
-	// enable back face culling
-	glEnable(GL_CULL_FACE);
-	// enable depth test
-	glEnable(GL_DEPTH_TEST);
-	deferredTarget->use();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	setProjectionData(cameraComponent.getProjectionMatrix(), glm::inverse(transform.getModelMatrix()),
-					  transform.globalPosition);
-}
-
-void RenderEngine::prepareLightPass() {
-//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	lightTarget->use();
-	glClearColor(0, 0, 0, 0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	deferredTarget->retrieveDepthBuffer(lightTarget.get());
-
-	// do not write to the depth buffer
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_FALSE);
-
-	glBlendFunc(GL_ONE, GL_ONE);
-	glEnable(GL_BLEND);
-	glBlendEquation(GL_FUNC_ADD);
-}
-
-void RenderEngine::cleanupLightPass() {
-	// write to the depth buffer again
-	glDepthMask(GL_TRUE);
-
-	glDisable(GL_BLEND);
-}
-
-void RenderEngine::activateRenderState() {
-	Shader::activeShader = -1;
-
-	if (wireframe) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	} else {
-
-	}
-
-	if (backfaceCulling) {
-		glEnable(GL_CULL_FACE);
-	}
-}
-
-void RenderEngine::deactivateRenderState() {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glDisable(GL_CULL_FACE);
-}
-
 void RenderEngine::setScreenData() {
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboScreenData);
 
@@ -170,63 +116,6 @@ void RenderEngine::setProjectionData(const mat4 projectionMatrix, const mat4 vie
 //	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 //}
 
-void RenderEngine::toggleBackfaceCulling() {
-	if (backfaceCulling) {
-		spdlog::get("logger")->info("NAISE::ENGINE :: backface culling disabled");
-	} else {
-		spdlog::get("logger")->info("NAISE::ENGINE :: backface culling enabled");
-	}
-
-	backfaceCulling = !backfaceCulling;
-}
-
-void RenderEngine::toggleWireframe() {
-	if (wireframe) {
-		spdlog::get("logger")->info("NAISE::ENGINE :: wireframe rendering disabled");
-	} else {
-		spdlog::get("logger")->info("NAISE::ENGINE :: wireframe rendering enabled");
-	}
-
-	wireframe = !wireframe;
-}
-
-void RenderEngine::displayDebugQuads() {
-	glDisable(GL_DEPTH_TEST);
-
-	float scale = 1 / 4.0f;
-	glm::mat4 scaleMatrix = glm::scale(mat4(), vec3(scale, scale, 1));
-
-	if (debugFlags & DEBUG_POSITION) {
-		textureDebugShader.useShader();
-		textureDebugShader.setMSTextureUnit(deferredTarget->gPosition);
-		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(-3, -2, 1)));
-		drawMeshDirect(quad);
-	}
-
-	if (debugFlags & DEBUG_NORMAL) {
-		textureDebugShader.useShader();
-		textureDebugShader.setMSTextureUnit(deferredTarget->gNormal);
-		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(-1, -2, 1)));
-		drawMeshDirect(quad);
-	}
-
-	if (debugFlags & DEBUG_ALBEDO) {
-		textureDebugShader.useShader();
-		textureDebugShader.setMSTextureUnit(deferredTarget->gAlbedoRoughness);
-		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(1, -2, 1)));
-		drawMeshDirect(quad);
-	}
-
-	if (debugFlags & DEBUG_GLOW) {
-		textureDebugShader.useShader();
-		textureDebugShader.setMSTextureUnit(deferredTarget->gEmissionMetallic);
-		textureDebugShader.setModelMatrix(glm::translate(scaleMatrix, vec3(+3, -2, 1)));
-		drawMeshDirect(quad);
-	}
-
-	glEnable(GL_DEPTH_TEST);
-}
-
 void RenderEngine::setViewportSize(int width, int height) {
 	glViewport(0, 0, width, height);
 	viewportWidth = width;
@@ -259,97 +148,6 @@ void RenderEngine::setResolution(int width, int height, int sampling) {
 void RenderEngine::setBrightness(float brightness) {
 	graphicsBrightness = brightness;
 	setScreenData();
-}
-
-void RenderEngine::renderLights(const Light& light, mat4 transform, const Entity& camera,
-								std::vector<std::unique_ptr<ShadowMap>>& maps, std::vector<Cascade> cascades) {
-
-	// stencil test for light volumes
-	glEnable(GL_STENCIL_TEST);
-
-//	for (const auto& light: lights) {
-	if (!light.data.directional) {
-		/* Light volume culling */
-		nullShader.useShader();
-
-		glEnable(GL_DEPTH_TEST);
-
-		glDisable(GL_CULL_FACE);
-
-		glClear(GL_STENCIL_BUFFER_BIT);
-
-		// Stencil test succeed always. Only the depth test matters.
-		glStencilFunc(GL_ALWAYS, 0, 0);
-
-		glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
-		glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-
-		nullShader.setModelMatrix(transform);
-		drawMeshDirect(sphereLightVolume);
-
-		/* Light volume shading */
-		plShader.useShader();
-		plShader.setLightVolumeDebugging(lightVolumeDebugging);
-
-		glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-
-		glDisable(GL_DEPTH_TEST);
-
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_FRONT);
-
-		deferredTarget->setTextureUnits(plShader);
-
-		plShader.setLightProperties(light);
-		plShader.setModelMatrix(transform);
-		drawMeshDirect(sphereLightVolume);
-
-		glEnable(GL_DEPTH_TEST);
-
-		glCullFace(GL_BACK);
-	} else {
-		dlShader.useShader();
-
-		glDisable(GL_DEPTH_TEST);
-
-		// ignore stencil test
-		glStencilFunc(GL_ALWAYS, 0, 0);
-
-		deferredTarget->setTextureUnits(dlShader);
-
-		glUniform1i(dlShader.shadowMapLocation1, 5);
-		glActiveTexture(dlShader.shadowMap1Unit);
-		glBindTexture(GL_TEXTURE_2D, maps[0]->shadowMap);
-
-		glUniform1i(dlShader.shadowMapLocation2, 6);
-		glActiveTexture(dlShader.shadowMap2Unit);
-		glBindTexture(GL_TEXTURE_2D, maps[1]->shadowMap);
-
-		glUniform1i(dlShader.shadowMapLocation3, 7);
-		glActiveTexture(dlShader.shadowMap3Unit);
-		glBindTexture(GL_TEXTURE_2D, maps[2]->shadowMap);
-
-		dlShader.setLightProperties(light);
-		auto& c = camera.component<CameraComponent>();
-
-		dlShader.setShadowMapViewProjection(0, light.getProjectionMatrix(
-				AABB(c.frustum.getBoundingVolume(cascades[0].range.x, cascades[0].range.y))) * light.getShadowMatrix());
-		dlShader.setShadowMapViewProjection(1, light.getProjectionMatrix(
-				AABB(c.frustum.getBoundingVolume(cascades[1].range.x, cascades[1].range.y))) * light.getShadowMatrix());
-		dlShader.setShadowMapViewProjection(2, light.getProjectionMatrix(
-				AABB(c.frustum.getBoundingVolume(cascades[2].range.x, cascades[2].range.y))) * light.getShadowMatrix());
-
-		dlShader.setCascadeEnd(0, c.getProjectionMatrix(), cascades[0].range.y);
-		dlShader.setCascadeEnd(1, c.getProjectionMatrix(), cascades[1].range.y);
-		dlShader.setCascadeEnd(2, c.getProjectionMatrix(), cascades[2].range.y);
-
-		drawMeshDirect(quad);
-
-		glEnable(GL_DEPTH_TEST);
-	}
-//	}
-
-	glDisable(GL_STENCIL_TEST);
 }
 
 void RenderEngine::glowPass() {
@@ -425,16 +223,6 @@ void RenderEngine::glowPass() {
 
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
-}
-
-void RenderEngine::toggleLightVolumeDebugging() {
-	if (lightVolumeDebugging) {
-		spdlog::get("logger")->info("NAISE::ENGINE :: Light volume debugging disabled");
-	} else {
-		spdlog::get("logger")->info("NAISE::ENGINE :: Light volume debugging enabled");
-	}
-
-	lightVolumeDebugging = !lightVolumeDebugging;
 }
 
 void RenderEngine::drawMeshDirect(const Mesh& mesh) {
@@ -634,8 +422,17 @@ void RenderEngine::executeCommandBuffer(RenderCommandBuffer commandBuffer) {
 		  else if constexpr (std::is_same_v<T, ResetViewport>) { executeCommand(arg); }
 		  else if constexpr (std::is_same_v<T, SetRenderProperty>) { executeCommand(arg); }
 		  else if constexpr (std::is_same_v<T, SetBlendMode>) { executeCommand(arg); }
+
 		  else if constexpr (std::is_same_v<T, SetRenderTarget>) { executeCommand(arg); }
 		  else if constexpr (std::is_same_v<T, ClearRenderTarget>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, RetrieveDepthBuffer>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, SetClearColor>) { executeCommand(arg); }
+
+
+		  // Lights
+		  else if constexpr (std::is_same_v<T, RenderPointLight>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, RenderDirectionalLight>) { executeCommand(arg); }
+
 		  else
 			  NAISE_WARN_CONSOL("Render command not handled! ({})", typeid(arg).name())
 		}, commandBuffer[i]);
@@ -714,6 +511,15 @@ void RenderEngine::executeCommand(SetRenderProperty& command) {
 
 		break;
 	}
+	case RenderProperty::DEPTH_MASK: {
+		if (command.state) {
+			glDepthMask(GL_TRUE);
+		} else {
+			glDepthMask(GL_FALSE);
+		}
+
+		break;
+	}
 	case RenderProperty::DEPTH_TEST: {
 		if (command.state) {
 			glEnable(GL_DEPTH_TEST);
@@ -770,6 +576,14 @@ void RenderEngine::executeCommand(ClearRenderTarget& command) {
 	glClear(mask);
 }
 
+void RenderEngine::executeCommand(RetrieveDepthBuffer& command) {
+	command.source->retrieveDepthBuffer(command.destination);
+}
+
+void RenderEngine::executeCommand(SetClearColor& command) {
+	glClearColor(command.color.x, command.color.y, command.color.z, command.color.w);
+}
+
 void RenderEngine::executeCommand(ResetViewport& command) {
 	glViewport(0, 0, viewportWidth, viewportHeight);
 }
@@ -792,4 +606,81 @@ void RenderEngine::drawMeshDirect(const Mesh& mesh, mat4 transform) {
 
 void RenderEngine::executeCommand(DrawWireframeDirect& command) {
 	drawDebugMesh(*command.mesh, command.color, command.transform);
+}
+
+void RenderEngine::executeCommand(RenderPointLight& command) {
+	// stencil test for light volumes
+	glEnable(GL_STENCIL_TEST);
+
+	/* Light volume culling */
+	nullShader.useShader();
+
+	glEnable(GL_DEPTH_TEST);
+
+	glDisable(GL_CULL_FACE);
+
+	glClear(GL_STENCIL_BUFFER_BIT);
+
+	// Stencil test succeed always. Only the depth test matters.
+	glStencilFunc(GL_ALWAYS, 0, 0);
+
+	glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+	glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+
+	nullShader.setModelMatrix(command.transform);
+	drawMeshDirect(sphereLightVolume);
+
+	/* Light volume shading */
+	plShader.useShader();
+	plShader.setLightVolumeDebugging(lightVolumeDebugging);
+
+	glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+
+	glDisable(GL_DEPTH_TEST);
+
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+
+	deferredTarget->setTextureUnits(plShader);
+
+	plShader.setLightProperties(*command.light);
+	plShader.setModelMatrix(command.transform);
+	drawMeshDirect(sphereLightVolume);
+
+	glEnable(GL_DEPTH_TEST);
+
+	glCullFace(GL_BACK);
+
+	glDisable(GL_STENCIL_TEST);
+}
+
+void RenderEngine::executeCommand(RenderDirectionalLight& command) {
+	// stencil test for light volumes
+	glEnable(GL_STENCIL_TEST);
+
+	dlShader.useShader();
+
+	glDisable(GL_DEPTH_TEST);
+
+	// ignore stencil test
+	glStencilFunc(GL_ALWAYS, 0, 0);
+
+	deferredTarget->setTextureUnits(dlShader);
+
+	dlShader.setLightProperties(*command.light);
+
+	for (int i = 0; i < command.cascades.size(); ++i) {
+		glUniform1i(dlShader.shadowMapLocation[i], 5 + i);
+		glActiveTexture(dlShader.shadowMapUnit + i);
+		glBindTexture(GL_TEXTURE_2D, command.cascades[i].shadowMap->shadowMap);
+
+		dlShader.setShadowMapViewProjection(i, command.cascades[i].projectionMatrix * command.cascades[i].viewMatrix);
+		dlShader.setCascadeEnd(i, command.cameraProjectionMatrix, command.cascades[i].range.y);
+	}
+
+	drawMeshDirect(quad);
+
+	glEnable(GL_DEPTH_TEST);
+
+	glDisable(GL_STENCIL_TEST);
 }
