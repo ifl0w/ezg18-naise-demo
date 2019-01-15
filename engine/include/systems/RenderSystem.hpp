@@ -28,13 +28,13 @@
 namespace NAISE {
 namespace Engine {
 
-struct SunSignature: public Signature<LightComponent> {};
-struct LightSignature: public Signature<LightComponent, TransformComponent> {};
-struct GeometrySignature: public Signature<TransformComponent, MeshComponent> {};
-struct VisualSignature: public Signature<TransformComponent, VisualComponent> {};
-struct CameraSignature: public Signature<CameraComponent, TransformComponent> {};
-struct DebugDrawSignature: public Signature<PhysicsDebugComponent> {};
-struct ParticleRenderSignature: public Signature<TransformComponent, MeshParticleComponent> {};
+struct SunSignature : public Signature<LightComponent> { };
+struct LightSignature : public Signature<LightComponent, TransformComponent> { };
+struct GeometrySignature : public Signature<TransformComponent, MeshComponent> { };
+struct VisualSignature : public Signature<TransformComponent, VisualComponent> { };
+struct CameraSignature : public Signature<CameraComponent, TransformComponent> { };
+struct DebugDrawSignature : public Signature<PhysicsDebugComponent> { };
+struct ParticleRenderSignature : public Signature<TransformComponent, MeshParticleComponent> { };
 
 using InstanceID = std::pair<Mesh*, Material*>;
 
@@ -47,7 +47,7 @@ public:
 
 	void process(microseconds deltaTime) override;
 
-	void setSkybox(Skybox& skybox){
+	void setSkybox(Skybox& skybox) {
 		this->skybox = skybox;
 	}
 
@@ -55,7 +55,7 @@ private:
 	std::shared_ptr<RenderEngine> _renderEngine;
 	std::unique_ptr<CascadedShadowMapper> _cascadedShadowMapper = std::make_unique<CascadedShadowMapper>();
 
-	Skybox skybox = Skybox(glm::vec3(0.3,0.3,0.3));
+	Skybox skybox = Skybox(glm::vec3(0.3, 0.3, 0.3));
 
 	map<InstanceID, vector<glm::mat4>> meshInstances;
 
@@ -65,11 +65,11 @@ private:
 	Entity* _activeCamera = nullptr;
 	Entity* _activeSun = nullptr;
 
+	bool _visualDebugging = false;
 	bool _drawWireframe = false;
 	bool _drawCameraObjects = false;
 	bool _drawPhysicsDebugObjects = false;
 	bool _drawAABBs = false;
-
 
 	/**
 	 * Produces the commandbuffer for filling the gBuffer and the shadow maps.
@@ -86,10 +86,17 @@ private:
 	uint64_t _particleCommandBufferSize = 100;
 
 	/**
-	 *
+	 * Light rendering (light pass)
 	 */
-	 RenderCore::RenderCommandBuffer _lightsCommandBuffer();
+	RenderCore::RenderCommandBuffer _lightsCommandBuffer();
 	uint64_t _lightCommandBufferSize = 10;
+
+	/**
+	 * Debug objects
+	 */
+	RenderCore::RenderCommandBuffer _debugCommandBuffer();
+
+	void _postProcessing(std::chrono::microseconds deltaTime);
 
 	/**
 	 * Iterates over all renderable objects and tests if they are
@@ -106,7 +113,7 @@ private:
 	 * @param entity
 	 * @return bool
 	 */
-	bool cullEntity(Entity& camera, Entity& entity);
+	bool _cullEntity(Entity& camera, Entity& entity);
 
 };
 

@@ -26,10 +26,6 @@ RenderSystem::RenderSystem(std::shared_ptr<RenderEngine> renderEngine): _renderE
 }
 
 void RenderSystem::process(microseconds deltaTime) {
-	// TODO: move somewhere to render engine
-	// reset draw call count
-	_renderEngine->drawCallCount = 0;
-
 	_renderEngine->setSkybox(&skybox);
 
 	auto& cameraEntities = Engine::getEntityManager().getEntities<CameraSignature>();
@@ -63,13 +59,23 @@ void RenderSystem::process(microseconds deltaTime) {
 	_collectGeometries();
 
 	_renderEngine->executeCommandBuffer(_cascadedShadowMapper->generateCommandBuffer());
+
 	_renderEngine->executeCommandBuffer(_gBufferRenderBuffer());
 	_renderEngine->executeCommandBuffer(_meshParticlesRenderBuffer());
 
-//	NAISE_DEBUG_CONSOL("Draw calls: {}", _renderEngine->drawCallCount)
-
 	_renderEngine->executeCommandBuffer(_lightsCommandBuffer());
 
+	_postProcessing(deltaTime);
+
+//	NAISE_DEBUG_CONSOL("Draw calls: {}", _renderEngine->drawCallCount)
+	_renderEngine->resolveFrameBufferObject();
+
+	if (_visualDebugging) {
+		_renderEngine->executeCommandBuffer(_debugCommandBuffer());
+	}
+}
+
+void RenderSystem::_postProcessing(std::chrono::microseconds deltaTime) {
 	//SKYBOX
 	_renderEngine->skyboxPass();
 
@@ -79,31 +85,9 @@ void RenderSystem::process(microseconds deltaTime) {
 	// HDR
 	std::chrono::duration<float> sec = deltaTime;
 	_renderEngine->hdrPass(sec.count());
-
-	auto& debugDrawEntities = Engine::getEntityManager().getEntities<DebugDrawSignature>();
-//		_renderEngine->activateRenderState();
-	for (auto& entity: debugDrawEntities) {
-		auto& p = entity->component<PhysicsDebugComponent>();
-		_renderEngine->drawDebugMesh(p.mesh, p.color);
-	}
-
-	for (auto& entity: cameraEntities) {
-		auto& c = entity->component<CameraComponent>();
-		if (c.active) {
-			continue;
-		}
-
-		auto& lc = _activeSun->component<LightComponent>();
-
-		_cascadedShadowMapper->update(c.frustum, lc.light.get());
-//		_renderEngine->executeCommandBuffer(_cascadedShadowMapper->generateDebugCommandBuffer());
-	}
-//		_renderEngine->deactivateRenderState();
-
-	_renderEngine->resolveFrameBufferObject();
 }
 
-bool RenderSystem::cullEntity(Entity& camera, Entity& entity) {
+bool RenderSystem::_cullEntity(Entity& camera, Entity& entity) {
 	auto* camComp = camera.get<CameraComponent>();
 	auto* aabbComp = entity.get<AABBComponent>();
 	if (camComp && aabbComp) {
@@ -175,7 +159,7 @@ void RenderSystem::_collectGeometries() {
 			_cascadedShadowMapper->addShadowCaster(mesh, transform, aabb->aabb);
 		}
 
-		if (cullEntity(*_activeCamera, *entity)) {
+		if (_cullEntity(*_activeCamera, *entity)) {
 			continue;
 		}
 
@@ -201,7 +185,7 @@ void RenderSystem::_collectGeometries() {
 				_cascadedShadowMapper->addShadowCaster(mesh, transform, aabb->aabb);
 			}
 
-			if (cullEntity(*_activeCamera, *entity)) {
+			if (_cullEntity(*_activeCamera, *entity)) {
 				continue;
 			}
 
@@ -267,7 +251,7 @@ RenderCommandBuffer RenderSystem::_lightsCommandBuffer() {
 
 	auto& lightEntities = Engine::getEntityManager().getEntities<LightSignature>();
 	for (auto entity: lightEntities) {
-		if (cullEntity(*_activeCamera, *entity)) {
+		if (_cullEntity(*_activeCamera, *entity)) {
 			continue;
 		}
 
@@ -320,3 +304,36 @@ RenderCommandBuffer RenderSystem::_lightsCommandBuffer() {
 	_lightCommandBufferSize = glm::max(_lightCommandBufferSize, buffer.size());
 	return buffer;
 }
+
+RenderCommandBuffer RenderSystem::_debugCommandBuffer() {
+	RenderCommandBuffer buffer;
+
+	buffer.push_back(RetrieveDepthBuffer {_renderEngine->deferredTarget.get()});
+
+	auto& debugDrawEntities = Engine::getEntityManager().getEntities<DebugDrawSignature>();
+	for (auto& entity: debugDrawEntities) {
+		auto& p = entity->component<PhysicsDebugComponent>();
+
+		buffer.push_back(DrawWireframeDirect{&p.mesh, mat4(1), p.color});
+	}
+
+	buffer.push_back(SetRenderProperty { DEPTH_TEST, false });
+
+	auto& cameraEntities = Engine::getEntityManager().getEntities<CameraSignature>();
+	for (auto& entity: cameraEntities) {
+		auto& c = entity->component<CameraComponent>();
+		if (c.active) {
+			continue;
+		}
+
+		auto& lc = _activeSun->component<LightComponent>();
+
+		_cascadedShadowMapper->update(c.frustum, lc.light.get());
+		buffer.append(_cascadedShadowMapper->generateDebugCommandBuffer());
+	}
+
+	buffer.push_back(SetRenderProperty { DEPTH_TEST, true });
+
+	return buffer;
+}
+

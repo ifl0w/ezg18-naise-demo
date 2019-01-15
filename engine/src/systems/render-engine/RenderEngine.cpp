@@ -285,7 +285,6 @@ void RenderEngine::drawMesh(const Mesh& mesh, const Material* material, mat4 tra
 
 void RenderEngine::drawDebugMesh(const Mesh& mesh, glm::vec3 color, mat4 transform) {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glDisable(GL_DEPTH_TEST);
 
 	if (solidColorShader.shaderID != Shader::activeShader) {
 		solidColorShader.useShader();
@@ -297,7 +296,6 @@ void RenderEngine::drawDebugMesh(const Mesh& mesh, glm::vec3 color, mat4 transfo
 	glBindVertexArray(mesh.vao);
 	glDrawElements(GL_LINES, static_cast<GLsizei>(mesh.indices.size()), GL_UNSIGNED_INT, 0);
 
-	glEnable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
@@ -376,6 +374,9 @@ void RenderEngine::resolveFrameBufferObject() {
 	glDepthMask(true);
 	// disable gamma correction
 	glDisable(GL_FRAMEBUFFER_SRGB);
+
+	// reset draw call count
+	drawCallCount = 0;
 }
 
 void RenderEngine::skyboxPass() {
@@ -577,7 +578,11 @@ void RenderEngine::executeCommand(ClearRenderTarget& command) {
 }
 
 void RenderEngine::executeCommand(RetrieveDepthBuffer& command) {
-	command.source->retrieveDepthBuffer(command.destination);
+	if (command.destination == nullptr) {
+		command.source->retrieveDepthBuffer((GLint) 0);
+	} else {
+		command.source->retrieveDepthBuffer(command.destination);
+	}
 }
 
 void RenderEngine::executeCommand(SetClearColor& command) {

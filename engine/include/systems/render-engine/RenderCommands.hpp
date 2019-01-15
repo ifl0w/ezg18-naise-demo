@@ -112,7 +112,7 @@ struct SetRenderTarget {
 
 struct RetrieveDepthBuffer {
   RenderTarget* source;
-  RenderTarget* destination;
+  RenderTarget* destination = nullptr;
 };
 
 struct SetClearColor {
