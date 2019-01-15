@@ -414,7 +414,7 @@ void RenderEngine::executeCommandBuffer(RenderCommandBuffer commandBuffer) {
 		  else if constexpr (std::is_same_v<T, DrawMeshDirect>) { executeCommand(arg); }
 		  else if constexpr (std::is_same_v<T, DrawInstanced>) { executeCommand(arg); }
 		  else if constexpr (std::is_same_v<T, DrawInstancedDirect>) { executeCommand(arg); }
-		  else if constexpr (std::is_same_v<T, DrawText>) { executeCommand(arg); }
+		  else if constexpr (std::is_same_v<T, NAISE::RenderCore::DrawText>) { executeCommand(arg); }
 		  else if constexpr (std::is_same_v<T, DrawWireframeDirect>) { executeCommand(arg); }
 		  else if constexpr (std::is_same_v<T, SetShader>) { executeCommand(arg); }
 		  else if constexpr (std::is_same_v<T, BindTexture>) { executeCommand(arg); }
