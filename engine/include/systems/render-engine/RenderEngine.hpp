@@ -74,7 +74,7 @@ public:
 	void executeCommand(DrawInstanced& command);
 	void executeCommand(DrawInstancedDirect& command);
 	void executeCommand(DrawInstancedSSBO& command);
-	void executeCommand(DrawText& command);
+	void executeCommand(NAISE::RenderCore::DrawText& command);
 	void executeCommand(DrawWireframeDirect& command);
 
 	/* Render Target commands */
