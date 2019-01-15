@@ -35,114 +35,15 @@
 #include <variant>
 #include <systems/particle-system/ComputeShader.hpp>
 
-#define BIT(x) (1<<(x))
+#include "RenderCommands.hpp"
+
+#include <systems/render-engine/shadow-map/CascadedShadowMapper.hpp>
 
 using namespace gl;
 using namespace NAISE::RenderCore;
 
 namespace NAISE {
 namespace Engine {
-
-enum DebugState {
-  DEBUG_NONE = 0,
-  DEBUG_POSITION = BIT(0),
-  DEBUG_NORMAL = BIT(1),
-  DEBUG_ALBEDO = BIT(2),
-  DEBUG_GLOW = BIT(3)
-};
-
-struct SetShader {
-  Shader* shader;
-};
-
-struct BindTexture {
-  Texture* texture;
-  int32_t slot; // OpenGL texture unit; values < 0 considered invalid
-  Shader* shader;
-  int32_t location; // OpenGL uniform location; values < 0 considered invalid
-};
-
-enum BlendMode {
-  ADD,
-  SUBTRACT,
-  OVERLAY
-};
-
-struct SetBlendMode {
-  BlendMode mode;
-};
-
-struct DrawMeshDirect {
-  Mesh* mesh;
-  mat4 transform;
-};
-
-struct DrawMesh {
-  Mesh* mesh;
-  Material* material;
-  mat4 transform;
-};
-
-struct DrawText {
-  Font* font;
-  std::string text;
-  mat4 transform;
-};
-
-enum RenderProperty {
-  DEPTH_TEST,
-  BACKFACE_CULLING,
-  BLEND
-};
-
-struct SetRenderProperty {
-  RenderProperty property;
-  bool state;
-};
-
-struct SetRenderTarget {
-  using RenderTargetID = type_index;
-  RenderTargetID renderTargetID;
-};
-
-struct SetViewProjectionData {
-  mat4 viewMatrix = glm::mat4(1);
-  mat4 projectionMatrix = glm::mat4(1);
-  vec3 cameraPosition;
-};
-
-struct DrawInstanced {
-  Mesh* mesh;
-  Material* material;
-  std::vector<mat4> transforms;
-};
-
-struct DrawInstancedSSBO {
-  Mesh* mesh;
-  Material* material;
-  glm::mat4 originTransformation = glm::mat4(1);
-  GLuint count;
-  GLuint transformSSBO;
-};
-
-using RenderCommand = std::variant<
-		SetShader,
-		DrawMeshDirect,
-		DrawMesh,
-		SetRenderTarget,
-		SetViewProjectionData,
-		SetRenderProperty,
-		SetBlendMode,
-		DrawInstanced,
-		DrawInstancedSSBO,
-		DrawText,
-		BindTexture
->;
-
-class RenderCommandBuffer: public vector<RenderCommand> {
-public:
-	void append(const RenderCommandBuffer& commandBuffer);
-};
 
 class Scene; // forward declaration to break cyclic dependency
 class Object; // forward declaration to break cyclic dependency
@@ -154,36 +55,48 @@ public:
 	RenderEngine();
 	RenderEngine(int viewportWidth, int viewportHeight);
 
-	void initFrame(const CameraComponent& cameraComponent, const TransformComponent& transform);
-	void render(const std::shared_ptr<Scene>& scene);
-
 	void setResolution(int width, int height, int sampling = 1);
-
 	void setBrightness(float brightness);
 	void setViewportSize(int width, int height);
 	void setMultiSampling(int sampling);
 	void setSkybox(Skybox* skybox);
 
-	void toggleBackfaceCulling();
-	void toggleWireframe();
-	void toggleLightVolumeDebugging();
-
 	void skyboxPass();
+	void glowPass();
 	void hdrPass(float deltaTime);
 	void resolveFrameBufferObject();
 
 	void executeCommandBuffer(RenderCommandBuffer commandBuffer);
+
+	/* Draw commands */
 	void executeCommand(DrawMesh& command);
 	void executeCommand(DrawMeshDirect& command);
 	void executeCommand(DrawInstanced& command);
+	void executeCommand(DrawInstancedDirect& command);
 	void executeCommand(DrawInstancedSSBO& command);
 	void executeCommand(DrawText& command);
+	void executeCommand(DrawWireframeDirect& command);
+
+	/* Render Target commands */
 	void executeCommand(SetRenderTarget& command);
+	void executeCommand(RetrieveDepthBuffer& command);
+	void executeCommand(ClearRenderTarget& command);
+	void executeCommand(SetClearColor& command);
+
+	/* Shader commands */
 	void executeCommand(SetShader& command);
-	void executeCommand(SetViewProjectionData& command);
 	void executeCommand(SetRenderProperty& command);
 	void executeCommand(SetBlendMode& command);
+	void executeCommand(SetViewProjectionData& command);
+	void executeCommand(SetViewport& command);
+	void executeCommand(ResetViewport& command);
+
+	/* Texture commands */
 	void executeCommand(BindTexture& command);
+
+	/* Lights */
+	void executeCommand(RenderPointLight& command);
+	void executeCommand(RenderDirectionalLight& command);
 
 	uint8_t debugFlags = 0;
 	uint32_t drawCallCount = 0;
@@ -199,8 +112,6 @@ private:
 	std::unique_ptr<Texture> luminanceTexture;
 	std::unique_ptr<Texture> luminanceTexture2;
 
-	std::unique_ptr<ShadowMap> shadowMap;
-	ShadowShader shadowShader;
 	PointLightShader plShader;
 	DirectionalLightShader dlShader;
 	NullShader nullShader;
@@ -218,47 +129,24 @@ private:
 	int multiSampling = 1;
 	float graphicsBrightness = 1.0;
 
-	void setScreenData();
 	GLuint uboProjectionData;
-	void setProjectionData(mat4 projectionMatrix, mat4 viewMatrix, vec3 cameraPosition);
-
-	void setShadowProjectionData(mat4 projectionMatrix, mat4 viewMatrix, vec3 lightPosition);
 	GLuint ssboLightData;
 
+	void setScreenData();
+	void setProjectionData(mat4 projectionMatrix, mat4 viewMatrix, vec3 cameraPosition);
 //	void setLightData();
+
 	bool wireframe = false;
 	bool backfaceCulling = true;
-
 	bool lightVolumeDebugging = false;
-	void geometryPass(const Mesh& mesh, const Material* material, mat4 transform);
-
-	void activateShadowPass(const Entity& light, const Entity& camera);
-	void shadowPass(vector<Entity*> entities);
-	void deactivateShadowPass();
-	void prepareLightPass();
-	void lightPass(const Light& light);
-
-	void cleanupLightPass();
-
-	void renderLights(const Light& light, mat4 transform, const Entity& camera);
-//	void forwardPass(const std::shared_ptr<Scene>& scene);
-	void glowPass();
-//	void textPass(const std::shared_ptr<Scene>& scene);
-//	void skyboxPass(const std::shared_ptr<Scene>& scene);
 
 	TextRenderer textRenderer;
-
-	void activateRenderState();
-	void deactivateRenderState();
-
-	void displayDebugQuads();
-
-	glm::mat4 projectionMatrix;
-	glm::mat4 viewMatrix;
 
 	/* Default properties */
 	unique_ptr<Material> _defaultMaterial;
 	Skybox* _skybox;
+
+	Shader* _activeShader = nullptr;
 
 	// instancing properties
 	GLuint maxInstanceCount = 100000;
@@ -270,7 +158,8 @@ private:
 	void drawMeshInstancedDirect(const Mesh& mesh, vector<mat4> transforms);
 	void drawMesh(const Mesh& mesh, const Material* material = nullptr, mat4 transform = mat4(1));
 	void drawMeshDirect(const Mesh& mesh);
-	void drawDebugMesh(const Mesh& mesh, glm::vec3 color);
+	void drawMeshDirect(const Mesh& mesh, mat4 transform);
+	void drawDebugMesh(const Mesh& mesh, glm::vec3 color, mat4 transform = mat4(1));
 };
 
 }

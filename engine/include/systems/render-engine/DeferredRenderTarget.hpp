@@ -3,7 +3,7 @@
 #include "RenderTarget.hpp"
 #include "systems/render-engine/shaders/LightShader.hpp"
 #include "systems/render-engine/shaders/NullShader.hpp"
-#include "systems/render-engine/shaders/DirectionalLightShader.hpp"
+//#include "systems/render-engine/shaders/DirectionalLightShader.hpp"
 
 namespace NAISE {
 namespace Engine {
@@ -16,21 +16,15 @@ public:
 
 	void use() override;
 
-	void setTextureUnits(const LightShader& lightShader);
+	void setTextureUnits(const NAISE::RenderCore::LightShader& lightShader);
 //	void setTextureUnits(const std::unique_ptr<DirectionalLightShader>& lightShader);
-
-	void retrieveDepthBuffer(RenderTarget* target);
-	void retrieveDepthBuffer(GLuint fbo);
 
 	GLuint gEmissionMetallic;
 	GLuint gPosition;
 	GLuint gNormal;
 	GLuint gAlbedoRoughness;
 	GLuint depth_rbo;
-private:
-	int width;
-	int height;
-	int samples;
+
 };
 
 }

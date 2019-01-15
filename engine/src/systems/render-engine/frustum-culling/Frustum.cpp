@@ -10,6 +10,7 @@ Frustum::Frustum(double fovX, double fovY, double nearDistance, double farDistan
 
 	invViewMat = mat4(1);
 	planes = vector<pair<vec3, vec3>>(6);
+	frustumMesh = std::make_unique<Mesh>();
 
 	setCameraSettings(fovX, fovY, nearDistance, farDistance);
 }
@@ -27,29 +28,27 @@ void Frustum::setCameraSettings(double fovX, double fovY, double nearDistance, d
 	fh = farDistance * tan(fovY / 2);
 }
 
-vector<vec4> Frustum::getBoundingVolume(double maxDistance) const {
-	double localFar = farDistance;
-	if (maxDistance < farDistance) {
-		localFar = maxDistance;
-	}
+vector<vec4> Frustum::getBoundingVolume(double start, double maxDistance) {
+	double localFar = (maxDistance < farDistance) ? maxDistance : farDistance;
+	double localNear = (start > nearDistance) ? start : nearDistance;
 
 	vector<vec4> result = vector<vec4>(0);
 
 	double tanHalfHorizonalFOV = glm::tan(fovX / 2.0f);
 	double tanHalfVerticalFOV = glm::tan(fovY / 2.0f);
 
-	double xn = nearDistance * tanHalfHorizonalFOV;
+	double xn = localNear * tanHalfHorizonalFOV;
 	double xf = localFar * tanHalfHorizonalFOV;
-	double yn = nearDistance * tanHalfVerticalFOV;
+	double yn = localNear * tanHalfVerticalFOV;
 	double yf = localFar * tanHalfVerticalFOV;
 
 	// insert in world space
 	result.insert(result.begin(), {
 			// near face (ntl, ntr, nbl, nbr)
-			invViewMat * vec4(-xn, yn, -nearDistance, 1.0),
-			invViewMat * vec4(xn, yn, -nearDistance, 1.0),
-			invViewMat * vec4(-xn, -yn, -nearDistance, 1.0),
-			invViewMat * vec4(xn, -yn, -nearDistance, 1.0),
+			invViewMat * vec4(-xn, yn, -localNear, 1.0),
+			invViewMat * vec4(xn, yn, -localNear, 1.0),
+			invViewMat * vec4(-xn, -yn, -localNear, 1.0),
+			invViewMat * vec4(xn, -yn, -localNear, 1.0),
 
 			// far face (ftl, ftr, fbl, fbr)
 			invViewMat * vec4(-xf, yf, -localFar, 1.0),
@@ -58,12 +57,16 @@ vector<vec4> Frustum::getBoundingVolume(double maxDistance) const {
 			invViewMat * vec4(xf, -yf, -localFar, 1.0)
 	});
 
+	std::vector<vec3> points(result.begin(), result.end());
+	frustumMesh = std::make_unique<Mesh>(points);
+
 	return result;
 }
 
 void Frustum::recalculate(mat4 invViewMatrix) {
 	// ingore scaling of matrix. The scale should not influence the frustum size.
-	invViewMat = mat4(normalize(invViewMatrix[0]), normalize(invViewMatrix[1]), normalize(invViewMatrix[2]), invViewMatrix[3]);
+	invViewMat = mat4(normalize(invViewMatrix[0]), normalize(invViewMatrix[1]), normalize(invViewMatrix[2]),
+					  invViewMatrix[3]);
 
 	dvec3 X = normalize(vec3(invViewMat * vec4(1, 0, 0, 0)));
 	dvec3 Y = normalize(vec3(invViewMat * vec4(0, 1, 0, 0)));
@@ -105,20 +108,26 @@ bool Frustum::intersect(AABB& box) {
 		vec3 normal = planes[i].first;
 
 		vec3 p = box.values.first;
-		if (normal.x > 0)
+		if (normal.x > 0) {
 			p.x = box.values.second.x;
-		if (normal.y > 0)
+		}
+		if (normal.y > 0) {
 			p.y = box.values.second.y;
-		if (normal.z > 0)
+		}
+		if (normal.z > 0) {
 			p.z = box.values.second.z;
+		}
 
 		vec3 n = box.values.second;
-		if (normal.x < 0)
-			p.x = box.values.first.x;
-		if (normal.y < 0)
-			p.y = box.values.first.y;
-		if (normal.z < 0)
-			p.z = box.values.first.z;
+		if (normal.x < 0) {
+			n.x = box.values.first.x;
+		}
+		if (normal.y < 0) {
+			n.y = box.values.first.y;
+		}
+		if (normal.z < 0) {
+			n.z = box.values.first.z;
+		}
 
 		vec3 planePoint = planes[i].second;
 		vec3 planeToMin = p - planePoint;
@@ -137,7 +146,7 @@ bool Frustum::intersect(AABB& box) {
 
 bool Frustum::intersect(vec3 center, float radius) {
 
-	for(int i=0; i < 6; i++) {
+	for (int i = 0; i < 6; i++) {
 		vec3 planePoint = planes[i].second;
 		vec3 normal = planes[i].first;
 
@@ -147,17 +156,18 @@ bool Frustum::intersect(vec3 center, float radius) {
 		auto d1 = dot(planeToCenter, normal);
 		auto d2 = dot(planeToExtrema, normal);
 
-		if (d1 < 0.0f && d2 < 0.0f)
+		if (d1 < 0.0f && d2 < 0.0f) {
 			return false;
+		}
 	}
 
 	return true;
 }
 
 Frustum::Frustum(AABB aabb, mat4 invViewMatrix, float extend) {
-	vec3 X = normalize(vec3(invViewMatrix * vec4(1, 0, 0, 0)));
-	vec3 Y = normalize(vec3(invViewMatrix * vec4(0, 1, 0, 0)));
-	vec3 Z = normalize(vec3(invViewMatrix * vec4(0, 0, 1, 0)));
+	vec3 X = normalize(vec3(glm::inverse(invViewMatrix) * vec4(1, 0, 0, 0)));
+	vec3 Y = normalize(vec3(glm::inverse(invViewMatrix) * vec4(0, 1, 0, 0)));
+	vec3 Z = normalize(vec3(glm::inverse(invViewMatrix) * vec4(0, 0, 1, 0)));
 
 	aabb.transform(invViewMatrix);
 	float minX = aabb.values.first.x;
@@ -167,14 +177,35 @@ Frustum::Frustum(AABB aabb, mat4 invViewMatrix, float extend) {
 	float maxY = aabb.values.second.y;
 	float maxZ = aabb.values.second.z;
 
+	vec2 xHalf = vec2((minY + maxY) / 2, (minZ + maxZ) / 2);
+	vec2 yHalf = vec2((minX + maxX) / 2, (minZ + maxZ) / 2);
+	vec2 zHalf = vec2((minX + maxX) / 2, (minY + maxY) / 2);
+
+	auto xMin = vec3(glm::inverse(invViewMatrix) * vec4(minX, xHalf.x, xHalf.y, 1));
+	auto xMax = vec3(glm::inverse(invViewMatrix) * vec4(maxX, xHalf.x, xHalf.y, 1));
+
+	auto yMin = vec3(glm::inverse(invViewMatrix) * vec4(yHalf.x, minY, yHalf.y, 1));
+	auto yMax = vec3(glm::inverse(invViewMatrix) * vec4(yHalf.x, maxY, yHalf.y, 1));
+
+	auto zMin = vec3(glm::inverse(invViewMatrix) * vec4(zHalf.x, zHalf.y, (maxZ + extend), 1));
+	auto zMax = vec3(glm::inverse(invViewMatrix) * vec4(zHalf.x, zHalf.y, minZ, 1));
+
 	planes = vector<pair<vec3, vec3>>(6);
 
-	planes[Planes::NEAR_PLANE] = pair(-Z, Z * (maxZ + extend));
-	planes[Planes::FAR_PLANE] = pair(Z, Z * minZ);
+	planes[Planes::NEAR_PLANE] = pair(-Z, zMin);
+	planes[Planes::FAR_PLANE] = pair(Z, zMax);
 
-	planes[Planes::TOP_PLANE] = pair(-Y, Y * maxY);
-	planes[Planes::BOTTOM_PLANE] = pair(Y, Y * minY);
+	planes[Planes::TOP_PLANE] = pair(-Y, yMax);
+	planes[Planes::BOTTOM_PLANE] = pair(Y, yMin);
 
-	planes[Planes::LEFT_PLANE] = pair(X, X * maxX);
-	planes[Planes::RIGHT_PLANE] = pair(-X, X * minX);
+	planes[Planes::LEFT_PLANE] = pair(X, xMin);
+	planes[Planes::RIGHT_PLANE] = pair(-X, xMax);
+
+	std::vector<std::pair<vec3, vec3>> points({
+									 std::pair(xMin, xMax),
+									 std::pair(yMin, yMax),
+									 std::pair(zMin, zMax)
+							 });
+
+	frustumMesh = std::make_unique<Mesh>(points);
 }

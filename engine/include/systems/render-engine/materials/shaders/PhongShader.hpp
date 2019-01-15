@@ -6,7 +6,7 @@ namespace NAISE {
 namespace Engine {
 
 class PhongShader :
-		public Shader {
+		public RenderCore::Shader {
 public:
 	PhongShader();
 

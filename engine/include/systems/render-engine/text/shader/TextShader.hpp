@@ -5,7 +5,7 @@
 namespace NAISE {
 namespace RenderCore {
 
-class TextShader : public NAISE::Engine::Shader {
+class TextShader : public NAISE::RenderCore::Shader {
 public:
 	TextShader();
 

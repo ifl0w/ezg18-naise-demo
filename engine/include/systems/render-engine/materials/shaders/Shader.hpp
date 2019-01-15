@@ -3,16 +3,20 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include <systems/render-engine/lights/Light.hpp>
 
 #include "ShaderUtils.hpp"
 
-using namespace NAISE::RenderCore;
-
 namespace NAISE {
+
 namespace Engine {
 
 class CameraComponent; // forward declaration to break cyclic dependency
+
+}
+
+namespace RenderCore {
+
+class LightData;
 
 class Shader {
 public:
@@ -28,7 +32,7 @@ public:
 
 	/* Static variables */
 	static float brightness;
-	static CameraComponent& activeCamera;
+	static NAISE::Engine::CameraComponent& activeCamera;
 	static int64_t activeShader;
 //	static DirectionalLight& activeSun;
 	static std::vector<std::shared_ptr<LightData>> activeLights;

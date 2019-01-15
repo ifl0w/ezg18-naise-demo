@@ -1,15 +1,16 @@
 #pragma once
 
 #include <systems/render-engine/materials/shaders/Shader.hpp>
+#include <systems/render-engine/lights/Light.hpp>
 
 namespace NAISE {
-namespace Engine {
+namespace RenderCore {
 
 class LightShader: public Shader {
 public:
 	LightShader(std::string vertexShaderPath, std::string fragmentShaderPath);
 
-	GLint shadowMapLocation = -1;
+	std::vector<GLint> shadowMapLocation = {-1, -1, -1};
 	GLint positionBufferLocation = -1;
 	GLint normalBufferLocation = -1;
 	GLint albedoRoughnessBufferLocation = -1;
@@ -18,10 +19,10 @@ public:
 	GLenum positionBufferUnit = GL_TEXTURE0 + 0;
 	GLenum normalBufferUnit = GL_TEXTURE0 + 1;
 	GLenum diffSpecBufferUnit = GL_TEXTURE0 + 2;
-	GLenum shadowMapUnit = GL_TEXTURE0 + 3;
 	GLenum glowBufferUnit = GL_TEXTURE0 + 4;
+	GLenum shadowMapUnit = GL_TEXTURE0 + 5;
 
-	void setLightProperties(const Light& light);
+	void setLightProperties(const NAISE::RenderCore::Light& light);
 
 protected:
 	std::string buildLightPropName(std::string propertyName);

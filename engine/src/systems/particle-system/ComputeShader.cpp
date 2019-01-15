@@ -4,6 +4,7 @@
 #include <systems/render-engine/materials/shaders/ShaderUtils.hpp>
 
 using namespace NAISE::Engine;
+using namespace NAISE::RenderCore;
 
 ComputeShader::ComputeShader(std::string computeShaderFile)
 		: shaderID(createComputeShader(std::move(computeShaderFile))) {

@@ -6,7 +6,7 @@ namespace NAISE {
 namespace Engine {
 
 class PBRShader :
-		public Shader {
+		public RenderCore::Shader {
 public:
 	PBRShader(): Shader("engine/resources/shaders/deferred-shading/pbr.vert", "engine/resources/shaders/deferred-shading/pbr.frag") {};
 

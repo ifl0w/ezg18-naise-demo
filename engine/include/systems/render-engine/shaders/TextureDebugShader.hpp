@@ -5,7 +5,7 @@
 namespace NAISE {
 namespace Engine {
 
-class TextureDebugShader: public Shader {
+class TextureDebugShader: public RenderCore::Shader {
 public:
 	TextureDebugShader();
 

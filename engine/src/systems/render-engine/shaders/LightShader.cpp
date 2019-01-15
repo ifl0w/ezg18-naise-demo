@@ -3,6 +3,7 @@
 
 #include <systems/render-engine/shaders/LightShader.hpp>
 
+using namespace NAISE::RenderCore;
 using namespace NAISE::Engine;
 
 LightShader::LightShader(std::string vertexShaderPath, std::string fragmentShaderPath)
@@ -10,8 +11,11 @@ LightShader::LightShader(std::string vertexShaderPath, std::string fragmentShade
 	this->positionBufferLocation = uniformLocation(shaderID, "gPosition");
 	this->normalBufferLocation = uniformLocation(shaderID, "gNormal");
 	this->albedoRoughnessBufferLocation = uniformLocation(shaderID, "gAlbedoRoughness");
-	this->shadowMapLocation = uniformLocation(shaderID, "shadowMap");
 	this->emissionMetallicBufferLocation = uniformLocation(shaderID, "gEmissionMetallic");
+
+	for (int i = 0; i < shadowMapLocation.size(); ++i) {
+		shadowMapLocation[i] = uniformLocation(shaderID, "shadowMap[" + std::to_string(i) + "]");
+	}
 }
 
 void LightShader::setLightProperties(const Light& light) {

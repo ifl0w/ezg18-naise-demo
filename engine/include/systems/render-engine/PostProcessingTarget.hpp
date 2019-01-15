@@ -18,11 +18,6 @@ public:
 	GLuint input;
 	GLuint output;
 	GLuint depth_rbo;
-
-	const int width;
-	const int height;
-private:
-	int samples;
 };
 
 }

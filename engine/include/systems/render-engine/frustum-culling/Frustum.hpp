@@ -1,9 +1,11 @@
 #pragma once
 
 #include "AABB.hpp"
+#include <systems/render-engine/meshes/Mesh.hpp>
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <memory>
 
 using namespace std;
 using namespace glm;
@@ -51,7 +53,8 @@ public:
 
 	void recalculate(mat4 invViewMatrix);
 
-	vector<vec4> getBoundingVolume(double maxDistance = INFINITY) const;
+	vector<vec4> getBoundingVolume(double maxDistance = INFINITY) { return getBoundingVolume(-INFINITY, maxDistance); };
+	vector<vec4> getBoundingVolume(double start, double maxDistance);
 
 	/**
 	 * Check whether an AABB intersects with the frustum.
@@ -67,6 +70,9 @@ public:
 	 * @return
 	 */
 	bool intersect(vec3 center, float radius);
+
+	std::unique_ptr<Mesh> frustumMesh;
+	std::unique_ptr<Mesh> aabbMesh;
 
 protected:
 	double fovY; // fov in Y direction in radians

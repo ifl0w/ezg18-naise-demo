@@ -1,11 +1,10 @@
 #pragma once
 
-#include <components/Component.hpp>
 #include <systems/render-engine/frustum-culling/AABB.hpp>
 
 #include <glm/glm.hpp>
 
-#define MAX_LIGHTS 300
+#include <memory>
 
 using namespace glm;
 
@@ -52,14 +51,12 @@ public:
 	virtual mat4 getProjectionMatrix() const { return mat4(1); };
 	virtual mat4 getProjectionMatrix(AABB aabb) const { return mat4(1); };
 
-	bool isShadowCaster = false;
-
 	/**
 	 * Defines whether the light has to be added allways.
 	 * Lights that are not flagged as required, may be excluded from rendering if a certain threshold is exeeded.
 	 */
 	bool required = true;
-
+	
 protected:
 	virtual bool cull();
 };
