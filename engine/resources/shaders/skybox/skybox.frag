@@ -7,6 +7,8 @@ in vec3 TexCoords;
 uniform vec3 backgroundColor;
 uniform samplerCube skyboxTexture;
 uniform bool useSkyboxTexture;
+uniform float brightness = 1000;
+
 
 void main()
 {
@@ -17,5 +19,5 @@ void main()
         color *= texture(skyboxTexture, TexCoords);
     }
 
-    FragColor = color;
+    FragColor = color * brightness;
 }

@@ -8,6 +8,8 @@ GlowShader::GlowShader()
 
 	this->debugTexturePosition = uniformLocation(this->shaderID, "emissionInput");
 	this->horizontalLocation = uniformLocation(this->shaderID, "horizontal");
+	this->brightnessLocation = uniformLocation(this->shaderID, "brightness");
+
 }
 
 void GlowShader::setHorizontalUnit(bool horizontal) {
@@ -22,4 +24,8 @@ void GlowShader::setTextureUnit(GLint textureHandle) {
 	glUniform1i(debugTexturePosition, 4);
 	glActiveTexture(GL_TEXTURE0 + 4); // +4
 	glBindTexture(GL_TEXTURE_2D, textureHandle);
+}
+
+void GlowShader::setBrightness(float brighness) {
+	glUniform1f(brightnessLocation, brighness);
 }

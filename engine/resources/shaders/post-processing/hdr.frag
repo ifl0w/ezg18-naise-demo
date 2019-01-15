@@ -68,7 +68,7 @@ void main() {
     vec3 rgbFactors = vec3(0.2126, 0.7152, 0.0722);
     float l_col = rgbFactors.r * color.r + rgbFactors.g * color.g + rgbFactors.b * color.b;
 
-    float key = 0.01;
+    float key = 0.0001;
 //    key = max(0, 1.5 - (1.5/(l_av * 0.1 + 1))) + 1;
 
     float l_scaled = key * l_col / l_av;

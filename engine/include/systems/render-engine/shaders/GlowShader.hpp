@@ -13,10 +13,13 @@ public:
 
 	void setHorizontalUnit(bool horizontal);
 
+	void setBrightness(float brighness);
+
 private:
 
 	GLint debugTexturePosition = -1;
 	GLint horizontalLocation = -1;
+	GLint brightnessLocation = -1;
 
 };
 
