@@ -43,7 +43,9 @@ void CascadedShadowMapper::deactivate() {
 
 void CascadedShadowMapper::addShadowCaster(Mesh* mesh, mat4 transform, AABB aabb) {
 	for (int i = 0; i < _shadowCascadeFrustums.size(); ++i) {
-		_cascadeInstances[i][mesh].push_back(transform);
+		if (_shadowCascadeFrustums[i].intersect(aabb)) {
+			_cascadeInstances[i][mesh].push_back(transform);
+		}
 	}
 }
 
