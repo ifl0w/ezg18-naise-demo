@@ -31,11 +31,13 @@ public:
 	void process(std::chrono::microseconds deltaTime);
 
 	void cleanup();
+
+	std::unordered_map<string, float> getSystemTimes();
 private:
 
-	std::chrono::microseconds _deltaTime = std::chrono::microseconds(0);
 	std::chrono::steady_clock::time_point _beginTime;
 
+	std::unordered_map<std::type_index, std::chrono::duration<float, std::milli>> systemTimes;
 	std::unordered_map<std::type_index, std::shared_ptr<System>> systems;
 	std::vector<std::type_index> systemsInsertionOrder; // order is described by the position in the vector
 };

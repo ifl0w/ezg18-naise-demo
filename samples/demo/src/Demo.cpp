@@ -143,9 +143,6 @@ int main(int argc, char **argv) {
 	// load config file
 	json config = Resources::loadConfig("resources/config.json");
 
-	// setup video settings
-	initVideoSettings(config);
-
 	// load scenes
 	SceneLoaderAdapter loaderAdapter;
 	for (json& scene: config["scenes"]) {
@@ -171,6 +168,9 @@ int main(int argc, char **argv) {
 	Engine::getEntityManager().addEntity(sphere);
 	Engine::getEntityManager().addEntity(box);
 	Engine::getEntityManager().addEntity(wall);
+
+	// setup video settings
+	initVideoSettings(config);
 
 	engine.run();
 
@@ -201,6 +201,7 @@ void initVideoSettings(json config) {
 	// TODO: find better solution for adapting camera aspect rations (z.B. event in RenderSystem or CameraSystem)
 	// apply resolution to all cameras
 	for(auto e: Engine::getEntityManager().getEntities<CameraSignature>()) {
-		e->component<CameraComponent>().setAspectRatio(width, height);
+		e->component<CameraComponent>().setAspectRatio(1920, 1080);
+//		e->component<CameraComponent>().setAspectRatio(width, height);
 	}
 }

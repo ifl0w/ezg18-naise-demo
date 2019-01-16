@@ -17,19 +17,35 @@ DebugSystem::DebugSystem() {
 }
 
 void DebugSystem::process(microseconds deltaTime) {
+	if(_interfaceEnabled) {
+		renderProfilingInterface(deltaTime);
+	}
+}
+
+void DebugSystem::renderProfilingInterface(microseconds deltaTime) {
 	std::chrono::duration<float, std::milli> msf = deltaTime;
 	std::chrono::duration<float> sec = deltaTime;
 
-	frameTimes.erase(frameTimes.begin());
-	frameTimes.push_back(msf.count());
+	ImGui::Text("Delta time: %f", msf.count());
+	ImGui::Text("FPS: %f", 1/sec.count());
 
-	if(_interfaceEnabled) {
-		ImGui::Text("Delta time: %f", msf.count());
-		ImGui::Text("FPS: %f", 1/sec.count());
+	accumFrameTime += msf.count();
+	frameTimeSamples++;
+	if (accumFrameTime >= minimumPlotFrameTime) {
+		frameTimes.erase(frameTimes.begin());
+		frameTimes.push_back(accumFrameTime/frameTimeSamples);
 
-
-		// Plot some values
-		const float my_values[] = { 0.2f, 0.1f, 1.0f, 0.5f, 0.9f, 2.2f };
-		ImGui::PlotLines("Frame Times", frameTimes.data(), static_cast<int>(frameTimes.size()));
+		frameTimeSamples = 0;
+		accumFrameTime = 0;
 	}
+
+	// Plot some values
+	ImGui::PlotLines("Frame Times", frameTimes.data(), static_cast<int>(frameTimes.size()));
+
+	ImGui::TextColored(ImVec4(1,1,0,1), "System times:");
+	ImGui::BeginChild("Scrolling");
+	for (const auto& elem: Engine::getSystemsManager().getSystemTimes()) {
+		ImGui::Text("%s: %f", elem.first.c_str(), elem.second);
+	}
+	ImGui::EndChild();
 }
