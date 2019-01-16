@@ -578,8 +578,9 @@ void RenderEngine::screenSpaceReflectionPass(){
 
     for (int i = 1; i < levels; i++) {
         //viewport must always be greater than 0
-        currentWidth = currentWidth*0.5 > 0 ? currentWidth*0.5 : 1;
-        currentHeight = currentHeight*0.5 > 0 ? currentHeight*0.5 : 1;
+        currentWidth = (int)(currentWidth*0.5) > 0 ? (int)(currentWidth*0.5) : 1;
+        currentHeight = (int)(currentHeight*0.5) > 0 ? (int)(currentHeight*0.5) : 1;
+        glUniform2i(glGetUniformLocation(hiZShader.shaderID, "lastSize"), currentWidth, currentHeight);
         glViewport(0, 0, currentWidth, currentHeight);
         // lookup in shader on level i-1
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, i-1);

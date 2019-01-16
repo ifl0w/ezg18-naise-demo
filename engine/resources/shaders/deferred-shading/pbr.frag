@@ -58,7 +58,8 @@ void main() {
     // fragment position vector
     gPosition = vec4(vPos, gl_FragCoord.z);
     gPosition.a = LinearDepth;
-    gLinearDepth = LinearDepth;
+    //gLinearDepth = LinearDepth;
+    gLinearDepth = gl_FragCoord.z;
 
     // per-fragment normals
     gNormal = normalize(vNorm);

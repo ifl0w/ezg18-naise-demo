@@ -1,26 +1,36 @@
 #version 430
 
-layout (location = 0) out float gLinearDepth;
+layout (location = 0) out vec2 gLinearDepth;
 
 uniform sampler2D lastImage;
+uniform ivec2 lastSize;
 uniform bool first;
 
 in vec2 TexCoords;
 
 void main()
 {
-    float result;
+    vec2 result;
 
     if(first){
-        result = texture( lastImage, TexCoords ).r;
+        result.r = texture( lastImage, TexCoords ).r;
+        result.g = texture( lastImage, TexCoords ).r;
     } else {
         vec4 minDepth;
+        vec4 maxDepth;
+
         minDepth.r = texture( lastImage, TexCoords ).r; // current depth
         minDepth.g = textureOffset( lastImage, TexCoords, ivec2(0, -1) ).r;
         minDepth.b = textureOffset( lastImage, TexCoords, ivec2(-1,0) ).r;
         minDepth.a = textureOffset( lastImage, TexCoords, ivec2( -1,-1) ).r;
 
-        result = min( min(minDepth.r, minDepth.g), min(minDepth.b, minDepth.a));
+        maxDepth.r = texture( lastImage, TexCoords ).g; // current depth
+        maxDepth.g = textureOffset( lastImage, TexCoords, ivec2(0, -1) ).g;
+        maxDepth.b = textureOffset( lastImage, TexCoords, ivec2(-1,0) ).g;
+        maxDepth.a = textureOffset( lastImage, TexCoords, ivec2( -1,-1) ).g;
+
+        result.r = min( min(minDepth.r, minDepth.g), min(minDepth.b, minDepth.a));
+        result.g = max( max(maxDepth.r, maxDepth.g), max(maxDepth.b, maxDepth.a));
     }
 
     gLinearDepth = result;
