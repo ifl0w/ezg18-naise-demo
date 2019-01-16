@@ -15,6 +15,7 @@
 
 #include "DeferredRenderTarget.hpp"
 #include "PostProcessingTarget.hpp"
+#include "HiZRenderTarget.hpp"
 
 #include "shaders/TextureDebugShader.hpp"
 #include "shaders/PointLightShader.hpp"
@@ -29,6 +30,7 @@
 #include "shadow-map/ShadowShader.hpp"
 #include "shaders/GlowShader.hpp"
 #include "shaders/ScreenSpaceReflectionsShader.hpp"
+#include "shaders/HiZShader.hpp"
 
 #include "text/TextRenderer.hpp"
 #include "text/Glyph.hpp"
@@ -193,6 +195,7 @@ public:
 private:
 	std::unique_ptr<DeferredRenderTarget> deferredTarget;
 	std::unique_ptr<PostProcessingTarget> postProcessingTarget;
+	std::unique_ptr<HiZRenderTarget> hiZTarget;
 	std::unique_ptr<PostProcessingTarget> combineTarget;
 	std::unique_ptr<PostProcessingTarget> lightTarget;
 
@@ -211,6 +214,7 @@ private:
 	TextureDebugShader textureDebugShader;
 	SolidColorShader solidColorShader; // used for debugging
 	GlowShader glowShader;
+	HiZShader hiZShader;
 	Shader hdrShader = Shader("engine/resources/shaders/post-processing/quad.vert", "engine/resources/shaders/post-processing/hdr.frag");
 
 

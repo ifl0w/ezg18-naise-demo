@@ -25,6 +25,8 @@ uniform sampler2D imageInput;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoRoughness;
 uniform sampler2D gEmissionMetallic;
+uniform sampler2D gLinearDepth;
+uniform sampler2D gHiZ;
 
 // ADJUSTMENT VARIABLES
 
@@ -86,7 +88,7 @@ void init(){
 
     fragment_roughness = texture(gAlbedoRoughness, TexCoords).a;
     fragment_metallic =  texture(gEmissionMetallic, TexCoords).a;
-    fragment_depth = texture(gPosition, TexCoords).a;
+    fragment_depth = texture(gLinearDepth, TexCoords).r;
     world_position = texture(gPosition, TexCoords).rgb;
 
 
@@ -176,6 +178,7 @@ void main(){
     } else {
         reflections = texture(imageInput, TexCoords);
     }
+    reflections = texture(gHiZ, TexCoords);
 }
 
 vec4 BinarySearch(vec4 rayDir, vec4 hitCoord)

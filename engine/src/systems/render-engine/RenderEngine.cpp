@@ -34,6 +34,7 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	}
 
 	postProcessingTarget = make_unique<PostProcessingTarget>(glowTextureWidth, glowTextureHeight, multiSampling);
+	hiZTarget = make_unique<HiZRenderTarget>(viewportWidth, viewportHeight, multiSampling);
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
     screenSpaceReflectionTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
@@ -310,6 +311,7 @@ void RenderEngine::setViewportSize(int width, int height) {
 	setScreenData();
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
 	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	hiZTarget = make_unique<HiZRenderTarget>(viewportWidth, viewportHeight, multiSampling);
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	screenSpaceReflectionTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
@@ -322,6 +324,7 @@ void RenderEngine::setMultiSampling(int sampling) {
 	setScreenData();
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
 	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	hiZTarget = make_unique<HiZRenderTarget>(viewportWidth, viewportHeight, multiSampling);
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	screenSpaceReflectionTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
@@ -539,17 +542,62 @@ void RenderEngine::glowPass() {
 }
 
 void RenderEngine::screenSpaceReflectionPass(){
+	int levels = 1 + (int)floorf(log2f(fmaxf(viewportWidth, viewportHeight)));
+	int currentWidth = viewportWidth;
+	int currentHeight = viewportHeight;
+
 	screenSpaceReflectionTarget->use();
 	deferredTarget->retrieveDepthBuffer((GLuint) screenSpaceReflectionTarget->fbo);
+
+	hiZTarget->use();
 	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
 
-//	screenSpaceReflectionTarget->use();
-//	deferredTarget->retrieveDepthBuffer((GLuint) screenSpaceReflectionTarget->fbo);
+	// FIRST: linearDepth values from the deferredTarget has to be written to mipmap-level 0
+	hiZShader.useShader();
+	hiZShader.setModelMatrix(mat4(1.0));
+	glUniform1i(glGetUniformLocation(hiZShader.shaderID, "first"), true);
+	glUniform1i(glGetUniformLocation(hiZShader.shaderID, "lastImage"), 12);
+	glActiveTexture(GL_TEXTURE0 + 12);
+	glBindTexture(GL_TEXTURE_2D, deferredTarget->gLinearDepth);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, levels-1);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, hiZTarget->gLinearDepth, 0);
+	drawMeshDirect(quad);
 
-	//GLenum attachmentpoints[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-    GLenum attachmentpoints[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-	//glDrawBuffer(attachmentpoints[0]);
+	// SECOND: generate Hi-Z mipmap-levels
+	hiZShader.useShader();
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
+	hiZShader.setModelMatrix(mat4(1.0));
+	glUniform1i(glGetUniformLocation(hiZShader.shaderID, "first"), false);
+	glUniform1i(glGetUniformLocation(hiZShader.shaderID, "lastImage"), 12);
+	glActiveTexture(GL_TEXTURE0 + 12);
+	glBindTexture(GL_TEXTURE_2D,  hiZTarget->gLinearDepth);
+
+
+    for (int i = 1; i < levels; i++) {
+        //viewport must always be greater than 0
+        currentWidth = currentWidth*0.5 > 0 ? currentWidth*0.5 : 1;
+        currentHeight = currentHeight*0.5 > 0 ? currentHeight*0.5 : 1;
+        glViewport(0, 0, currentWidth, currentHeight);
+        // lookup in shader on level i-1
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, i-1);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
+        // bind next level for rendering
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,  hiZTarget->gLinearDepth, i);
+		drawMeshDirect(quad);
+    }
+    // reset
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, levels-1);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, hiZTarget->gLinearDepth, 0);
+    glViewport(0, 0, viewportWidth, viewportHeight);
+
+
+	screenSpaceReflectionTarget->use();
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
 	screenSpaceReflectionsShader.useShader();
 	screenSpaceReflectionsShader.setModelMatrix(mat4(1.0));
 
@@ -573,7 +621,14 @@ void RenderEngine::screenSpaceReflectionPass(){
 	glActiveTexture(GL_TEXTURE0 + 8);
 	glBindTexture(GL_TEXTURE_2D, deferredTarget->gEmissionMetallic);
 
-    //glDrawBuffer(attachmentpoints[0]);
+	glUniform1i(glGetUniformLocation(screenSpaceReflectionsShader.shaderID, "gLinearDepth"), 9);
+	glActiveTexture(GL_TEXTURE0 + 9);
+	glBindTexture(GL_TEXTURE_2D, deferredTarget->gLinearDepth);
+
+	glUniform1i(glGetUniformLocation(screenSpaceReflectionsShader.shaderID, "gHiZ"), 10);
+	glActiveTexture(GL_TEXTURE0 + 10);
+	glBindTexture(GL_TEXTURE_2D, hiZTarget->gLinearDepth);
+
 	drawMeshDirect(quad);
 
 	glEnable(GL_DEPTH_TEST);

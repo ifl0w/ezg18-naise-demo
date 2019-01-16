@@ -26,6 +26,7 @@ public:
 	GLuint gPosition;
 	GLuint gNormal;
 	GLuint gAlbedoRoughness;
+	GLuint gLinearDepth;
 	GLuint depth_rbo;
 private:
 	int width;

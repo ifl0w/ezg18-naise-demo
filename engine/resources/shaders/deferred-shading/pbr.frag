@@ -4,6 +4,7 @@ layout (location = 0) out vec4 gPosition;
 layout (location = 1) out vec3 gNormal;
 layout (location = 2) out vec4 gAlbedoRoughness;
 layout (location = 3) out vec4 gEmissionMetallic;
+layout (location = 4) out float gLinearDepth;
 
 in vec3 vNorm;
 in vec3 vPos;
@@ -57,6 +58,7 @@ void main() {
     // fragment position vector
     gPosition = vec4(vPos, gl_FragCoord.z);
     gPosition.a = LinearDepth;
+    gLinearDepth = LinearDepth;
 
     // per-fragment normals
     gNormal = normalize(vNorm);
