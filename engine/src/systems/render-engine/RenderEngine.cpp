@@ -140,7 +140,7 @@ void RenderEngine::geometryPass(const Mesh& mesh, const Material* material, mat4
 void RenderEngine::prepareLightPass() {
 //	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	lightTarget->use();
-	glClearColor(0, 0, 0, 0);
+	glClearColor(0, 0, 0, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	deferredTarget->retrieveDepthBuffer(lightTarget.get());
 
@@ -548,7 +548,7 @@ void RenderEngine::screenSpaceReflectionPass(){
 //	deferredTarget->retrieveDepthBuffer((GLuint) screenSpaceReflectionTarget->fbo);
 
 	//GLenum attachmentpoints[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-
+    GLenum attachmentpoints[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
 	//glDrawBuffer(attachmentpoints[0]);
 	screenSpaceReflectionsShader.useShader();
 	screenSpaceReflectionsShader.setModelMatrix(mat4(1.0));
@@ -569,16 +569,13 @@ void RenderEngine::screenSpaceReflectionPass(){
     glActiveTexture(GL_TEXTURE0 + 3);
     glBindTexture(GL_TEXTURE_2D, lightTarget->output);
 
+	glUniform1i(glGetUniformLocation(screenSpaceReflectionsShader.shaderID, "gEmissionMetallic"), 8);
+	glActiveTexture(GL_TEXTURE0 + 8);
+	glBindTexture(GL_TEXTURE_2D, deferredTarget->gEmissionMetallic);
 
-
-
+    //glDrawBuffer(attachmentpoints[0]);
 	drawMeshDirect(quad);
 
-	//glDrawBuffer(attachmentpoints[1]);
-
-	//screenSpaceReflectionTarget->use();
-
-	//glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
 }
@@ -752,6 +749,7 @@ void RenderEngine::hdrPass(float deltaTime) {
 
 void RenderEngine::resolveFrameBufferObject() {
 	auto lastFrameBuffer = screenSpaceReflectionTarget.get();
+	//lastFrameBuffer = lightTarget.get();
 
 	deferredTarget->retrieveDepthBuffer((GLuint) 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -30,6 +30,7 @@ out vec3 vNorm;
 out vec2 vUV;
 out mat3 TBN;
 out vec3 Reflection;
+out float LinearDepth;
 
 /**WATERMESH ANIMATION**/
 uniform float wavelength;
@@ -156,5 +157,6 @@ void main() {
      Reflection  = reflect(ViewDirection, vNorm);
 
 	gl_Position = viewProjection * pos;
+	LinearDepth = gl_Position.w;
 
 }

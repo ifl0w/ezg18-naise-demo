@@ -10,6 +10,7 @@ in vec3 vPos;
 in vec2 vUV;
 in mat3 TBN;
 in vec3 Reflection;
+in float LinearDepth;
 
 uniform sampler2D albedoTexture;
 uniform bool useAlbedoTexture;
@@ -55,6 +56,7 @@ void main() {
 
     // fragment position vector
     gPosition = vec4(vPos, gl_FragCoord.z);
+    gPosition.a = LinearDepth;
 
     // per-fragment normals
     gNormal = normalize(vNorm);
@@ -102,7 +104,7 @@ void main() {
 
 
     //Cubemap Reflections (only glossy)
-    if (useSkyboxTexture) {
+    if (useSkyboxTexture) { //false &&
         float roughnessFactor = gAlbedoRoughness.a;
         float metalicFactor = gEmissionMetallic.a;
 

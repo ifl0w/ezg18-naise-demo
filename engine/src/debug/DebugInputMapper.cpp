@@ -2,7 +2,7 @@
 #include "systems/RenderSystem.hpp"
 #include "Engine.hpp"
 
-vector<Action> DebugInputMapper::resolve(const SDL_Event& event) {
+vector<Action> Debug::DebugInputMapper::resolve(const SDL_Event& event) {
 
     switch (event.type) {
         case SDL_KEYUP:
@@ -23,12 +23,12 @@ vector<Action> DebugInputMapper::resolve(const SDL_Event& event) {
     return {};
 }
 
-Input DebugInputMapper::input(Action action, Input& inp, const SDL_Event& event) {
+Input Debug::DebugInputMapper::input(Action action, Input& inp, const SDL_Event& event) {
 
     return inp;
 }
 
-void DebugInputMapper::handleEvent(const SDL_Event& event) {
+void Debug::DebugInputMapper::handleEvent(const SDL_Event& event) {
     switch (event.type) {
         case SDL_KEYUP: {
             switch (event.key.keysym.sym) {

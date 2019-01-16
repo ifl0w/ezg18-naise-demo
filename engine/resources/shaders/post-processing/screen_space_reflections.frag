@@ -27,11 +27,14 @@ uniform sampler2D gAlbedoRoughness;
 uniform sampler2D gEmissionMetallic;
 
 // ADJUSTMENT VARIABLES
-float near = 0.01;
-float far  = 1000.0;
 
-int maxIterations;
-int maxBinarySearchIterations;
+// jitter: between 0 and 1 for how far to bump the ray in stride units to conceal banding artifacts
+float jitter = 0.0;
+
+float near = 0.01;
+
+float maxIterations;
+float maxBinarySearchIterations;
 
 float maxRayDistance = 200; // view or worldspace
 float stepsize; // in screenspace
@@ -45,8 +48,6 @@ vec3 view_normal;
 vec3 view_position;
 vec3 screen_position;
 vec3 view_reflection;
-vec3 view_rayMarchingStartPoint;
-vec3 screen_rayMarchingStartPoint;
 float fragment_depth;
 float fragment_roughness;
 float fragment_metallic;
@@ -59,22 +60,27 @@ vec4 screen_reflection;
 vec3 view_endPoint;
 
 // HELPER FUNCTIONS
-float linearizeDepth(float depthToVisualize);
 vec3 world2viewSpace(vec3 position);
 vec3 world2viewSpaceDirectionVector(vec3 dir);
 vec4 view2screenSpace(vec3 position);
 vec4 view2clipSpace(vec3 position);
 vec4 NDC2screenSpace(vec4 position);
 void calculateScreenReflection(vec3 view_pos, vec3 view_refl);
-void testing();
+float rand(vec2 co);
+vec4 blending(vec4 fetchedColor, vec4 coords);
+vec4 BinarySearch(vec4 rayDir, vec4 hitCoord);
+vec4 screenSpace2view(vec4 position);
 
-bool skybox = false;
+
 bool isHit = false;
-
+//ss than the depth buffer value but greater than the depth buffer value minus pixel thickness)
 // TODO: ray an laenge anpassen (near to far plane)?
 void init(){
-    maxIterations = 100;
-    stepsize = 0.1;
+    maxIterations = 30;
+
+    stepsize = 4;//1
+    maxRayDistance = 20;
+
     ViewAngleThreshold = 5;
     resolution = vec2(viewportWidth, viewportHeight);
 
@@ -83,10 +89,24 @@ void init(){
     fragment_depth = texture(gPosition, TexCoords).a;
     world_position = texture(gPosition, TexCoords).rgb;
 
+
+   /* step_bias = (zzzz.z-maxDistance)/(maxmaxDistance-maxDistance);
+    if(step_bias < 0){
+        step_bias = 0;
+    }
+     stepsize = step_bias *(1.0 - 0.1) + 0.1;
+    }*/
+
     view_position = world2viewSpace(world_position);
     view_normal =  world2viewSpaceDirectionVector(texture(gNormal, TexCoords).rgb);
     view_reflection = normalize(reflect(normalize(view_position.xyz), normalize(view_normal)));
-    angle = degrees(acos(dot(normalize(view_reflection), normalize(view_normal))));
+    //same as:
+  //   view_reflection = normalize(reflect(normalize(world_position-cameraPosition), normalize(world_normal)));
+   //  view_reflection = normalize(world2viewSpaceDirectionVector(view_reflection));
+
+     vec2 c = world_position.xy * 0.25;
+    jitter = rand(c);
+    //angle = degrees(acos(dot(normalize(view_reflection), normalize(view_normal))));
 
     calculateScreenReflection(view_position, view_reflection);
 }
@@ -95,67 +115,47 @@ void init(){
 // TODO: stepsize must get greater while stepping through the ray?
 // TODO: ray im lipspace steppen? Transform the View Space Reflection to clip-space
 vec4 RayMarching(){
-    vec4 last_rayPosition = screen_point;
-    vec4 screen_rayPosition = screen_point + screen_reflection;
+    vec4 screen_rayPosition = screen_point;
+  // screen_reflection.xyz *= jitter * 1;
+
     float rayDepth = 0; // accumulated depth value on rayPosition
     float texDepth = 0; // corresponding depth at the view_positionOnRay in the depth texture
 
-    isHit = false;
-
+screen_rayPosition += screen_reflection * stepsize;
     for(int i = 0; i < maxIterations; i++){
+
         ivec2 denormalizedTexCoords = ivec2(screen_rayPosition.xy * resolution);
         //in rayDepth & texDepth exakt der selbe wert wie fragment_depth wenn view_positionOnRay = view2screenSpace(view_position);
-        rayDepth = screen_rayPosition.z;
         texDepth = texelFetch(gPosition, denormalizedTexCoords, 0).a;
 
-        if(texDepth<=0){
-         return vec4(0,1,0,1);
-            //hit on skybox; TODO is early termination ok? probably not when the scene has flying/ hovering elements
+        if(texDepth == 1.0 || texDepth <= 0.0 ){ //skybox//hit on skybox; TODO is early termination ok? probably not when the scene has flying/ hovering elements
+        // can 1.0 occure in another case? if yes then set clearcolor to -1
+           // out-of-boundsdepth-buffersample -> will terminate iteration
             //Stop ray marching when the ray goes outside screen space
             return vec4(0);
         }
 
-        if(rayDepth >= texDepth){
-                // Correct the offset based on the sampled depth???
-          //  screen_rayPosition.xy = last_rayPosition.xy + (texDepth - last_rayPosition.z ) * screen_reflection.xy;
+        vec4 world = screenSpace2view(screen_rayPosition); //correct
+        rayDepth = world.z;
+       // rayDepth = (screen_rayPosition.z);
+       float pixelthickness = 0.001;
+        if(rayDepth >= texDepth + 0.0001 ){// + 0.0000001 // && rayDepth < texDepth + 0.2
             isHit = true;
 
-            return vec4(screen_rayPosition.xy, 0.0, 1.0);
+           // return BinarySearch(screen_reflection, screen_rayPosition);
+            return vec4(screen_rayPosition.xy, rayDepth, 1.0);
+            //  return vec4(screen_rayPosition.xy, 0.0, 1.0);
         }
-        last_rayPosition = screen_rayPosition;
-        screen_rayPosition += screen_reflection* stepsize;// * stepsize;
+
+        //stepsize = (stepsize/screen_rayPosition.z);
+        screen_rayPosition += screen_reflection * stepsize;// * stepsize;
         if(screen_rayPosition.z > screen_endPoint.z){
             return vec4(0); //ray missed
         }
-
     }
     return vec4(0); //ray missed
 }
 
-vec4 blending(vec4 fetchedColor, vec4 coords){
-    vec4 result = vec4(0);
-
-    float AlphaCompositing_Alpha = 0; //accumulation of intensity-value in each direction
-	vec4 AlphaCompositing_Color = vec4(0,0,0,0);
-    float reflectorR = fragment_roughness;
-    vec4 oldColor = vec4(0);
-    oldColor.a = reflectorR;
-    oldColor.rgb = texture(imageInput, TexCoords).rgb;
-    ivec2 denormalizedTexCoords = ivec2(coords.xy * resolution);
-    reflections = texelFetch(imageInput, denormalizedTexCoords, 0);
-    float reflectedR = texelFetch(gAlbedoRoughness, denormalizedTexCoords, 0).a;
-     vec4 newColor = fetchedColor;
-     newColor.a = reflectedR;
-
-    AlphaCompositing_Alpha = newColor.a + (1-newColor.a) * oldColor.a;
-
-    AlphaCompositing_Color.rgb = (1/AlphaCompositing_Alpha) * ( oldColor.a * oldColor.rgb + ((1- oldColor.a)*newColor.a*newColor.rgb));
-
-	AlphaCompositing_Color.a = AlphaCompositing_Alpha;
-    return (oldColor + newColor) / 2;
-     return vec4(1,0,0,1);
-    return AlphaCompositing_Color;
-}
 
 void main(){
     init();
@@ -165,36 +165,58 @@ void main(){
     // TODO: ViewAngleThreshold-> only count reflection if they are over the treshhold (angle between the normal and the camera direction)
     //if(angle < 90.0 && angle > ViewAngleThreshold)
 
-    if(world_position.z != 0.0 && fragment_depth > 0.0 && fragment_roughness < 1){
+    if(fragment_depth > 1.0 && fragment_depth > 0.0 && fragment_roughness < 1){
         result = RayMarching();
-       // reflections = result;
     }
 
     if(isHit){
-    //TODO texelFetch like in debug texture
-    vec2 test = smoothstep(0.2, 0.6, abs(vec2(0.5, 0.5) - result.xy));
-
-float screenEdgefactor = clamp(1.0 - (test.x + test.y), 0.0, 1.0);
-float reflectionSpecularFalloffExponent = 3.0;
-    float ReflectionMultiplier = fragment_metallic;
-    //pow(fragment_roughness, reflectionSpecularFalloffExponent) *
-     //           screenEdgefactor; //* -screen_reflection.z;
-
-
-    ivec2 denormalizedTexCoords = ivec2(result.xy * resolution);
-    reflections = texelFetch(imageInput, denormalizedTexCoords, 0);//* clamp(ReflectionMultiplier, 0.7, 1);//TODO .a should be defined by roughness
-
-    reflections = blending(reflections, result);
+        ivec2 denormalizedTexCoords = ivec2(result.xy * resolution);
+        reflections = texelFetch(imageInput, denormalizedTexCoords, 0);
+        reflections = blending(reflections,result);
     } else {
-     reflections = texture(imageInput, TexCoords);
-     //reflections = vec4(fragment_metallic);
+        reflections = texture(imageInput, TexCoords);
     }
 }
 
-void calculateScreenReflection(vec3 view_pos, vec3 view_refl){
+vec4 BinarySearch(vec4 rayDir, vec4 hitCoord)
+{
+    float texDepth;
+    float rayDepth;
 
-    // clip ray with the near plane or by the defined maxRayDistance
-    if((view_pos.z + view_refl.z * maxRayDistance) > -near){
+    float numBinarySearchSteps = 3;
+    vec4 screen_rayPosition = hitCoord;
+
+    for(int i = 0; i < numBinarySearchSteps; i++)
+    {
+         ivec2 denormalizedTexCoords = ivec2(screen_rayPosition.xy * resolution);
+        //in rayDepth & texDepth exakt der selbe wert wie fragment_depth wenn view_positionOnRay = view2screenSpace(view_position);
+
+        texDepth = texelFetch(gPosition, denormalizedTexCoords, 0).a;
+
+         vec4 world = screenSpace2view(screen_rayPosition); //correct
+        rayDepth = world.z;
+
+        float dDepth =rayDepth - texDepth;
+
+        rayDir *= 0.1;
+        if(dDepth > 0.0){
+            screen_rayPosition -= rayDir;
+        } else {
+            screen_rayPosition += rayDir;
+        }
+    }
+    return vec4(screen_rayPosition.xy, rayDepth, 1.0);
+}
+
+void calculateScreenReflection(vec3 view_pos, vec3 view_refl){
+    view_endPoint = view_pos + normalize(view_refl);
+    screen_point = view2screenSpace(view_pos);
+    screen_endPoint = view2screenSpace(view_endPoint);
+    // tip minus base (spitze minus schaft)
+    screen_reflection = (screen_endPoint - screen_point);
+
+// clip ray with the near plane or by the defined maxRayDistance
+   if((view_pos.z + view_refl.z * maxRayDistance) > -near){
           // in viewspace zhe camera looks along the - z axis, therefore the nearPlane lies on a negativ position
         // ray passes near plane and maxDistance has to be redefined so the zPosition of the ray endpoint will lay on and not behind the nearplane
 
@@ -204,22 +226,26 @@ void calculateScreenReflection(vec3 view_pos, vec3 view_refl){
         // endPoint should sill lay on the view_refl on depth -near
         view_endPoint = view_pos + view_refl * (distance/view_refl.z);
     } else {
-         view_endPoint = view_pos + view_refl * maxRayDistance;
+         view_endPoint = view_pos + normalize(view_refl) * maxRayDistance;
     }
+     screen_endPoint = view2screenSpace(view_endPoint);
 
-    screen_point = view2screenSpace(view_pos);
-    screen_endPoint = view2screenSpace(view_endPoint);
-    // tip minus base (spitze minus schaft)
-    screen_reflection = normalize(screen_endPoint - screen_point);
+    float reflectScale = (1.0/resolution.x) / length(screen_reflection.xy);
+  screen_reflection *= reflectScale;
 
+    /*    float reflectScale = length((screen_reflection.xy)*(vec2(1.0)/resolution));
+    screen_reflection *= reflectScale;*/
+
+
+     //screen_reflection.xyz *= 1.0/resolution.x;
 
 }
 
-float linearizeDepth(float depthToVisualize){
-    float d = depthToVisualize * 2.0 - 1.0;
-    d = (2.0 * near * far) / (far + near - d * (far - near));
-    return d/far;
+
+vec4 blending(vec4 fetchedColor, vec4 coords){
+    return ( texture(imageInput, TexCoords) + fetchedColor) * 0.5;
 }
+
 
 vec3 world2viewSpace(vec3 position){
     vec3 result = (viewMatrix * vec4(position, 1)).xyz;
@@ -236,6 +262,7 @@ vec4 view2screenSpace(vec3 position){
     result.xyz /= result.w;
     // NDC -> (0,1) so it can be used as TexCoords
     result.xyz = result.xyz * 0.5 + 0.5;
+    //result.w = 1.0;
     return result;
 }
 
@@ -251,32 +278,15 @@ vec4 NDC2screenSpace(vec4 position){
     return result;
 }
 
-// TODO delete later on
-void testing(){
-    /** TEST of worldNormals: **/
-    // reflections = texture(gNormal, TexCoords); //passt
-    /** TEST of viewNormals: **/
-    // reflections = vec4(view_normal,1); //passt
-    /** TEST of worldPosition: **/
-    // reflections = vec4(world_position,1); //passt
-    /** TEST of view_position: **/
-    // reflections = vec4(view_position,1); //passt
-    /** TEST of screen_position: **/ //TODO: skybox fucked up!!
-    // reflections = vec4(screen_point.rgb,1); //clip und screen space passt
-    /** TEST of view_reflection: **/
-    // reflections = vec4(view_reflection,1); //passt
-    /** TEST of screen_reflection: **/
+vec4 screenSpace2view(vec4 position){
+    vec4 result = position;
+    result.xyz = result.xyz * 2 - 1;
+    result.xyz *= result.w;
+    result = inverse(projectionMatrix) * result * -1;
+     //result = inverse(viewMatrix) *result;
+    return result;
+}
 
-  //TODO
- /*  if(screen_startPoint.w < 0.0){
-       reflections = vec4(1);
-   }*/
-  // reflections = screen_startPoint;
-   //reflections = screen_point;
-   // reflections = vec4(0,0,normalize(view_reflection).b,1);
-   //reflections = vec4(1,0,0,1);
-   // reflections = normalize(screen_reflection);///0.5;
-// reflections = screen_point + vec4(0.5,0.5,0,0);
-    /** TEST of reflection Ray: **/
-   // reflections = vec4(screen_reflection.rgb, length(screen_reflection.xy));
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }

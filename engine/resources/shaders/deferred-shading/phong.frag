@@ -44,7 +44,8 @@ void main() {
 	vec3 ambientLighting = vec3(1); // should be sum of all ambient light intensities
 
     // fragment position vector
-    gPosition = vPos;
+    gPosition = vec4(vPos, gl_FragCoord.z);
+
 
     // per-fragment normals
     gNormal = normalize(vNorm);
