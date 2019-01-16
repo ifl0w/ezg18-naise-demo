@@ -33,6 +33,7 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 		glowTextureWidth = glowTextureMaxSize / aspectRatio;
 	}
 
+	hdrpass = make_unique<HDRPass>(viewportWidth, viewportHeight);
 	postProcessingTarget = make_unique<PostProcessingTarget>(glowTextureWidth, glowTextureHeight, multiSampling);
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
@@ -125,6 +126,7 @@ void RenderEngine::setViewportSize(int width, int height) {
 	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	hdrpass = make_unique<HDRPass>(viewportWidth, viewportHeight);
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 }
@@ -136,6 +138,7 @@ void RenderEngine::setMultiSampling(int sampling) {
 	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	hdrpass = make_unique<HDRPass>(viewportWidth, viewportHeight);
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 }

@@ -38,6 +38,7 @@
 #include "RenderCommands.hpp"
 
 #include <systems/render-engine/shadow-map/CascadedShadowMapper.hpp>
+#include "post-processing/HDRPass.hpp"
 
 using namespace gl;
 using namespace NAISE::RenderCore;
@@ -106,9 +107,12 @@ private:
 	std::unique_ptr<PostProcessingTarget> combineTarget;
 	std::unique_ptr<PostProcessingTarget> lightTarget;
 
+	std::unique_ptr<HDRPass> hdrpass;
+
 	std::unique_ptr<PostProcessingTarget> hdrTarget;
 	ComputeShader luminanceReductionCompute = ComputeShader("engine/resources/shaders/post-processing/luminance_reduction.glsl");
 	ComputeShader luminanceCompute = ComputeShader("engine/resources/shaders/post-processing/luminance.glsl");
+	ComputeShader histogramCompute = ComputeShader("engine/resources/shaders/post-processing/luminance.glsl");
 	std::unique_ptr<Texture> luminanceTexture;
 	std::unique_ptr<Texture> luminanceTexture2;
 

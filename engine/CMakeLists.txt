@@ -211,7 +211,7 @@ add_library(engine STATIC ${SRC_FILES}
         src/systems/particle-system/GPUMeshParticleSystem.cpp include/systems/particle-system/GPUMeshParticleSystem.hpp
         src/systems/particle-system/GPUParticleData.cpp include/systems/particle-system/GPUParticleData.hpp
         include/systems/render-engine/RenderCommands.hpp
-        include/systems/render-engine/shadow-map/Cascade.hpp)
+        include/systems/render-engine/shadow-map/Cascade.hpp include/systems/render-engine/post-processing/HDRPass.cpp include/systems/render-engine/post-processing/HDRPass.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include

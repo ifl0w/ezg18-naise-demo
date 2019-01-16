@@ -64,7 +64,7 @@ public:
 	 * The brighness factor will be multiplied with the color.
 	 * Used to adjust brighnest for HDR.
 	 */
-	float brightness = 10;
+	float brightness = 1000;
 
 private:
 

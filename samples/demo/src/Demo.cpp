@@ -63,6 +63,7 @@ int main(int argc, char **argv) {
 
 	std::vector<std::string> paths = {posX, negX, posY, negY, posZ, negZ};
 	auto skybox = NAISE::Engine::Skybox(identifier, paths);
+	skybox.brightness = 6000;
 	//skybox.setBackgroundColor(glm::vec3(1,0.95,0.9));
 	Engine::getSystemsManager().getSystem<RenderSystem>().setSkybox(skybox);
 
@@ -113,8 +114,8 @@ int main(int argc, char **argv) {
 	sun->add<TransformComponent>();
 	sun->add(LightFactory::createLight<DirectionalLight>());
 	sun->component<LightComponent>().light->data.direction = vec4(-1, -2, -1, 1);
-	sun->component<LightComponent>().light->data.diffuse = vec4(5000, 5000, 5000, 1);
-	sun->component<LightComponent>().light->data.ambient = vec4(1);
+	sun->component<LightComponent>().light->data.diffuse = vec4(6000, 6000, 6000, 1);
+	sun->component<LightComponent>().light->data.ambient = vec4(200);
 
 	auto platformParticles = make_shared<NAISE::Engine::Entity>();
 	platformParticles->add<TransformComponent>();
