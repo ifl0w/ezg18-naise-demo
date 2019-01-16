@@ -3,6 +3,8 @@
 #include <systems/render-engine/materials/shaders/Shader.hpp>
 #include <systems/render-engine/lights/Light.hpp>
 
+#define CASCADE_COUNT 4
+
 namespace NAISE {
 namespace RenderCore {
 
@@ -10,7 +12,7 @@ class LightShader: public Shader {
 public:
 	LightShader(std::string vertexShaderPath, std::string fragmentShaderPath);
 
-	std::vector<GLint> shadowMapLocation = {-1, -1, -1};
+	GLint shadowMapLocation[CASCADE_COUNT] = {-1, -1, -1};
 	GLint positionBufferLocation = -1;
 	GLint normalBufferLocation = -1;
 	GLint albedoRoughnessBufferLocation = -1;

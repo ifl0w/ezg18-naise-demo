@@ -6,13 +6,12 @@ using namespace NAISE::Engine;
 DirectionalLightShader::DirectionalLightShader()
 		: LightShader("engine/resources/shaders/deferred-shading/light-shaders/directional_light.vert",
 					  "engine/resources/shaders/deferred-shading/light-shaders/directional_light.frag") {
-	depthViewProjectionLocation[0] = uniformLocation(shaderID, "depthShadowProjection[0]");
-	depthViewProjectionLocation[1] = uniformLocation(shaderID, "depthShadowProjection[1]");
-	depthViewProjectionLocation[2] = uniformLocation(shaderID, "depthShadowProjection[2]");
 
-	cascadeEndLocation[0] = uniformLocation(shaderID, "cascadeEnd[0]");
-	cascadeEndLocation[1] = uniformLocation(shaderID, "cascadeEnd[1]");
-	cascadeEndLocation[2] = uniformLocation(shaderID, "cascadeEnd[2]");
+	for (int i = 0; i < CASCADE_COUNT; ++i) {
+		depthViewProjectionLocation[i] = uniformLocation(shaderID, "depthShadowProjection[" + std::to_string(i) + "]");
+		cascadeEndLocation[i] = uniformLocation(shaderID, "cascadeEnd[" + std::to_string(i) + "]");
+
+	}
 }
 
 void DirectionalLightShader::setShadowMapViewProjection(int position, mat4 shadowMapViewProjection) {

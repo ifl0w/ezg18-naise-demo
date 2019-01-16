@@ -209,3 +209,58 @@ Frustum::Frustum(AABB aabb, mat4 invViewMatrix, float extend) {
 
 	frustumMesh = std::make_unique<Mesh>(points);
 }
+
+Frustum::Frustum(std::vector<vec4> points, mat4 invViewMatrix, float extend) {
+	vec3 X = normalize(vec3(glm::inverse(invViewMatrix) * vec4(1, 0, 0, 0)));
+	vec3 Y = normalize(vec3(glm::inverse(invViewMatrix) * vec4(0, 1, 0, 0)));
+	vec3 Z = normalize(vec3(glm::inverse(invViewMatrix) * vec4(0, 0, 1, 0)));
+
+	float minX = std::numeric_limits<float>::infinity();
+	float maxX = -std::numeric_limits<float>::infinity();
+	float minY = std::numeric_limits<float>::infinity();
+	float maxY = -std::numeric_limits<float>::infinity();
+	float minZ = std::numeric_limits<float>::infinity();
+	float maxZ = -std::numeric_limits<float>::infinity();
+
+	for (auto p : points) {
+		vec3 tmp = invViewMatrix * p;
+		minX = glm::min(minX, tmp.x);
+		maxX = glm::max(maxX, tmp.x);
+		minY = glm::min(minY, tmp.y);
+		maxY = glm::max(maxY, tmp.y);
+		minZ = glm::min(minZ, tmp.z);
+		maxZ = glm::max(maxZ, tmp.z);
+	}
+
+	vec2 xHalf = vec2((minY + maxY) / 2, (minZ + maxZ) / 2);
+	vec2 yHalf = vec2((minX + maxX) / 2, (minZ + maxZ) / 2);
+	vec2 zHalf = vec2((minX + maxX) / 2, (minY + maxY) / 2);
+
+	auto xMin = vec3(glm::inverse(invViewMatrix) * vec4(minX, xHalf.x, xHalf.y, 1));
+	auto xMax = vec3(glm::inverse(invViewMatrix) * vec4(maxX, xHalf.x, xHalf.y, 1));
+
+	auto yMin = vec3(glm::inverse(invViewMatrix) * vec4(yHalf.x, minY, yHalf.y, 1));
+	auto yMax = vec3(glm::inverse(invViewMatrix) * vec4(yHalf.x, maxY, yHalf.y, 1));
+
+	auto zMin = vec3(glm::inverse(invViewMatrix) * vec4(zHalf.x, zHalf.y, (maxZ + extend), 1));
+	auto zMax = vec3(glm::inverse(invViewMatrix) * vec4(zHalf.x, zHalf.y, minZ, 1));
+
+	planes = vector<pair<vec3, vec3>>(6);
+
+	planes[Planes::NEAR_PLANE] = pair(-Z, zMin);
+	planes[Planes::FAR_PLANE] = pair(Z, zMax);
+
+	planes[Planes::TOP_PLANE] = pair(-Y, yMax);
+	planes[Planes::BOTTOM_PLANE] = pair(Y, yMin);
+
+	planes[Planes::LEFT_PLANE] = pair(X, xMin);
+	planes[Planes::RIGHT_PLANE] = pair(-X, xMax);
+
+	std::vector<std::pair<vec3, vec3>> ps({
+													  std::pair(xMin, xMax),
+													  std::pair(yMin, yMax),
+													  std::pair(zMin, zMax)
+											  });
+
+	frustumMesh = std::make_unique<Mesh>(ps);
+}

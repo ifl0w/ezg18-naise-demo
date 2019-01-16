@@ -2,7 +2,7 @@
 
 #define PI 3.1415926535897932384626433832795
 
-#define CASCADE_COUNT 3
+#define CASCADE_COUNT 4
 
 out vec4 fragColor;
 
@@ -68,13 +68,13 @@ float calculateShadowFactor(vec3 pos, vec3 normal, vec3 lightDir) {
 
     // 2x2 hardware pcf + blurring with a 3x3 kernel for prettier results
     float shadowFactor = 0;
-    for(int x=-1; x<=1; x++) {
-        for(int y=-1; y<=1; y++) {
+    for(int x=-1; x<=4; x++) {
+        for(int y=-1; y<=4; y++) {
             vec2 off = vec2(x,y)/((cascadeIdx + 1) * 2000); // blurring factor depends on cascade size
             shadowFactor += texture(shadowMap[cascadeIdx], vec3(ProjCoords.xy+off, ProjCoords.z-bias));
         }
     }
-    shadowFactor /= 9;
+    shadowFactor /= 16;
 
 	return shadowFactor;
 }

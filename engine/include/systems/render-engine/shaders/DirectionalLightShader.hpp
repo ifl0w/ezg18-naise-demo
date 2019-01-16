@@ -13,8 +13,8 @@ public:
 	void setCascadeEnd(int position, mat4 shadowMapViewProjection, double distance);
 
 private:
-	GLint depthViewProjectionLocation[3] = {-1};
-	GLint cascadeEndLocation[3] = {-1};
+	GLint depthViewProjectionLocation[CASCADE_COUNT] = {-1};
+	GLint cascadeEndLocation[CASCADE_COUNT] = {-1};
 
 
 };

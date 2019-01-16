@@ -13,7 +13,7 @@ LightShader::LightShader(std::string vertexShaderPath, std::string fragmentShade
 	this->albedoRoughnessBufferLocation = uniformLocation(shaderID, "gAlbedoRoughness");
 	this->emissionMetallicBufferLocation = uniformLocation(shaderID, "gEmissionMetallic");
 
-	for (int i = 0; i < shadowMapLocation.size(); ++i) {
+	for (int i = 0; i < CASCADE_COUNT; ++i) {
 		shadowMapLocation[i] = uniformLocation(shaderID, "shadowMap[" + std::to_string(i) + "]");
 	}
 }

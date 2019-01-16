@@ -27,7 +27,8 @@ public:
 	 * @param invViewMatrix
 	 * @param extendZ Stretches the z axis of the frustrum. (eg. Shadow distance)
 	 */
-	Frustum(AABB aabb, mat4 invViewMatrix, float extendZ);
+	Frustum(AABB aabb, mat4 invViewMatrix, float extend);
+	Frustum(std::vector<glm::vec4> points, mat4 invViewMatrix, float extend);
 
 	enum Planes {
 	  NEAR_PLANE = 0,
