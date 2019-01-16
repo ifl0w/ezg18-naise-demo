@@ -3,6 +3,9 @@
 #include <systems/input/InputSystem.hpp>
 #include <components/InputComponent.hpp>
 
+#include <imgui.h>
+#include <examples/imgui_impl_sdl.h>
+
 using namespace NAISE::Engine;
 
 InputSystem::InputSystem() {
@@ -13,8 +16,14 @@ void InputSystem::process(microseconds deltaTime) {
 	SDL_Event event; /* Event structure */
 
 	while (SDL_PollEvent(&event)) {
+		ImGui_ImplSDL2_ProcessEvent(&event);
 		// handle window events (e.g. window close)
 		_handleWindowEvents(event);
+
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.WantCaptureMouse) {
+			continue;
+		}
 
 		for (const auto& mapper: _inputMapper) {
 			mapper->handleEvent(event);

@@ -27,6 +27,9 @@
 #include <systems/TransformSystem.hpp>
 #include <systems/particle-system/SimpleGPUParticleSystem.hpp>
 
+#include <systems/debugging/DebugSystem.hpp>
+#include <systems/debugging/DebugInputMapper.hpp>
+
 #include "Demo.hpp"
 #include "SceneLoaderAdapter.hpp"
 #include "CameraSelectionSystem/CameraSelectionInputMapper.hpp"
@@ -52,6 +55,10 @@ int main(int argc, char **argv) {
 	Engine::getSystemsManager().registerSystem<TransformSystem>();
 	Engine::getSystemsManager().registerSystem<SimpleGPUParticleSystem>();
 	Engine::getSystemsManager().registerSystem<RenderSystem>();
+
+	// Debugging interface
+	Engine::getSystemsManager().registerSystem<DebugSystem>();
+	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<DebugInputMapper>());
 
 	std::string posX = "resources/textures/skybox/clouds1_east.bmp";
 	std::string negX = "resources/textures/skybox/clouds1_west.bmp";

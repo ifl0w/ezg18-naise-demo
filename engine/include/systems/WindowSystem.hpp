@@ -9,7 +9,7 @@ namespace NAISE {
 namespace Engine {
 
 namespace WindowEvents {
-struct Window: public Event<SDL_Window*> {};
+struct Window: public Event<SDL_Window*, SDL_GLContext> {};
 struct CaptureMouse: public Event<bool> {};
 struct SetResolution: public Event<uint32_t, uint32_t> {};
 struct SetFullscreen: public Event<bool> {};
@@ -23,9 +23,7 @@ public:
 	WindowSystem();
 	~WindowSystem();
 
-	void process(microseconds deltaTime) override {
-		SDL_GL_SwapWindow(window);
-	};
+	void process(microseconds deltaTime) override;
 
 	bool isFullscreen(){
 		return _fullscreen;
@@ -36,6 +34,8 @@ private:
 	SDL_GLContext context;
 
 	bool _fullscreen = false;
+
+	bool _firstFrame = true;
 
 	void captureMouse(bool capture);
 

@@ -8,6 +8,13 @@
 
 #include <Engine.hpp>
 
+#define IMGUI_IMPL_OPENGL_LOADER_CUSTOM <glbinding/glbinding.h> \
+	using namespace gl;
+
+#include "imgui.h"
+#include "systems/debugging/imgui-impl/imgui_impl_sdl.hpp"
+#include "systems/debugging/imgui-impl/imgui_impl_opengl3.hpp"
+
 using namespace NAISE::Engine;
 using namespace std;
 
@@ -67,6 +74,24 @@ WindowSystem::WindowSystem() {
 	Engine::getEventManager().event<WindowEvents::SetResolution>().subscribe([&](uint32_t width, uint32_t height){
 	  setResolution(width, height);
 	});
+
+	// imgui setup
+
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsClassic();
+
+	// Setup Platform/Renderer bindings
+	// GL 3.0 + GLSL 130
+	const char* glsl_version = "#version 130";
+	ImGui_ImplSDL2_InitForOpenGL(window, context);
+	ImGui_ImplOpenGL3_Init(glsl_version);
 }
 
 ProcAddress NAISE::Engine::getProcAddress(const char* name) {
@@ -74,6 +99,11 @@ ProcAddress NAISE::Engine::getProcAddress(const char* name) {
 }
 
 WindowSystem::~WindowSystem() {
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
+
 	// Close and destroy the window
 	SDL_DestroyWindow(window);
 
@@ -120,4 +150,19 @@ void WindowSystem::setSDLAttribute(SDL_GLattr attr, int val) {
 		spdlog::get("logger")->error("SDL_GL_SetAttribute error! Attribute: {}, Value: {}", attr, val);
 		throw runtime_error((SDL_GetError()));
 	}
+}
+
+void WindowSystem::process(microseconds deltaTime) {
+	if(!_firstFrame) {
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	}
+
+	SDL_GL_SwapWindow(window);
+
+	// Start the Dear ImGui frame
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplSDL2_NewFrame(window);
+	ImGui::NewFrame();
+	_firstFrame = false;
 }

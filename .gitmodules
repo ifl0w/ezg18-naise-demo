@@ -25,3 +25,6 @@
 [submodule "windows-binaries-freetype2"]
 	path = engine/external/windows-binaries/freetype2
 	url = git@github.com:ubawurinna/freetype-windows-binaries.git
+[submodule "imgui"]
+	path = engine/external/imgui
+	url = git@github.com:ocornut/imgui.git
