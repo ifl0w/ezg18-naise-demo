@@ -130,11 +130,11 @@ int main(int argc, char **argv) {
 	platformParticles->add<SimpleGPUParticleComponent>("resources/particle-systems/platform-particles.glsl", 10000, 1000);
 	platformParticles->component<SimpleGPUParticleComponent>().setUniforms = [platformParticles](gl::GLuint shaderProgram){
 	  glProgramUniform1f(shaderProgram, uniformLocation(shaderProgram, "uRadius"), 10.0f);
-	  glProgramUniform3fv(shaderProgram, uniformLocation(shaderProgram, "uVelocity"), 1, value_ptr(vec3(0, 0.5, 0)));
+	  glProgramUniform3fv(shaderProgram, uniformLocation(shaderProgram, "uVelocity"), 1, value_ptr(vec3(0, 0.25, 0)));
 	  glProgramUniform2fv(shaderProgram, uniformLocation(shaderProgram, "uLifeTime"), 1, value_ptr(vec2(2, 7)));
 	};
 	platformParticles->add<MeshParticleComponent>(10000);
-	platformParticles->component<MeshParticleComponent>().mesh = Resources::getMesh<Sphere>("particle", 0.05, 4, 3);
+	platformParticles->component<MeshParticleComponent>().mesh = Resources::getMesh<Sphere>("particle", 0.025, 4, 3);
 	auto particleMaterial = Resources::getMaterial<PBRMaterial>("ParticleGlow");
 	particleMaterial->glow = vec3(0,1,1);
 	platformParticles->component<MeshParticleComponent>().material = particleMaterial;

@@ -397,7 +397,15 @@ void RenderEngine::resolveFrameBufferObject() {
 
 void RenderEngine::skyboxPass() {
 	if (_skybox != nullptr) {
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, deferredTarget->gPosition, 0);
+
+		GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+		glDrawBuffers(3, attachments);
+
 		_skybox->drawSkybox();
+
+		glDrawBuffer(attachments[1]);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, deferredTarget->gPositionAttachment, GL_TEXTURE_2D, deferredTarget->gPosition, 0);
 	}
 }
 

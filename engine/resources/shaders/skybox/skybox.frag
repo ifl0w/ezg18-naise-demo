@@ -1,6 +1,7 @@
 #version 430
 
-out vec4 FragColor;
+layout(location = 1) out vec4 FragColor;
+layout(location = 2) out vec4 gPosition;
 
 in vec3 TexCoords;
 
@@ -19,5 +20,6 @@ void main()
         color *= texture(skyboxTexture, TexCoords);
     }
 
+    gPosition = vec4(TexCoords * 1000000, 0);
     FragColor = color * brightness;
 }

@@ -5,14 +5,15 @@ in vec2 texture_coordinates;
 
 layout(binding=0, rgba32f) uniform readonly image2D currentPosition;
 
-//layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
-
 uniform sampler2D inputImage;
 
 uniform float shutterSpeed = 100; // milliseconds
 uniform float deltaTime;
 uniform mat4 previousViewMatrix;
 uniform mat4 previousProjectionMatrix;
+
+float targetFrameTime = 0.01666;
+float motionBlurMuliplier = 0.025;
 
 layout(std140, binding = 0) uniform screenData
 {
@@ -34,7 +35,7 @@ vec4 toScreenSpace(vec4 position, mat4 matrix) {
     vec4 result = matrix * position;
     result.xyz /= result.w;
     // NDC -> (0,1) so it can be used as TexCoords
-    result.xyz = result.xyz * 0.5 + 0.5;
+    result.xyz = result.xyz * 0.5 + vec3(0.5);
 
     return result;
 }
@@ -49,16 +50,17 @@ void main() {
     vec4 screen_oldPos = toScreenSpace(vec4(oldPos.xyz, 1), previousProjectionMatrix * previousViewMatrix);
     vec4 screen_currPos = toScreenSpace(vec4(currPos.xyz, 1), projectionMatrix * viewMatrix);
 
-    vec2 posDiff = (screen_oldPos.xy - screen_currPos.xy) * deltaTime * shutterSpeed;
+    vec2 posDiff = (screen_oldPos.xy - screen_currPos.xy);
+    posDiff *= (deltaTime / targetFrameTime) * motionBlurMuliplier * shutterSpeed;
 
     int iterations = 64;
     vec2 sampleStep = posDiff.xy / float(iterations);
-    vec2 samplePosition = (coords + vec2(0.5,0.5))/resolution;
+    vec2 samplePosition = (coords + vec2(0.5,0.5))/resolution; // + 0.5 to center pixel
 
     vec4 color = texture(inputImage, samplePosition);
 
     for (int i = 0; i < iterations; i++) {
-        sampleStep = posDiff.xy * ( float(i) / float(iterations) - 0.5);
+        sampleStep = posDiff.xy * ( float(i) / float(iterations) - 0.5); // center vector around origin
         color += texture(inputImage, samplePosition + sampleStep);
     }
 

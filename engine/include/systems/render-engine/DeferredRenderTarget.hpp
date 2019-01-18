@@ -21,6 +21,7 @@ public:
 
 	GLuint gEmissionMetallic;
 	GLuint gPosition;
+	GLenum gPositionAttachment = GL_COLOR_ATTACHMENT0;
 	GLuint gNormal;
 	GLuint gAlbedoRoughness;
 	GLuint depth_rbo;
