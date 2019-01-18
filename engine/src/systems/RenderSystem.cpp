@@ -73,6 +73,9 @@ void RenderSystem::process(microseconds deltaTime) {
 	if (_visualDebugging) {
 		_renderEngine->executeCommandBuffer(_debugCommandBuffer());
 	}
+
+	previousViewMatrix = glm::inverse(_activeCamera->component<TransformComponent>().getModelMatrix());
+	previousProjectionMatrix = _activeCamera->component<CameraComponent>().getProjectionMatrix();
 }
 
 void RenderSystem::_postProcessing(std::chrono::microseconds deltaTime) {
@@ -85,6 +88,8 @@ void RenderSystem::_postProcessing(std::chrono::microseconds deltaTime) {
 	// HDR
 	std::chrono::duration<float> sec = deltaTime;
 	_renderEngine->hdrPass(sec.count());
+
+	_renderEngine->motionBlurPass(sec.count(), previousViewMatrix, previousProjectionMatrix);
 }
 
 bool RenderSystem::_cullEntity(Entity& camera, Entity& entity) {

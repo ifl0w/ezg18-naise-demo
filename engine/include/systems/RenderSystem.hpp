@@ -64,6 +64,8 @@ private:
 	 */
 	Entity* _activeCamera = nullptr;
 	Entity* _activeSun = nullptr;
+	glm::mat4 previousViewMatrix = glm::mat4(1);
+	glm::mat4 previousProjectionMatrix = glm::mat4(1);
 
 	bool _visualDebugging = false;
 	bool _drawWireframe = false;

@@ -39,6 +39,7 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
+	motionBlurTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 
 	// enable back face culling
 	glEnable(GL_CULL_FACE);
@@ -129,6 +130,7 @@ void RenderEngine::setViewportSize(int width, int height) {
 	hdrpass = make_unique<HDRPass>(viewportWidth, viewportHeight);
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
+	motionBlurTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 }
 
 void RenderEngine::setMultiSampling(int sampling) {
@@ -141,6 +143,7 @@ void RenderEngine::setMultiSampling(int sampling) {
 	hdrpass = make_unique<HDRPass>(viewportWidth, viewportHeight);
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
+	motionBlurTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 }
 
 void RenderEngine::setResolution(int width, int height, int sampling) {
@@ -357,7 +360,7 @@ void RenderEngine::hdrPass(float deltaTime) {
 }
 
 void RenderEngine::resolveFrameBufferObject() {
-	auto lastFrameBuffer = hdrTarget.get();
+	auto lastFrameBuffer = motionBlurTarget.get();
 
 	deferredTarget->retrieveDepthBuffer((GLuint) 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -691,4 +694,29 @@ void RenderEngine::executeCommand(RenderDirectionalLight& command) {
 	glEnable(GL_DEPTH_TEST);
 
 	glDisable(GL_STENCIL_TEST);
+}
+
+void RenderEngine::motionBlurPass(float deltaTime, glm::mat4 previousViewMatrix, glm::mat4 previousProjectionMatrix) {
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
+
+	motionBlurTarget->use();
+
+	// blur target image
+	motionBlurShader.useShader();
+
+	glUniform1f(glGetUniformLocation(Shader::activeShader, "deltaTime"), deltaTime);
+	glUniformMatrix4fv(glGetUniformLocation(Shader::activeShader, "previousViewMatrix"), 1, false, value_ptr(previousViewMatrix));
+	glUniformMatrix4fv(glGetUniformLocation(Shader::activeShader, "previousProjectionMatrix"), 1, false, value_ptr(previousProjectionMatrix));
+
+	glActiveTexture(GL_TEXTURE0 + 0);
+	glBindTexture(GL_TEXTURE_2D, hdrTarget->output);
+
+	glBindImageTexture(0, deferredTarget->gPosition, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F); // current position
+
+	motionBlurShader.setModelMatrix(mat4(1.0));
+	drawMeshDirect(quad);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
 }

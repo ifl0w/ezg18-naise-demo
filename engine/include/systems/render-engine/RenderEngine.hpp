@@ -65,6 +65,7 @@ public:
 	void skyboxPass();
 	void glowPass();
 	void hdrPass(float deltaTime);
+	void motionBlurPass(float deltaTime, glm::mat4 previousViewMatrix, glm::mat4 previousProjectionMatrix);
 	void resolveFrameBufferObject();
 
 	void executeCommandBuffer(RenderCommandBuffer commandBuffer);
@@ -106,6 +107,7 @@ private:
 	std::unique_ptr<PostProcessingTarget> postProcessingTarget;
 	std::unique_ptr<PostProcessingTarget> combineTarget;
 	std::unique_ptr<PostProcessingTarget> lightTarget;
+	std::unique_ptr<PostProcessingTarget> motionBlurTarget;
 
 	std::unique_ptr<HDRPass> hdrpass;
 
@@ -115,6 +117,8 @@ private:
 	ComputeShader histogramCompute = ComputeShader("engine/resources/shaders/post-processing/luminance.glsl");
 	std::unique_ptr<Texture> luminanceTexture;
 	std::unique_ptr<Texture> luminanceTexture2;
+
+	Shader motionBlurShader = Shader("engine/resources/shaders/post-processing/quad.vert", "engine/resources/shaders/post-processing/motion-blur.frag");
 
 	PointLightShader plShader;
 	DirectionalLightShader dlShader;
