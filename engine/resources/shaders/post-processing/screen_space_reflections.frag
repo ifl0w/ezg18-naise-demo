@@ -78,19 +78,19 @@ bool isHit = false;
 //ss than the depth buffer value but greater than the depth buffer value minus pixel thickness)
 // TODO: ray an laenge anpassen (near to far plane)?
 void init(){
-    maxIterations = 30;
+    maxIterations = 200;//30;
 
     stepsize = 4;//1
-    maxRayDistance = 20;
+    maxRayDistance = 200;//20;
 
     ViewAngleThreshold = 5;
     resolution = vec2(viewportWidth, viewportHeight);
 
     fragment_roughness = texture(gAlbedoRoughness, TexCoords).a;
     fragment_metallic =  texture(gEmissionMetallic, TexCoords).a;
-    fragment_depth = texture(gLinearDepth, TexCoords).r;
+    //fragment_depth = texture(gLinearDepth, TexCoords).r;
     world_position = texture(gPosition, TexCoords).rgb;
-
+    fragment_depth = texture(gPosition, TexCoords).a;
 
    /* step_bias = (zzzz.z-maxDistance)/(maxmaxDistance-maxDistance);
     if(step_bias < 0){
@@ -167,18 +167,23 @@ void main(){
     // TODO: ViewAngleThreshold-> only count reflection if they are over the treshhold (angle between the normal and the camera direction)
     //if(angle < 90.0 && angle > ViewAngleThreshold)
 
-    if(fragment_depth > 1.0 && fragment_depth > 0.0 && fragment_roughness < 1){
+  /*  if(fragment_depth > 1.0 && fragment_depth > 0.0 && fragment_roughness < 1){
         result = RayMarching();
-    }
+    }*/
+
+    if(fragment_depth < 1.0 && fragment_depth > 0.0 ){//&& fragment_roughness < 1
+         //   result = RayMarching();
+        }
+        result = RayMarching();
 
     if(isHit){
         ivec2 denormalizedTexCoords = ivec2(result.xy * resolution);
         reflections = texelFetch(imageInput, denormalizedTexCoords, 0);
-        reflections = blending(reflections,result);
+        //reflections = blending(reflections,result);
     } else {
         reflections = texture(imageInput, TexCoords);
     }
-    reflections = texture(gHiZ, TexCoords);
+   // reflections = texture(gHiZ, TexCoords);
 }
 
 vec4 BinarySearch(vec4 rayDir, vec4 hitCoord)
