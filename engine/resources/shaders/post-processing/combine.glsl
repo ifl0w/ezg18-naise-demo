@@ -17,6 +17,6 @@ void main() {
     float threshold = log(lum.w)*1.5;
     float value = lum.x;
     if (threshold < value) {
-        imageStore(combined, ivec2(gl_GlobalInvocationID.xy), color * (value - threshold)/value);
+        imageStore(combined, ivec2(gl_GlobalInvocationID.xy), current + color * (value - threshold)/value);
     }
 }

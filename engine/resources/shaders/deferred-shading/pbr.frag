@@ -86,7 +86,7 @@ void main() {
     }
 
     // GLOW
-    gEmissionMetallic.rgb = material.emission*3;
+    gEmissionMetallic.rgb = material.emission;
     if (useEmissionTexture) {
         gEmissionMetallic.rgb = texture(emissionTexture, vUV).rgb;
     }

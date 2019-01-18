@@ -107,6 +107,11 @@ public:
 private:
 	std::unique_ptr<DeferredRenderTarget> deferredTarget;
 	std::unique_ptr<PostProcessingTarget> postProcessingTarget;
+	glm::ivec2 glowTextureSize;
+
+	std::unique_ptr<PostProcessingTarget> bloomTarget;
+	glm::vec2 bloomTextureSize;
+
 	std::unique_ptr<PostProcessingTarget> combineTarget;
 	std::unique_ptr<PostProcessingTarget> lightTarget;
 	std::unique_ptr<PostProcessingTarget> motionBlurTarget;

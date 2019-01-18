@@ -13,7 +13,7 @@ uniform mat4 previousViewMatrix;
 uniform mat4 previousProjectionMatrix;
 
 float targetFrameTime = 0.01666;
-float motionBlurMuliplier = 0.025;
+float motionBlurMuliplier = 0.005;
 
 layout(std140, binding = 0) uniform screenData
 {
@@ -59,8 +59,9 @@ void main() {
 
     vec4 color = texture(inputImage, samplePosition);
 
+    float iterationFraction = 1/float(iterations);
     for (int i = 0; i < iterations; i++) {
-        sampleStep = posDiff.xy * ( float(i) / float(iterations) - 0.5); // center vector around origin
+        sampleStep = posDiff.xy * (float(i) * iterationFraction - 0.5); // center vector around origin
         color += texture(inputImage, samplePosition + sampleStep);
     }
 

@@ -20,21 +20,15 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 		  _defaultMaterial(make_unique<PBRMaterial>(vec3(0.9, 0, 0.9), 0, 0.5)) {
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
 
-	//TODO refactor glow, separate into own classes
-	float aspectRatio = viewportWidth / (float) viewportHeight;
-	float glowTextureHeight;
-	float glowTextureWidth;
-	float glowTextureMaxSize = 512;
-	if (viewportWidth >= viewportHeight) {
-		glowTextureHeight = glowTextureMaxSize / aspectRatio;
-		glowTextureWidth = glowTextureMaxSize;
-	} else {
-		glowTextureHeight = glowTextureMaxSize;
-		glowTextureWidth = glowTextureMaxSize / aspectRatio;
-	}
 
 	hdrpass = make_unique<HDRPass>(viewportWidth, viewportHeight);
-	postProcessingTarget = make_unique<PostProcessingTarget>(glowTextureWidth, glowTextureHeight, multiSampling);
+
+	glowTextureSize = ivec2(viewportWidth, viewportHeight) / 2;
+	postProcessingTarget = make_unique<PostProcessingTarget>(glowTextureSize.x, glowTextureSize.y, multiSampling);
+
+	bloomTextureSize = ivec2(viewportWidth, viewportHeight) / 4;
+	bloomTarget = make_unique<PostProcessingTarget>(bloomTextureSize.x, bloomTextureSize.y, multiSampling);
+
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
@@ -122,9 +116,15 @@ void RenderEngine::setViewportSize(int width, int height) {
 	glViewport(0, 0, width, height);
 	viewportWidth = width;
 	viewportHeight = height;
+
+	glowTextureSize = ivec2(viewportWidth, viewportHeight) / 2;
+	bloomTextureSize = ivec2(viewportWidth, viewportHeight) / 4;
+
 	setScreenData();
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
-	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	postProcessingTarget = make_unique<PostProcessingTarget>(glowTextureSize.x, glowTextureSize.y, multiSampling);
+	bloomTarget = make_unique<PostProcessingTarget>(bloomTextureSize.x, bloomTextureSize.y, multiSampling);
+
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrpass = make_unique<HDRPass>(viewportWidth, viewportHeight);
@@ -135,9 +135,11 @@ void RenderEngine::setViewportSize(int width, int height) {
 
 void RenderEngine::setMultiSampling(int sampling) {
 	multiSampling = sampling;
+
 	setScreenData();
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
-	postProcessingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	postProcessingTarget = make_unique<PostProcessingTarget>(glowTextureSize.x, glowTextureSize.y, multiSampling);
+	bloomTarget = make_unique<PostProcessingTarget>(bloomTextureSize.x, bloomTextureSize.y, multiSampling);
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrpass = make_unique<HDRPass>(viewportWidth, viewportHeight);
