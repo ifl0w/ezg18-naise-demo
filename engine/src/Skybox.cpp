@@ -36,6 +36,7 @@ void Skybox::initialize() {
 	this->backgroundColorLocation = uniformLocation(skyboxShader->shaderID, "backgroundColor");
 	this->useSkyboxTextureLocation = uniformLocation(skyboxShader->shaderID, "useSkyboxTexture");
 	this->skyboxTextureLocation = uniformLocation(skyboxShader->shaderID, "skyboxTexture");
+	this->brightnessLocation = uniformLocation(skyboxShader->shaderID, "brightness");
 }
 
 void Skybox::drawSkybox() {
@@ -65,6 +66,8 @@ void Skybox::useSkybox() const {
 		glUniform1i(useSkyboxTextureLocation, false);
 	}
 	glUniform3fv(this->backgroundColorLocation, 1, glm::value_ptr(backgroundColor));
+
+	glUniform1f(this->brightnessLocation, brightness);
 
 	glActiveTexture(GL_TEXTURE0);
 }

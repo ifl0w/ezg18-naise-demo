@@ -1,12 +1,15 @@
 #version 430
 
-out vec4 FragColor;
+layout(location = 1) out vec4 FragColor;
+layout(location = 2) out vec4 gPosition;
 
 in vec3 TexCoords;
 
 uniform vec3 backgroundColor;
 uniform samplerCube skyboxTexture;
 uniform bool useSkyboxTexture;
+uniform float brightness = 1000;
+
 
 void main()
 {
@@ -17,5 +20,6 @@ void main()
         color *= texture(skyboxTexture, TexCoords);
     }
 
-    FragColor = color;
+    gPosition = vec4(TexCoords * 1000000, 0);
+    FragColor = color * brightness;
 }

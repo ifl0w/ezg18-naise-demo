@@ -1,9 +1,11 @@
 #include <systems/render-engine/materials/shaders/Shader.hpp>
+#include <systems/render-engine/lights/Light.hpp>
 
 #include <sstream>
 #include <utility>
 #include <iostream>
 
+using namespace NAISE::RenderCore;
 using namespace NAISE::Engine;
 
 int64_t Shader::activeShader = -1;

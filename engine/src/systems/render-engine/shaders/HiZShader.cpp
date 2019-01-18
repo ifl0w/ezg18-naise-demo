@@ -1,6 +1,6 @@
 #include <systems/render-engine/shaders/HiZShader.hpp>
 
-using namespace NAISE::Engine;
+using namespace NAISE::RenderCore;
 
 HiZShader::HiZShader()
         : Shader("engine/resources/shaders/post-processing/screen-space-reflections/hi-z-mipmap.vert",

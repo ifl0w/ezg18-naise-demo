@@ -187,8 +187,19 @@ if (MINGW)
     set(FREETYPE_LIBRARIES "-lfreetype -lharfbuzz -lbz2 -lgraphite2 -lfreetype")
 endif ()
 
-
-add_library(engine STATIC ${SRC_FILES}
+### Dear Imgui ###
+include_directories(external/imgui)
+file(GLOB_RECURSE IMGUI_FILES
+        "external/imgui/imgui.cpp"
+        "external/imgui/imgui_widgets.cpp"
+        "external/imgui/imgui_draw.cpp"
+        "external/imgui/imgui_demo.cpp"
+        "external/imgui/*.h"
+        "include/systems/debugging/imgui-impl/*.hpp"
+        "src/systems/debugging/imgui-impl/*.cpp"
+)
+message(${IMGUI_FILES})
+add_library(engine STATIC ${SRC_FILES} ${IMGUI_FILES}
         src/systems/input/InputSystem.cpp include/systems/input/InputSystem.hpp
         src/components/InputComponent.cpp include/components/InputComponent.hpp
         include/systems/input/InputMapper.hpp include/factories/MaterialFactory.hpp
@@ -209,7 +220,17 @@ add_library(engine STATIC ${SRC_FILES}
         src/resource-loader/GLTFLoader.cpp include/resource-loader/GLTFLoader.hpp include/components/AnimationComponent.hpp
         include/components/VisualComponent.hpp
         src/systems/particle-system/GPUMeshParticleSystem.cpp include/systems/particle-system/GPUMeshParticleSystem.hpp
-        src/systems/particle-system/GPUParticleData.cpp include/systems/particle-system/GPUParticleData.hpp include/systems/render-engine/shaders/ScreenSpaceReflectionsShader.hpp src/systems/render-engine/shaders/ScreenSpaceReflectionsShader.cpp include/debug/DebugInputMapper.hpp src/debug/DebugInputMapper.cpp src/systems/render-engine/shaders/HiZShader.cpp include/systems/render-engine/shaders/HiZShader.hpp include/systems/render-engine/HiZRenderTarget.hpp src/systems/render-engine/HiZRenderTarget.cpp)
+        include/systems/render-engine/shaders/ScreenSpaceReflectionsShader.hpp
+        src/systems/render-engine/shaders/ScreenSpaceReflectionsShader.cpp
+        include/debug/DebugInputMapper.hpp src/debug/DebugInputMapper.cpp
+        src/systems/render-engine/shaders/HiZShader.cpp include/systems/render-engine/shaders/HiZShader.hpp
+        include/systems/render-engine/HiZRenderTarget.hpp src/systems/render-engine/HiZRenderTarget.cpp
+        src/systems/particle-system/GPUParticleData.cpp include/systems/particle-system/GPUParticleData.hpp
+        include/systems/render-engine/RenderCommands.hpp
+        include/systems/render-engine/shadow-map/Cascade.hpp
+        include/systems/render-engine/post-processing/HDRPass.cpp include/systems/render-engine/post-processing/HDRPass.hpp
+        src/systems/debugging/DebugInputMapper.cpp include/systems/debugging/DebugInputMapper.hpp
+        src/systems/debugging/DebugSystem.cpp include/systems/debugging/DebugSystem.hpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include

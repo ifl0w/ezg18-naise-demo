@@ -5,7 +5,7 @@
 namespace NAISE {
 namespace Engine {
 
-class NullShader: public Shader {
+class NullShader: public NAISE::RenderCore::Shader {
 public:
 	NullShader();
 

@@ -1,9 +1,10 @@
 #include <systems/render-engine/shadow-map/ShadowMap.hpp>
+#include <systems/render-engine/shaders/LightShader.hpp>
 #include <spdlog/spdlog.h>
 
-using namespace NAISE::Engine;
+using namespace NAISE::RenderCore;
 
-ShadowMap::ShadowMap(int width, int height): width(width), height(height) {
+ShadowMap::ShadowMap(int width, int height): RenderTarget(width, height, 0) {
 	glGenTextures(1, &shadowMap);
 
 	glBindTexture(GL_TEXTURE_2D, shadowMap);
@@ -33,7 +34,7 @@ void ShadowMap::use() {
 }
 
 void ShadowMap::setTextureUnits(const LightShader& lightShader) {
-	glUniform1i(lightShader.shadowMapLocation, 3);
-	glActiveTexture(lightShader.shadowMapUnit);
-	glBindTexture(GL_TEXTURE_2D, shadowMap);
+//	glUniform1i(lightShader.shadowMapLocation, 3);
+//	glActiveTexture(lightShader.shadowMapUnit);
+//	glBindTexture(GL_TEXTURE_2D, shadowMap);
 }

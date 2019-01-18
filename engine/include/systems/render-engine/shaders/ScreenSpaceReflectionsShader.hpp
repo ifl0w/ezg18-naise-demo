@@ -3,7 +3,7 @@
 #include <systems/render-engine/materials/shaders/Shader.hpp>
 
 namespace NAISE {
-    namespace Engine {
+    namespace RenderCore {
 
         class ScreenSpaceReflectionsShader : public Shader {
         public:

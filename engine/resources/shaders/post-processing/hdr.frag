@@ -68,24 +68,19 @@ void main() {
     vec3 rgbFactors = vec3(0.2126, 0.7152, 0.0722);
     float l_col = rgbFactors.r * color.r + rgbFactors.g * color.g + rgbFactors.b * color.b;
 
-    float key = 0.01;
-//    key = max(0, 1.5 - (1.5/(l_av * 0.1 + 1))) + 1;
+//    float key = max(0, 1.5 - (1.5/(l_av * 0.1 + 1))) + 1;
+//    float l_scaled = key * l_col / l_av;
 
-    float l_scaled = key * l_col / l_av;
-//
-//    vec3 scaledColor = color * l_scaled;
-//
-//    vec3 hdrColor = (scaledColor / (scaledColor + 1));
-//
-//    fragColor = vec4(hdrColor, 1);
-//
-    float ExposureBias = l_scaled;
-    float exposure = 0.18 / l_av;
-    vec3 col = ACESFilm(exposure*color);
+//    float shutterSpeed = 0.01 / (l_av * 0.5);
+    float shutterSpeed = 0.001;
+    float exposure = shutterSpeed * l_col / l_av;
+    vec3 col = ACESFilm(exposure * color);
+    fragColor = vec4(col, 1);
 
-    vec3 whiteScale = 1.0f/ACESFilm(vec3(W));
-    vec3 col_white = col*whiteScale;
-    fragColor = vec4(col_white, 1);
+//    vec3 whiteScale = 1.0f/Uncharted2Tonemap(vec3(W));
+//    vec3 col_white = col*whiteScale;
+//    fragColor = vec4(col_white, 1);
 
-    imageStore(adaptionRate, coords, vec4(l_av));
+    vec4 pixelLuminance = imageLoad(adaptionRate, coords);
+    imageStore(adaptionRate, coords, vec4(pixelLuminance.xyz, l_av));
 }

@@ -1,6 +1,6 @@
 #include <systems/render-engine/shaders/ScreenSpaceReflectionsShader.hpp>
 
-using namespace NAISE::Engine;
+using namespace NAISE::RenderCore;
 
 ScreenSpaceReflectionsShader::ScreenSpaceReflectionsShader()
         : Shader("engine/resources/shaders/post-processing/screen_space_reflections.vert",

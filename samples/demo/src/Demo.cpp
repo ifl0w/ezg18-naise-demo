@@ -27,6 +27,9 @@
 #include <systems/TransformSystem.hpp>
 #include <systems/particle-system/SimpleGPUParticleSystem.hpp>
 
+#include <systems/debugging/DebugSystem.hpp>
+#include <systems/debugging/DebugInputMapper.hpp>
+
 #include "Demo.hpp"
 #include "SceneLoaderAdapter.hpp"
 #include "CameraSelectionSystem/CameraSelectionInputMapper.hpp"
@@ -53,6 +56,10 @@ int main(int argc, char **argv) {
 	Engine::getSystemsManager().registerSystem<SimpleGPUParticleSystem>();
 	Engine::getSystemsManager().registerSystem<RenderSystem>();
 
+	// Debugging interface
+	Engine::getSystemsManager().registerSystem<DebugSystem>();
+	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<DebugInputMapper>());
+
 	std::string posX = "resources/textures/skybox/clouds1_east.bmp";
 	std::string negX = "resources/textures/skybox/clouds1_west.bmp";
 	std::string posY = "resources/textures/skybox/clouds1_up.bmp";
@@ -63,6 +70,7 @@ int main(int argc, char **argv) {
 
 	std::vector<std::string> paths = {posX, negX, posY, negY, posZ, negZ};
 	auto skybox = NAISE::Engine::Skybox(identifier, paths);
+	skybox.brightness = 6000;
 	//skybox.setBackgroundColor(glm::vec3(1,0.95,0.9));
 	Engine::getSystemsManager().getSystem<RenderSystem>().setSkybox(skybox);
 
@@ -113,8 +121,8 @@ int main(int argc, char **argv) {
 	sun->add<TransformComponent>();
 	sun->add(LightFactory::createLight<DirectionalLight>());
 	sun->component<LightComponent>().light->data.direction = vec4(-1, -2, -1, 1);
-	sun->component<LightComponent>().light->data.diffuse = vec4(5000, 5000, 5000, 1);
-	sun->component<LightComponent>().light->data.ambient = vec4(5);
+	sun->component<LightComponent>().light->data.diffuse = vec4(6000, 6000, 6000, 1);
+	sun->component<LightComponent>().light->data.ambient = vec4(300);
 
 	auto platformParticles = make_shared<NAISE::Engine::Entity>();
 	platformParticles->add<TransformComponent>();
@@ -122,11 +130,11 @@ int main(int argc, char **argv) {
 	platformParticles->add<SimpleGPUParticleComponent>("resources/particle-systems/platform-particles.glsl", 10000, 1000);
 	platformParticles->component<SimpleGPUParticleComponent>().setUniforms = [platformParticles](gl::GLuint shaderProgram){
 	  glProgramUniform1f(shaderProgram, uniformLocation(shaderProgram, "uRadius"), 10.0f);
-	  glProgramUniform3fv(shaderProgram, uniformLocation(shaderProgram, "uVelocity"), 1, value_ptr(vec3(0, 0.5, 0)));
+	  glProgramUniform3fv(shaderProgram, uniformLocation(shaderProgram, "uVelocity"), 1, value_ptr(vec3(0, 0.25, 0)));
 	  glProgramUniform2fv(shaderProgram, uniformLocation(shaderProgram, "uLifeTime"), 1, value_ptr(vec2(2, 7)));
 	};
 	platformParticles->add<MeshParticleComponent>(10000);
-	platformParticles->component<MeshParticleComponent>().mesh = Resources::getMesh<Sphere>("particle", 0.05, 4, 3);
+	platformParticles->component<MeshParticleComponent>().mesh = Resources::getMesh<Sphere>("particle", 0.025, 4, 3);
 	auto particleMaterial = Resources::getMaterial<PBRMaterial>("ParticleGlow");
 	particleMaterial->glow = vec3(0,1,1);
 	platformParticles->component<MeshParticleComponent>().material = particleMaterial;
@@ -134,9 +142,6 @@ int main(int argc, char **argv) {
 
 	// load config file
 	json config = Resources::loadConfig("resources/config.json");
-
-	// setup video settings
-	initVideoSettings(config);
 
 	// load scenes
 	SceneLoaderAdapter loaderAdapter;
@@ -163,6 +168,9 @@ int main(int argc, char **argv) {
 	Engine::getEntityManager().addEntity(sphere);
 	Engine::getEntityManager().addEntity(box);
 	Engine::getEntityManager().addEntity(wall);
+
+	// setup video settings
+	initVideoSettings(config);
 
 	engine.run();
 
@@ -193,6 +201,7 @@ void initVideoSettings(json config) {
 	// TODO: find better solution for adapting camera aspect rations (z.B. event in RenderSystem or CameraSystem)
 	// apply resolution to all cameras
 	for(auto e: Engine::getEntityManager().getEntities<CameraSignature>()) {
-		e->component<CameraComponent>().setAspectRatio(width, height);
+		e->component<CameraComponent>().setAspectRatio(1920, 1080);
+//		e->component<CameraComponent>().setAspectRatio(width, height);
 	}
 }

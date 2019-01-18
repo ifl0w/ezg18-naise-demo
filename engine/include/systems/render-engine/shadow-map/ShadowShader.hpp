@@ -8,7 +8,7 @@
 namespace NAISE {
 namespace Engine {
 
-class ShadowShader: public Shader {
+class ShadowShader: public RenderCore::Shader {
 public:
 	ShadowShader();
 protected:

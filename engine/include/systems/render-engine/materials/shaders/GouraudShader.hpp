@@ -6,7 +6,7 @@ namespace NAISE {
 namespace Engine {
 
 class GouraudShader :
-		public Shader {
+		public RenderCore::Shader {
 public:
 	GouraudShader();
 

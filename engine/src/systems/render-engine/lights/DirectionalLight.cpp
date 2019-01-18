@@ -1,6 +1,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <systems/render-engine/lights/DirectionalLight.hpp>
 #include <systems/render-engine/materials/shaders/Shader.hpp>
+#include <systems/render-engine/shadow-map/CascadedShadowMapper.hpp>
 //#include "../cameras/Camera.h"
 //#include "../materials/shaders/Shader.h"
 
@@ -14,7 +15,6 @@ DirectionalLight::DirectionalLight()
 
 DirectionalLight::DirectionalLight(vec3 color, vec3 direction)
 		: Light(vec3(0), color, color, color * 0.2f, 1, 0, 0, 360, 0, direction, true) {
-	isShadowCaster = true;
 }
 
 mat4 DirectionalLight::getShadowMatrix()const {
@@ -31,12 +31,5 @@ mat4 DirectionalLight::getProjectionMatrix(AABB aabb) const {
 	float maxY = aabb.values.second.y;
 	float maxZ = aabb.values.second.z;
 
-	return glm::ortho(minX, maxX, minY, maxY, -maxZ - maxShadowDistance, -minZ); // 5000 is the max shadow distance
+	return glm::ortho(minX, maxX, minY, maxY, -maxZ - maxShadowDistance, -minZ);
 }
-
-//void DirectionalLight::update(std::chrono::microseconds deltaTime) {
-//	Light::update(deltaTime);
-//
-//	auto aabb = AABB(Shader::activeCamera->frustum.getBoundingVolume(50));
-//	frustum = Frustum(aabb, getShadowMatrix(), maxShadowDistance);
-//}

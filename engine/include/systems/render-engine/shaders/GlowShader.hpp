@@ -5,7 +5,7 @@
 namespace NAISE {
 namespace Engine {
 
-class GlowShader : public Shader {
+class GlowShader : public NAISE::RenderCore::Shader {
 public:
 	GlowShader();
 
@@ -13,10 +13,13 @@ public:
 
 	void setHorizontalUnit(bool horizontal);
 
+	void setBrightness(float brighness);
+
 private:
 
 	GLint debugTexturePosition = -1;
 	GLint horizontalLocation = -1;
+	GLint brightnessLocation = -1;
 
 };
 

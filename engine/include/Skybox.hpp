@@ -60,6 +60,12 @@ public:
 
 	void applyToShader(shared_ptr<Shader> shared_ptr);
 
+	/**
+	 * The brighness factor will be multiplied with the color.
+	 * Used to adjust brighnest for HDR.
+	 */
+	float brightness = 1000;
+
 private:
 
 	void initialize();
@@ -75,6 +81,7 @@ private:
 	GLint backgroundColorLocation = -1;
 	GLint useSkyboxTextureLocation = -1;
 	GLint skyboxTextureLocation = -1;
+	GLint brightnessLocation = -1;
 	uint32_t skyboxTextureUnit = 12;
 
 	std::shared_ptr<Shader> skyboxShader;
