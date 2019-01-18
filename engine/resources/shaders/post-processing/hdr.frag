@@ -72,7 +72,7 @@ void main() {
 //    float l_scaled = key * l_col / l_av;
 
 //    float shutterSpeed = 0.01 / (l_av * 0.5);
-    float shutterSpeed = 0.004;
+    float shutterSpeed = 0.001;
     float exposure = shutterSpeed * l_col / l_av;
     vec3 col = ACESFilm(exposure * color);
     fragColor = vec4(col, 1);
@@ -81,5 +81,6 @@ void main() {
 //    vec3 col_white = col*whiteScale;
 //    fragColor = vec4(col_white, 1);
 
-    imageStore(adaptionRate, coords, vec4(l_av));
+    vec4 pixelLuminance = imageLoad(adaptionRate, coords);
+    imageStore(adaptionRate, coords, vec4(pixelLuminance.xyz, l_av));
 }

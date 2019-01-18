@@ -212,7 +212,7 @@ void RenderEngine::glowPass() {
 	glDrawBuffer(attachmentpoints[0]);
 
 	/** DRAW STEP **/
-	lightTarget->use();
+	hdrTarget->use();
 	glBlendFunc(GL_ONE, GL_ONE);
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
@@ -333,6 +333,7 @@ void RenderEngine::hdrPass(float deltaTime) {
 //		luminanceCompute.compute(groups);
 //	}
 
+
 	glBindTexture(GL_TEXTURE_2D, luminanceTexture->textureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmapCount);
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -357,6 +358,15 @@ void RenderEngine::hdrPass(float deltaTime) {
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
+
+	// combine glow and bright areas
+	combineCompute.useShader();
+
+	glBindImageTexture(0, hdrTarget->output, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, luminanceTexture->textureID, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(2, deferredTarget->gEmissionMetallic, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA16F);
+
+	combineCompute.compute(groups);
 }
 
 void RenderEngine::resolveFrameBufferObject() {
@@ -706,8 +716,10 @@ void RenderEngine::motionBlurPass(float deltaTime, glm::mat4 previousViewMatrix,
 	motionBlurShader.useShader();
 
 	glUniform1f(glGetUniformLocation(Shader::activeShader, "deltaTime"), deltaTime);
-	glUniformMatrix4fv(glGetUniformLocation(Shader::activeShader, "previousViewMatrix"), 1, false, value_ptr(previousViewMatrix));
-	glUniformMatrix4fv(glGetUniformLocation(Shader::activeShader, "previousProjectionMatrix"), 1, false, value_ptr(previousProjectionMatrix));
+	glUniformMatrix4fv(glGetUniformLocation(Shader::activeShader, "previousViewMatrix"), 1, false,
+					   value_ptr(previousViewMatrix));
+	glUniformMatrix4fv(glGetUniformLocation(Shader::activeShader, "previousProjectionMatrix"), 1, false,
+					   value_ptr(previousProjectionMatrix));
 
 	glActiveTexture(GL_TEXTURE0 + 0);
 	glBindTexture(GL_TEXTURE_2D, hdrTarget->output);
@@ -719,4 +731,8 @@ void RenderEngine::motionBlurPass(float deltaTime, glm::mat4 previousViewMatrix,
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
+}
+
+void RenderEngine::gammaCorrection() {
+
 }

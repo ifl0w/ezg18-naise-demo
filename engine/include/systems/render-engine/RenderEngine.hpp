@@ -63,9 +63,11 @@ public:
 	void setSkybox(Skybox* skybox);
 
 	void skyboxPass();
-	void glowPass();
 	void hdrPass(float deltaTime);
 	void motionBlurPass(float deltaTime, glm::mat4 previousViewMatrix, glm::mat4 previousProjectionMatrix);
+	void glowPass();
+	void gammaCorrection();
+
 	void resolveFrameBufferObject();
 
 	void executeCommandBuffer(RenderCommandBuffer commandBuffer);
@@ -108,6 +110,7 @@ private:
 	std::unique_ptr<PostProcessingTarget> combineTarget;
 	std::unique_ptr<PostProcessingTarget> lightTarget;
 	std::unique_ptr<PostProcessingTarget> motionBlurTarget;
+	std::unique_ptr<PostProcessingTarget> gammaTarget;
 
 	std::unique_ptr<HDRPass> hdrpass;
 
@@ -115,6 +118,7 @@ private:
 	ComputeShader luminanceReductionCompute = ComputeShader("engine/resources/shaders/post-processing/luminance_reduction.glsl");
 	ComputeShader luminanceCompute = ComputeShader("engine/resources/shaders/post-processing/luminance.glsl");
 	ComputeShader histogramCompute = ComputeShader("engine/resources/shaders/post-processing/luminance.glsl");
+	ComputeShader combineCompute = ComputeShader("engine/resources/shaders/post-processing/combine.glsl");
 	std::unique_ptr<Texture> luminanceTexture;
 	std::unique_ptr<Texture> luminanceTexture2;
 

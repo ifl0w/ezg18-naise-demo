@@ -82,12 +82,12 @@ void RenderSystem::_postProcessing(std::chrono::microseconds deltaTime) {
 	//SKYBOX
 	_renderEngine->skyboxPass();
 
-	//GLOW
-	_renderEngine->glowPass();
-
 	// HDR
 	std::chrono::duration<float> sec = deltaTime;
 	_renderEngine->hdrPass(sec.count());
+
+	//GLOW
+	_renderEngine->glowPass();
 
 	_renderEngine->motionBlurPass(sec.count(), previousViewMatrix, previousProjectionMatrix);
 }
