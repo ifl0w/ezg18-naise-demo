@@ -711,7 +711,7 @@ void RenderEngine::executeCommand(ClearRenderTarget& command) {
 
 void RenderEngine::executeCommand(RetrieveDepthBuffer& command) {
 	if (command.destination == nullptr) {
-		command.source->retrieveDepthBuffer((GLint) 0);
+		command.source->retrieveDepthBuffer((GLuint) 0);
 	} else {
 		command.source->retrieveDepthBuffer(command.destination);
 	}

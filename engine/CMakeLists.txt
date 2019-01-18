@@ -194,6 +194,7 @@ file(GLOB_RECURSE IMGUI_FILES
         "external/imgui/imgui_widgets.cpp"
         "external/imgui/imgui_draw.cpp"
         "external/imgui/imgui_demo.cpp"
+        "external/imgui/imgui.h"
         "external/imgui/*.h"
         "include/systems/debugging/imgui-impl/*.hpp"
         "src/systems/debugging/imgui-impl/*.cpp"
