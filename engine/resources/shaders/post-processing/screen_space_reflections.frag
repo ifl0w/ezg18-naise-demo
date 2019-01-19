@@ -30,6 +30,8 @@ uniform sampler2D gLinearDepth;
 uniform sampler2D gHiZ; //TODO last mipmaplevel isnt correct
 uniform int maxMipmapLevel; //starts to count by 0
 
+
+vec2 globalOffset;
 /*
 min-max tracing:
 What this gives you is a better estimation of the depth of the object at the pixel you're currently processing. You can use this in the ray-tracing pass to walk behind an object - if the current ray depth (from O + D * t) is outside the range of [min, max] at that pixel, you know it's not intersecting and can continue marching along that ray without further processing at the current position.
@@ -44,7 +46,7 @@ bool overmaxIterations = false;
 #define HIZ_STOP_LEVEL 0 //0.0 //shouldn't be too height because of artefacts
 #define HIZ_MAX_LEVEL maxMipmapLevel
 vec2 HIZ_CROSS_EPSILON; //TODO divide by the resolution?
-#define HIZ_MAX_ITERATIONS 256
+#define HIZ_MAX_ITERATIONS 400
 #define HIZ_ITERATION_STEP 2 //was fix at 2.0 in paper
 
 vec2 hiZSize; // = resolution;
@@ -161,12 +163,17 @@ vec3 intersectCellBoundary(vec3 O, vec3 D, vec2 oldCellIndex, vec2 mipmap_resolu
     "o" and "d".*/
 
      vec2 texelSize;
-    texelSize.x = 1.0 / mipmap_resolution.x;
-    texelSize.y  = 1.0 / mipmap_resolution.y;
-    HIZ_CROSS_EPSILON = vec2( texelSize.x,  texelSize.y) * 0.5;
-    //HIZ_CROSS_EPSILON = (vec2(1)/mipmap_resolution);
+   // texelSize.x = 1.0 / mipmap_resolution.x;
+    //texelSize.y  = 1.0 / mipmap_resolution.y;
+    //  HIZ_CROSS_EPSILON = vec2( texelSize.x,  texelSize.y) * 1;
+    texelSize.x = 1.0 / resolution.x;
+    texelSize.y  = 1.0 / resolution.y;
+
+    HIZ_CROSS_EPSILON = vec2( texelSize.x,  texelSize.y) * exp2(HIZ_START_LEVEL + 1);
+   // HIZ_CROSS_EPSILON = (vec2(0.5)/mipmap_resolution);
 
     crossOffset = crossStep * HIZ_CROSS_EPSILON;
+    globalOffset = crossOffset;
     crossStep = clamp(crossStep, 0.0, 1.0);
 
 	// transform cell coordinates from pixelspace (defined by resolution) to screenspace (0,1)
@@ -180,16 +187,15 @@ vec3 intersectCellBoundary(vec3 O, vec3 D, vec2 oldCellIndex, vec2 mipmap_resolu
 	return intersectPlane(O, D, t);
 }
 
-vec2 getMinAndMaxDepthPlanes(vec2 coords, int level)
+vec2 getMinAndMaxDepthPlanes(vec2 coords, int level, vec2 mipmapresolution)
 {
         //TODO garantieren dass coordinaten in der mitte liegt und man darf nicht interpolieren
-    return texelFetch(gHiZ, ivec2(coords * (resolution-vec2(1))), level).rg;
+        // return texelFetch(gHiZ, ivec2(coords * (resolution-vec2(1))), level).rg;
+    return texelFetch(gHiZ, ivec2(coords * (mipmapresolution-vec2(1))), level).rg;
 	//return textureLod(gHiZ, coords, level).rg;
 }
 
 bool crossedCellBoundary(vec2 x, vec2 y){
-//TODO works? delete comments then
-    //bvec2 isEqual = equal(firstCellIdx, secondCellIdx);
    // return (x.x != y.x) || (x.y != y.y);
     return !(all(equal(x,y)));
 }
@@ -225,11 +231,17 @@ void init_HiZRayTracing(){
 
      float rDotV = clamp(dot(V_vs, normalize(P_vs)), 0.0, 1.0);
      vec3 rayyyyyyy = vec3(0);
+      reflections = vec4(0,0,TexCoords);
      if(fragment_depth < 1.0 && fragment_depth > 0.0 && fragment_roughness < 1 ){ //&& rDotV >= 0.1f //&& dot(view_normal.xyz, vec3(1.0f, 1.0f, 1.0f)) != 0.0f
-        rayyyyyyy = hiZTrace(screen_point.xyz, (screen_reflection.xyz));
+         rayyyyyyy = hiZTrace(screen_point.xyz, (screen_reflection.xyz));
      }
 
-    float reflectedDepth = getMinAndMaxDepthPlanes(rayyyyyyy.xy, 0).r;
+     if(true){
+
+        // reflections = vec4(rayyyyyyy, 1);
+     }
+
+    float reflectedDepth = getMinAndMaxDepthPlanes(rayyyyyyy.xy, 0, resolution).r;
     reflections = vec4(rayyyyyyy.xy,0,1);
 
 
@@ -240,7 +252,7 @@ void init_HiZRayTracing(){
     }else if(rayyyyyyy.z  + 0.0001> reflectedDepth && reflectedDepth != 1){// - 0.000001
          //Hitted jey :) Todo between min and max?
        reflections = texelFetch(imageInput, ivec2(rayyyyyyy.xy * resolution), 0);
-       reflections = (reflections + texture(imageInput, TexCoords)) * 0.5;
+      // reflections = (reflections + texture(imageInput, TexCoords)) * 0.5;
 
      } else {
        reflections = texture(imageInput, TexCoords);
@@ -248,6 +260,8 @@ void init_HiZRayTracing(){
 
 }
 
+int countMinus = 0;
+int countPlus = 0;
 /*
 Hi-Z ray tracing function.
 rayOrigin: Ray start position (in screen space).
@@ -269,6 +283,7 @@ vec3 hiZTrace(vec3 p, vec3 v){
 
     //float2 crossStep = float2(v.x >= 0.0f ? 1.0f : -1.0f, v.y >= 0.0f ? 1.0f : -1.0f);
     vec2 crossOffset = crossStep * HIZ_CROSS_EPSILON;
+    globalOffset = crossOffset;
    // crossStep = clamp(crossStep, 0.0, 1.0);
 
     // set current ray_Position to the original screen coordinate and depth
@@ -308,17 +323,19 @@ vec3 hiZTrace(vec3 p, vec3 v){
     //TODO something wrong with ray?
    // reflections = vec4(ray.xy, 0,1);
    // return vec3(0);
-
+    vec2 hiZ_minmax;
     // in book -> while loop
     //for (int i = 0; currentLevel >= HIZ_STOP_LEVEL && i < HIZ_MAX_ITERATIONS; ++i)
     while(currentLevel >= HIZ_STOP_LEVEL && currentIterations < HIZ_MAX_ITERATIONS)
     {
-        // get the minimum & maximum depth plane in which the current ray resides
-    	vec2 hiZ_minmax = getMinAndMaxDepthPlanes(ray.xy, currentLevel);
+
 
         // get the cell number of the current ray
         const vec2 cellCount = getCellCountOfMipmapLevel(currentLevel);
         const vec2 oldCellIdx = getCell(ray.xy, cellCount);
+
+        // get the minimum & maximum depth plane in which the current ray resides
+    	hiZ_minmax = getMinAndMaxDepthPlanes(ray.xy, currentLevel, cellCount);
 
         // intersect only if ray depth is [below the minimum depth plane] between minimum and maximum depth planes
         // MIN of paper: vec3 tmpRay = intersectPlane(o.xy, d.xy, max(ray.z, hiZ_minmax.r));
@@ -341,19 +358,22 @@ vec3 hiZTrace(vec3 p, vec3 v){
             // so intersect the boundary of that cell instead, and go up a level for taking a larger step next loop
         	tmpRay = intersectCellBoundary(o, d, oldCellIdx, cellCount, crossStep, crossOffset);
         	currentLevel = min(HIZ_MAX_LEVEL, currentLevel + HIZ_ITERATION_STEP);
+            countPlus++;
         }
 
         ray = tmpRay;
         // go down a level in Hi-Z
         --currentLevel;
+        countMinus++;
         ++currentIterations;
 
 	}
-
+  //  vec2 cellC = getCellCountOfMipmapLevel(currentLevel);
+  //  vec2 oldCellI = getCell(ray.xy, cellC);
     // TODO Reject ray intersections from hidden geometry
    // reflections = vec4(1,1, 0,1);
     overmaxIterations = currentIterations >= HIZ_MAX_ITERATIONS ? true : false;
-    return ray;
+    return ray.xyz;
 }
 
 

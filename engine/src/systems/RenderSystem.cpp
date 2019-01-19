@@ -26,6 +26,7 @@ RenderSystem::RenderSystem(std::shared_ptr<RenderEngine> renderEngine): _renderE
 
 	Engine::getEventManager().event<RenderEvents::ReloadShaders>().subscribe([&](){
 		_renderEngine->screenSpaceReflectionsShader.recompile();
+		_renderEngine->hiZShader.recompile();
 	});
 }
 

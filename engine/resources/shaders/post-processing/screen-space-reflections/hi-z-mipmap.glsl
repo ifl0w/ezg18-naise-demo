@@ -21,18 +21,18 @@ void main()
         vec4 maxDepth;
 
      /*   minDepth.r = texture( lastImage, TexCoords ).r; // current depth
-        minDepth.g = textureOffset( lastImage, TexCoords, ivec2(0, -1) ).r;
-        minDepth.b = textureOffset( lastImage, TexCoords, ivec2(-1,0) ).r;
-        minDepth.a = textureOffset( lastImage, TexCoords, ivec2( -1,-1) ).r;
+        minDepth.g = textureOffset( lastImage, TexCoords, ivec2(0, 1) ).r;
+        minDepth.b = textureOffset( lastImage, TexCoords, ivec2(1,0) ).r;
+        minDepth.a = textureOffset( lastImage, TexCoords, ivec2( 1,1) ).r;
 
         maxDepth.r = texture( lastImage, TexCoords ).g; // current depth
-        maxDepth.g = textureOffset( lastImage, TexCoords, ivec2(0, -1) ).g;
-        maxDepth.b = textureOffset( lastImage, TexCoords, ivec2(-1,0) ).g;
-        maxDepth.a = textureOffset( lastImage, TexCoords, ivec2( -1,-1) ).g;*/
+        maxDepth.g = textureOffset( lastImage, TexCoords, ivec2(0, 1) ).g;
+        maxDepth.b = textureOffset( lastImage, TexCoords, ivec2(1,0) ).g;
+        maxDepth.a = textureOffset( lastImage, TexCoords, ivec2(1,1) ).g;*/
 
         /* Fetch texels from current MIP LOD */
         ivec2 coord = ivec2(gl_FragCoord.xy) * ivec2(2);
-
+coord = ivec2(gl_FragCoord.xy);
         minDepth.r = texelFetch(lastImage, coord                            , 0).r;
         minDepth.g = texelFetch(lastImage, coord + ivec2(offset.x,        0), 0).r;
         minDepth.b = texelFetch(lastImage, coord + ivec2(  0, offset.y), 0).r;
