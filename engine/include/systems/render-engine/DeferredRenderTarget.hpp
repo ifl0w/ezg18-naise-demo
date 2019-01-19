@@ -25,6 +25,7 @@ public:
 	GLuint gNormal;
 	GLuint gAlbedoRoughness;
 	GLuint gLinearDepth;
+	GLenum gLinearDepthAttachment = GL_COLOR_ATTACHMENT4;
 	GLuint depth_rbo;
 
 };

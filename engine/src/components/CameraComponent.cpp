@@ -9,7 +9,7 @@ CameraComponent::CameraComponent() {
 	fovX = radians(60.0f);
 	fovY = getFovY(fovX, aspectRatio);
 	near = 0.1f;
-	far = 1000.0f;
+	far = 500.0f;
 
 	projectionMatrix = perspective<double>(fovY, aspectRatio, near, far);
 	frustum = Frustum(fovX, fovY, near, far);

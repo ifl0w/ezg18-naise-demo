@@ -4,6 +4,7 @@
 #include <sstream>
 #include <utility>
 #include <iostream>
+#include <Logger.hpp>
 
 using namespace NAISE::RenderCore;
 using namespace NAISE::Engine;
@@ -37,9 +38,10 @@ void Shader::initUniformLocations(){
 }
 
 void Shader::recompile(){
-
+	NAISE_DEBUG_CONSOL("recompile");
 	try {
-	glEnable(GL_DEBUG_OUTPUT);
+	//glEnable(GL_DEBUG_OUTPUT);
+		NAISE_DEBUG_CONSOL("try");
 	glDeleteProgram((GLuint) shaderID);
    	shaderID = createShaderProgram(m_vertexShaderFile, m_fragmentShaderFile);
     initUniformLocations();

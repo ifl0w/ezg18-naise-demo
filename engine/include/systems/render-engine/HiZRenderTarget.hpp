@@ -16,6 +16,7 @@ namespace NAISE {
             void use() override;
 
             GLuint gLinearDepth;
+            GLuint output;
             GLuint depth_rbo;
 
         private:

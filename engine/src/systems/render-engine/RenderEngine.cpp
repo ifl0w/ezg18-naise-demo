@@ -249,8 +249,8 @@ void RenderEngine::screenSpaceReflectionPass(){
 	int currentWidth = viewportWidth;
 	int currentHeight = viewportHeight;
 
-	screenSpaceReflectionTarget->use();
-	deferredTarget->retrieveDepthBuffer((GLuint) screenSpaceReflectionTarget->fbo);
+	hiZTarget->use();
+	deferredTarget->retrieveDepthBuffer((GLuint) hiZTarget->fbo);
 
 	hiZTarget->use();
 	glDepthMask(GL_FALSE);
@@ -263,6 +263,7 @@ void RenderEngine::screenSpaceReflectionPass(){
 	glUniform1i(glGetUniformLocation(hiZShader.shaderID, "lastImage"), 12);
 	glActiveTexture(GL_TEXTURE0 + 12);
 	glBindTexture(GL_TEXTURE_2D, deferredTarget->gLinearDepth);
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, levels-1);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, hiZTarget->gLinearDepth, 0);
@@ -280,11 +281,17 @@ void RenderEngine::screenSpaceReflectionPass(){
 
 
     for (int i = 1; i < levels; i++) {
-        //viewport must always be greater than 0
+        //viewport must always be greater than 0 NPOT
+		vec2 offset;
+		offset.x = (currentWidth  % 2 == 0 ? 1 : 2);
+		offset.y = (currentHeight % 2 == 0 ? 1 : 2);
         currentWidth = (int)(currentWidth*0.5) > 0 ? (int)(currentWidth*0.5) : 1;
         currentHeight = (int)(currentHeight*0.5) > 0 ? (int)(currentHeight*0.5) : 1;
         glUniform2i(glGetUniformLocation(hiZShader.shaderID, "lastSize"), currentWidth, currentHeight);
         glViewport(0, 0, currentWidth, currentHeight);
+
+
+        glUniform2i(glGetUniformLocation(hiZShader.shaderID, "offset"), offset.x, offset.y);
         // lookup in shader on level i-1
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, i-1);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
@@ -299,11 +306,13 @@ void RenderEngine::screenSpaceReflectionPass(){
     glViewport(0, 0, viewportWidth, viewportHeight);
 
 
-	screenSpaceReflectionTarget->use();
+/*	hiZTarget->use();
 	glDepthMask(GL_FALSE);
-	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);*/
 	screenSpaceReflectionsShader.useShader();
 	screenSpaceReflectionsShader.setModelMatrix(mat4(1.0));
+
+    glUniform1i(glGetUniformLocation(screenSpaceReflectionsShader.shaderID, "maxMipmapLevel"), levels-1);
 
 	glUniform1i(glGetUniformLocation(screenSpaceReflectionsShader.shaderID, "gNormal"), 5);
 	glActiveTexture(GL_TEXTURE0 + 5);
@@ -478,7 +487,9 @@ void RenderEngine::hdrPass(float deltaTime) {
 }
 
 void RenderEngine::resolveFrameBufferObject() {
-	auto lastFrameBuffer = motionBlurTarget.get();
+	//auto lastFrameBuffer = motionBlurTarget.get();
+	auto lastFrameBuffer = hiZTarget.get();//screenSpaceReflectionTarget.get();
+
 
 	deferredTarget->retrieveDepthBuffer((GLuint) 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -506,15 +517,18 @@ void RenderEngine::resolveFrameBufferObject() {
 void RenderEngine::skyboxPass() {
 	if (_skybox != nullptr) {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, deferredTarget->gPosition, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, deferredTarget->gLinearDepth, 0);
 
-		GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-		glDrawBuffers(3, attachments);
+		GLenum attachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+		glDrawBuffers(4, attachments);
 
 		_skybox->drawSkybox();
 
 		glDrawBuffer(attachments[1]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, deferredTarget->gPositionAttachment, GL_TEXTURE_2D, deferredTarget->gPosition, 0);
-	}
+        glFramebufferTexture2D(GL_FRAMEBUFFER, deferredTarget->gLinearDepthAttachment, GL_TEXTURE_2D, deferredTarget->gLinearDepth, 0);
+
+    }
 }
 
 void RenderEngine::setSkybox(Skybox* skybox) {

@@ -33,6 +33,7 @@ void Debug::DebugInputMapper::handleEvent(const SDL_Event& event) {
         case SDL_KEYUP: {
             switch (event.key.keysym.sym) {
                 case SDLK_1:
+                    NAISE_DEBUG_CONSOL("what");
                     Engine::getEventManager().event<RenderEvents::ReloadShaders>().emit();
                     break;
             }
