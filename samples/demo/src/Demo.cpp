@@ -20,6 +20,8 @@
 #include <factories/MaterialFactory.hpp>
 #include <factories/RigidBodyFactory.hpp>
 
+#include <debug/DebugInputMapper.hpp>
+
 #include <systems/RenderSystem.hpp>
 #include <systems/WindowSystem.hpp>
 #include <systems/PhysicsSystem.hpp>
@@ -46,9 +48,14 @@ int main(int argc, char **argv) {
 	// initialize the systems of the engine
 	Engine::getSystemsManager().registerSystem<WindowSystem>();
 	Engine::getSystemsManager().registerSystem<InputSystem>();
+
+#ifdef DEBUG
+	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<Debug::DebugInputMapper>());
+#endif
 	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<FPSCameraInputMapper>());
 	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<VisualDebuggingInputMapper>());
 	Engine::getSystemsManager().getSystem<InputSystem>().addInputMapper(make_shared<CameraSelectionInputMapper>());
+
 	Engine::getSystemsManager().registerSystem<FPSCameraMovementSystem>();
 	Engine::getSystemsManager().registerSystem<PhysicsSystem>();
 	Engine::getSystemsManager().registerSystem<AnimationSystem>();
