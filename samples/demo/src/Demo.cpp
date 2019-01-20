@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
 	sun->add(LightFactory::createLight<DirectionalLight>());
 	sun->component<LightComponent>().light->data.direction = vec4(-1, -2, -1, 1);
 	sun->component<LightComponent>().light->data.diffuse = vec4(6000, 6000, 6000, 1);
-	sun->component<LightComponent>().light->data.ambient = vec4(300);
+	sun->component<LightComponent>().light->data.ambient = vec4(200);
 
 	auto platformParticles = make_shared<NAISE::Engine::Entity>();
 	platformParticles->add<TransformComponent>();
@@ -208,7 +208,6 @@ void initVideoSettings(json config) {
 	// TODO: find better solution for adapting camera aspect rations (z.B. event in RenderSystem or CameraSystem)
 	// apply resolution to all cameras
 	for(auto e: Engine::getEntityManager().getEntities<CameraSignature>()) {
-		e->component<CameraComponent>().setAspectRatio(1920, 1080);
-//		e->component<CameraComponent>().setAspectRatio(width, height);
+		e->component<CameraComponent>().setAspectRatio(width, height);
 	}
 }

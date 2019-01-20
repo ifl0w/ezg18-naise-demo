@@ -10,8 +10,9 @@ using namespace NAISE::Engine;
 class SceneLoaderAdapter: public ModelLoaderAdapter {
 public:
 	bool adapt(shared_ptr<Entity> entity, shared_ptr<Entity> parent, const tinygltf::Node& node,
-			   const tinygltf::Model& model) const override;
+			   const tinygltf::Model& model) override;
 
+	std::map<double, EntityID> cameraMap;
 private:
 	std::string LIGHT_ID = "LIGHT::";
 	std::string CAMERA_ID = "CAMERA::";
@@ -20,13 +21,18 @@ private:
 	std::string TRIGGER_ID = "TRIGGER::";
 	std::string TRIGGER_ACTION_ID = "ACTION";
 
+	std::string INSTANCE_ID = "INSTANCE::";
+
+	void handleInstance(shared_ptr<Entity>& entity, const tinygltf::Node& node) const;
+
 	bool handleLight(shared_ptr<Entity> entity, const tinygltf::Node& node,
 							 const tinygltf::Model& model) const;
 
 	bool handleCamera(shared_ptr<Entity> entity, const tinygltf::Node& node,
-					 const tinygltf::Model& model) const;
+					 const tinygltf::Model& model);
 
 	bool handleTrigger(shared_ptr<Entity> entity, shared_ptr<Entity> parent, const tinygltf::Node& node,
 							 const tinygltf::Model& model) const;
+
 
 };

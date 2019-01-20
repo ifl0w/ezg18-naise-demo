@@ -8,12 +8,6 @@
 
 namespace NAISE {
 
-namespace Engine {
-
-class CameraComponent; // forward declaration to break cyclic dependency
-
-}
-
 namespace RenderCore {
 
 class LightData;
@@ -37,7 +31,6 @@ public:
 
 	/* Static variables */
 	static float brightness;
-	static NAISE::Engine::CameraComponent& activeCamera;
 	static int64_t activeShader;
 //	static DirectionalLight& activeSun;
 	static std::vector<std::shared_ptr<LightData>> activeLights;

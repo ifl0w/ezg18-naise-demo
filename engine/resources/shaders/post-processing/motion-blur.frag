@@ -13,7 +13,7 @@ uniform mat4 previousViewMatrix;
 uniform mat4 previousProjectionMatrix;
 
 float targetFrameTime = 0.01666;
-float motionBlurMuliplier = 0.005;
+float motionBlurMuliplier = 0.01;
 
 layout(std140, binding = 0) uniform screenData
 {
@@ -51,7 +51,7 @@ void main() {
     vec4 screen_currPos = toScreenSpace(vec4(currPos.xyz, 1), projectionMatrix * viewMatrix);
 
     vec2 posDiff = (screen_oldPos.xy - screen_currPos.xy);
-    posDiff *= (deltaTime / targetFrameTime) * motionBlurMuliplier * shutterSpeed;
+    posDiff *= (targetFrameTime/deltaTime) * motionBlurMuliplier * shutterSpeed;
 
     int iterations = 64;
     vec2 sampleStep = posDiff.xy / float(iterations);

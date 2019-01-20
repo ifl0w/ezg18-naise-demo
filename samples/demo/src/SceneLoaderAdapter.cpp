@@ -5,6 +5,7 @@
 
 #include <components/RigidBodyComponent.hpp>
 #include <components/TransformComponent.hpp>
+#include <components/CameraComponent.hpp>
 
 #include <LinearMath/btDefaultMotionState.h>
 #include <BulletCollision/CollisionShapes/btConvexHullShape.h>
@@ -14,11 +15,22 @@
 
 #include <systems/render-engine/lights/PointLight.hpp>
 #include <factories/LightFactory.hpp>
+#include <resource-loader/GLTFLoader.hpp>
+#include <Engine.hpp>
 
 using namespace NAISE::Engine;
 
 bool SceneLoaderAdapter::adapt(shared_ptr<Entity> entity, shared_ptr<Entity> parent, const tinygltf::Node& node,
-								  const tinygltf::Model& model) const {
+								  const tinygltf::Model& model) {
+
+	if (node.name.compare(0, INSTANCE_ID.size(), INSTANCE_ID) == 0) {
+		handleInstance(entity, node);
+	}
+
+	if (node.name.compare(0, CAMERA_ID.size(), CAMERA_ID) == 0) {
+		return handleCamera(entity, node, model);
+	}
+
 	if (node.name.compare(0, LIGHT_ID.size(), LIGHT_ID) == 0) {
 		return handleLight(entity, node, model);
 	}
@@ -29,6 +41,26 @@ bool SceneLoaderAdapter::adapt(shared_ptr<Entity> entity, shared_ptr<Entity> par
 
 	return false;
 }
+
+
+void SceneLoaderAdapter::handleInstance(shared_ptr<Entity>& entity, const tinygltf::Node& node) const {
+	if (node.extras.IsObject() && node.extras.Has("path")) {
+		auto sceneEntities = GLTFLoader::loadModel(node.extras.Get("path").Get<std::string>());
+	} else {
+		NAISE_WARN_CONSOL("INSTANCE tag without property 'path' will be ignored.")
+		return;
+	}
+
+	auto sceneEntities = GLTFLoader::loadModel(node.extras.Get("path").Get<std::string>());
+	for (auto& e: sceneEntities) {
+		if (!e->has<ParentComponent>()) {
+			e->add<ParentComponent>(entity->id);
+		}
+	}
+
+	Engine::getEntityManager().addEntities(sceneEntities);
+}
+
 
 bool SceneLoaderAdapter::handleLight(shared_ptr<Entity> entity, const tinygltf::Node& node,
 									 const tinygltf::Model& model) const {
@@ -51,11 +83,16 @@ bool SceneLoaderAdapter::handleTrigger(shared_ptr<Entity> entity, shared_ptr<Ent
 }
 
 bool SceneLoaderAdapter::handleCamera(shared_ptr<Entity> entity, const tinygltf::Node& node,
-									  const tinygltf::Model& model) const {
-//	if (!entity->has<CameraComponent>()) {
-//		NAISE_WARN_CONSOL("Camera is not a camera!")
-//		return false;
-//	}
+									  const tinygltf::Model& model) {
+	if (node.extras.IsObject() && node.extras.Has("next")) {
+		auto sceneEntities = GLTFLoader::loadModel(node.extras.Get("path").Get<std::string>());
+	} else {
+		NAISE_WARN_CONSOL("CAMERA tag without property 'next' will be ignored.")
+		return false;
+	}
+
+	double switchTime = node.extras.Get("next").Get<double>();
+	cameraMap[switchTime] = entity->id;
 
 	return false;
 }

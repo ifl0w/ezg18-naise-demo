@@ -1,0 +1,425 @@
+{
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 36,
+            "max" : [
+                12.559535026550293,
+                0.4081517457962036,
+                41.360145568847656
+            ],
+            "min" : [
+                -12.90832233428955,
+                0,
+                -9.491128921508789
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 36,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 36,
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5126,
+            "count" : 36,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 4,
+            "componentType" : 5123,
+            "count" : 78,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 5,
+            "componentType" : 5126,
+            "count" : 4,
+            "max" : [
+                88.76666666666667
+            ],
+            "min" : [
+                85.26666666666667
+            ],
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 6,
+            "componentType" : 5126,
+            "count" : 12,
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 7,
+            "componentType" : 5126,
+            "count" : 12601,
+            "max" : [
+                88.76666666661573
+            ],
+            "min" : [
+                85.26666666666667
+            ],
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 8,
+            "componentType" : 5126,
+            "count" : 12601,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 9,
+            "componentType" : 5126,
+            "count" : 62581,
+            "max" : [
+                17.383333333323
+            ],
+            "min" : [
+                0
+            ],
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 10,
+            "componentType" : 5126,
+            "count" : 62581,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 11,
+            "componentType" : 5126,
+            "count" : 35161,
+            "max" : [
+                9.766666666663262
+            ],
+            "min" : [
+                0
+            ],
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 12,
+            "componentType" : 5126,
+            "count" : 35161,
+            "type" : "VEC4"
+        }
+    ],
+    "animations" : [
+        {
+            "channels" : [
+                {
+                    "sampler" : 0,
+                    "target" : {
+                        "node" : 1,
+                        "path" : "rotation"
+                    }
+                },
+                {
+                    "sampler" : 1,
+                    "target" : {
+                        "node" : 1,
+                        "path" : "translation"
+                    }
+                }
+            ],
+            "name" : "EmptyAction",
+            "samplers" : [
+                {
+                    "input" : 5,
+                    "interpolation" : "CUBICSPLINE",
+                    "output" : 6
+                },
+                {
+                    "input" : 7,
+                    "interpolation" : "STEP",
+                    "output" : 8
+                }
+            ]
+        },
+        {
+            "channels" : [
+                {
+                    "sampler" : 0,
+                    "target" : {
+                        "node" : 9,
+                        "path" : "translation"
+                    }
+                },
+                {
+                    "sampler" : 1,
+                    "target" : {
+                        "node" : 9,
+                        "path" : "rotation"
+                    }
+                }
+            ],
+            "name" : "CameraAction",
+            "samplers" : [
+                {
+                    "input" : 9,
+                    "interpolation" : "STEP",
+                    "output" : 10
+                },
+                {
+                    "input" : 11,
+                    "interpolation" : "STEP",
+                    "output" : 12
+                }
+            ]
+        }
+    ],
+    "asset" : {
+        "generator" : "Khronos Blender glTF 2.0 I/O",
+        "version" : "2.0"
+    },
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 432,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 432,
+            "byteOffset" : 432
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 576,
+            "byteOffset" : 864
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 288,
+            "byteOffset" : 1440
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 156,
+            "byteOffset" : 1728
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 16,
+            "byteOffset" : 1884
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 192,
+            "byteOffset" : 1900
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 50404,
+            "byteOffset" : 2092
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 151212,
+            "byteOffset" : 52496
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 250324,
+            "byteOffset" : 203708
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 750972,
+            "byteOffset" : 454032
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 140644,
+            "byteOffset" : 1205004
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 562576,
+            "byteOffset" : 1345648
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 1908224,
+            "uri" : "main.bin"
+        }
+    ],
+    "cameras" : [
+        {
+            "name" : "Camera",
+            "perspective" : {
+                "yfov" : 0.39959652046304894,
+                "zfar" : 1000,
+                "znear" : 0.10000000149011612
+            },
+            "type" : "perspective"
+        }
+    ],
+    "extensions" : {},
+    "meshes" : [
+        {
+            "name" : "Plane.003",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "NORMAL" : 1,
+                        "POSITION" : 0,
+                        "TANGENT" : 2,
+                        "TEXCOORD_0" : 3
+                    },
+                    "indices" : 4
+                }
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "extras" : {
+                "prop" : 1
+            },
+            "mesh" : 0,
+            "name" : "FLOOR",
+            "scale" : [
+                8.178160667419434,
+                8.178160667419434,
+                8.178160667419434
+            ],
+            "translation" : [
+                0,
+                -2.9673244953155518,
+                0
+            ]
+        },
+        {
+            "extras" : {
+                "path" : "resources/models/luminaris/luminaris.gltf"
+            },
+            "name" : "INSTANCE::luminaris",
+            "scale" : [
+                0.5,
+                0.5,
+                0.5
+            ],
+            "translation" : [
+                -1.9843475818634033,
+                11.024443626403809,
+                0
+            ]
+        },
+        {
+            "extras" : {
+                "path" : "resources/models/tunnel/tunnel.gltf"
+            },
+            "name" : "INSTANCE::tunnel",
+            "translation" : [
+                -6.167468070983887,
+                18.669803619384766,
+                -102.72749328613281
+            ]
+        },
+        {
+            "extras" : {
+                "path" : "resources/models/hangar/hangar.gltf"
+            },
+            "name" : "INSTANCE::hangar"
+        },
+        {
+            "extras" : {
+                "path" : "resources/models/conveyor_belt/conveyor_belt.gltf"
+            },
+            "name" : "INSTANCE::conveyor_belt1",
+            "translation" : [
+                10.98980712890625,
+                19.181480407714844,
+                -79.02136993408203
+            ]
+        },
+        {
+            "extras" : {
+                "path" : "resources/models/conveyor_belt/conveyor_belt.gltf"
+            },
+            "name" : "INSTANCE::conveyor_belt2",
+            "translation" : [
+                10.98980712890625,
+                19.181480407714844,
+                -99.0272445678711
+            ]
+        },
+        {
+            "extras" : {
+                "path" : "resources/models/conveyor_belt/conveyor_belt.gltf"
+            },
+            "name" : "INSTANCE::conveyor_belt4",
+            "translation" : [
+                10.98980712890625,
+                19.181480407714844,
+                -119.01908874511719
+            ]
+        },
+        {
+            "extras" : {
+                "path" : "resources/models/conveyor_belt/conveyor_belt.gltf"
+            },
+            "name" : "INSTANCE::conveyor_belt3",
+            "translation" : [
+                10.98980712890625,
+                19.181480407714844,
+                -139.0184326171875
+            ]
+        },
+        {
+            "camera" : 0,
+            "name" : "CAMERA::1_Orientation",
+            "rotation" : [
+                -0.7071067690849304,
+                0,
+                0,
+                0.7071067690849304
+            ]
+        },
+        {
+            "children" : [
+                8
+            ],
+            "name" : "CAMERA::1",
+            "rotation" : [
+                0.0009789016330614686,
+                0.7144913077354431,
+                -0.6996428966522217,
+                0.0009994705906137824
+            ],
+            "translation" : [
+                -6.172378063201904,
+                20.839067459106445,
+                -60.21263885498047
+            ]
+        }
+    ],
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                9
+            ]
+        }
+    ]
+}

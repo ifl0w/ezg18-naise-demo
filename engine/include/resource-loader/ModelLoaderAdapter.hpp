@@ -9,6 +9,8 @@
 namespace NAISE {
 namespace Engine {
 
+using CallbackSignature = std::function<void (std::vector<shared_ptr<Entity>>)>;
+
 class ModelLoaderAdapter {
 public:
 	/**
@@ -21,7 +23,12 @@ public:
 	 * @return
 	 */
 	virtual bool adapt(shared_ptr<Entity> entity, shared_ptr<Entity> parent, const tinygltf::Node& node,
-					   const tinygltf::Model& model) const = 0;
+					   const tinygltf::Model& model) = 0;
+
+	void registerCallback(CallbackSignature callback);
+
+private:
+	CallbackSignature _callback;
 };
 
 }

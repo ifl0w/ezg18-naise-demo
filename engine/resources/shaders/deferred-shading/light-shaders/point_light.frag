@@ -47,48 +47,6 @@ layout(std430, binding = 0) buffer LightData
 
 uniform bool debugLightVolumes = false;
 
-vec3 processLight(Light light, vec3 pos, vec3 norm, vec3 diffuse, float specular, vec3 glow)
-{
-	norm = normalize(norm);
-	vec3 lightDir; // from surface to light
-	float attenuation;
-
-    //point light
-    lightDir = normalize(light.lightPosition.xyz - pos);
-    float dist = distance(light.lightPosition.xyz, pos);
-    attenuation = 1 / (light.attConstant + light.attLinear * dist + light.attQuadratic * pow(dist, 2));
-
-    if (light.coneAngle <= 180) {
-        //spotlight restrictions (affects attenuation)
-        float lightSurfaceAngle = degrees(acos(dot(-lightDir, normalize(light.direction.xyz))));
-
-        if (lightSurfaceAngle > light.coneAngle) {
-            attenuation = 0.0;
-        } else {
-            float innerAngular = light.coneAngle * (1 - light.coneBlend);
-            float falloff = 1 - smoothstep(innerAngular, light.coneAngle, lightSurfaceAngle);
-            attenuation *= falloff;
-        }
-    }
-
-	vec3 R = reflect(-lightDir, norm); //2*(dot(L, vNorm))*vNorm - L;
-	vec3 V = normalize(cameraPosition - pos); // calculate with viewMatrix: normalize(-vec3(viewMatrix * vec4(vPos,1)));
-
-    float df = max(dot(lightDir, norm), 0.0);
-    vec3 diff = light.diffuse.xyz * diffuse * df;
-    vec3 glowTmp = light.diffuse.xyz * glow * df;
-
-    vec3 spec = vec3(0);
-    if (df > 0) { // check if front face
-        spec = light.specular.xyz * specular * pow(max(dot(V, R), 0), 10); // TODO: get shineyness from material
-    }
-
-	diff *= attenuation;
-	spec *= attenuation;
-
-	return diff + spec;
-}
-
 vec3 fresnelSchlick(float cosTheta, vec3 f0)
 {
     return f0 + (1.0 - f0) * pow(max(1.0 - cosTheta, 0), 5.0);
@@ -168,7 +126,7 @@ vec3 processLight(Light light, vec3 pos, vec3 norm, vec3 albedo, float roughness
     toLight = normalize(light.lightPosition.xyz - pos);
 
     float dist = distance(pos, light.lightPosition.xyz);
-    attenuation = light.attLinear + dist * light.attQuadratic + pow(dist, 2) * light.attConstant;
+    attenuation = pow(dist, 2);
 
     if (light.coneAngle < 180) { // spotlight
         float cosPointAndLight = abs(acos(dot(light.direction.xyz, -toLight))); // should be normalized

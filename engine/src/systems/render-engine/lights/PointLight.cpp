@@ -30,18 +30,13 @@ void PointLight::setAttenuation(float constant, float linear, float quadratic) {
 //	this->scale = vec3(calculateLightVolumeRadius());
 }
 
-float PointLight::calculateLightVolumeRadius() {
-	float constant = data.attConstant;
-	float linear = data.attLinear;
-	float quadratic = data.attQuadratic;
-
-	float minLightValue = 5.0f / 256.0f;
-
+float PointLight::calculateLightVolumeRadius(glm::vec3 ambientIntensity) {
 	float lightMax = glm::max(glm::max(data.diffuse.r, data.diffuse.g), data.diffuse.b);
-	double radius = (-linear + glm::sqrt(linear * linear - 4 * quadratic * (constant - (glm::pow(minLightValue, -1)) * lightMax)))
-			/ (2 * quadratic);
+	float minLightValue = (ambientIntensity.x + ambientIntensity.y + ambientIntensity.z) * 0.01f; // minimum 0.1% of ambient light;
 
-	return static_cast<float>(radius);
+	double radius = sqrt(glm::pow(minLightValue, -1) * lightMax);
+
+	return static_cast<float>(radius); // light radius should be dependent on avg luminance.
 }
 
 bool PointLight::cull() {
