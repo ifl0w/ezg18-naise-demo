@@ -82,7 +82,7 @@ void main() {
     // metallic in gEmissionMetallic's alpha component
     gEmissionMetallic.a = material.metallic;
     if (useMetallicRoughnessTexture) {
-        gEmissionMetallic.a = texture(metallicRoughnessTexture, vUV).r;
+        gEmissionMetallic.a = texture(metallicRoughnessTexture, vUV).b;
     }
 
     // roughness in gAlbedoRoughness's alpha component

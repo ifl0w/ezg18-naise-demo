@@ -185,7 +185,7 @@ void main()
 	fragColor = vec4(lighting, 1) * brightnessFactor;
 
     if(debugLightVolumes) {
-        fragColor += vec4(0, 0.1, 0, 0);
+        fragColor += vec4(0, 100, 0, 0);
     }
 
 }

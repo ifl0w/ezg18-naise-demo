@@ -28,6 +28,9 @@ RenderSystem::RenderSystem(std::shared_ptr<RenderEngine> renderEngine): _renderE
 		_renderEngine->screenSpaceReflectionsShader.recompile();
 		_renderEngine->hiZShader.recompile();
 		_renderEngine->blendingShader.recompile();
+		_renderEngine->plShader.recompile();
+	  	_renderEngine->dlShader.recompile();
+		_renderEngine->hdrShader.recompile();
 	});
 }
 
