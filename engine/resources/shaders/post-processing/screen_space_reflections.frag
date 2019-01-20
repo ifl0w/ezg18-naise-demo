@@ -426,7 +426,7 @@ vec4 runHiZTracing(){
             // Fade if normals of surface show to the camera
             float rDotV = clamp(dot(view_reflection, normalize(view_position)), 0.0, 1.0);
             if(rDotV < 0.1f){
-                alpha *= clamp(rDotV,0,0.1);
+                alpha *= clamp(rDotV,0.0,0.1);
             }
 
             result.a = alpha;
