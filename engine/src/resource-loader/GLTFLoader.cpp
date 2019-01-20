@@ -50,7 +50,7 @@ vector<shared_ptr<Entity>> GLTFLoader::loadModel(const std::string& path) {
 	return loadModel(nullptr, path);
 }
 
-vector<shared_ptr<Entity>> GLTFLoader::loadModel(const ModelLoaderAdapter* adapter, const std::string& path) {
+vector<shared_ptr<Entity>> GLTFLoader::loadModel(ModelLoaderAdapter* adapter, const std::string& path) {
 	vector<shared_ptr<Entity>> ret;
 
 	const auto& key = path;
@@ -90,7 +90,16 @@ vector<shared_ptr<Entity>> GLTFLoader::loadModel(const ModelLoaderAdapter* adapt
 	return ret;
 }
 
-vector<shared_ptr<Entity>> GLTFLoader::entityFromGLTFNode(const ModelLoaderAdapter* adapter,
+void loadModelAsync(ModelLoaderAdapter* adapter, const std::string& path) {
+	NAISE_WARN_CONSOL("Not yet implemented!")
+//	vector<shared_ptr<Entity>> ret = loadModel(adapter, path);
+//
+//	if (adapter->callback) {
+//		adapter->callback(ret);
+//	}
+}
+
+vector<shared_ptr<Entity>> GLTFLoader::entityFromGLTFNode(ModelLoaderAdapter* adapter,
 														  const std::string& idPrefix,
 														  const int nodeIdx,
 														  const tinygltf::Node& node,
@@ -258,12 +267,20 @@ void GLTFLoader::addLightComponent(std::shared_ptr<Entity>& entity, const tinygl
 		auto colorData = light.Get("color");
 		auto intensityData = light.Get("intensity");
 
-		vec4 color = vec4(colorData.Get(0).Get<double>(), colorData.Get(1).Get<double>(), colorData.Get(2).Get<double>(), 0);
-		auto intensity = static_cast<float>(intensityData.Get<double>());
+		vec4 color = vec4(0);
+		color.x = (float) (colorData.Get(0).IsInt() ? colorData.Get(0).Get<int>() : colorData.Get(0).Get<double>());
+		color.y = (float) (colorData.Get(1).IsInt() ? colorData.Get(1).Get<int>() : colorData.Get(1).Get<double>());
+		color.z = (float) (colorData.Get(2).IsInt() ? colorData.Get(2).Get<int>() : colorData.Get(2).Get<double>());
+
+		// multiply by 683.002 to convert watt to lumen (exporter does not do this).
+		auto intensity = static_cast<float>(intensityData.Get<int>()) * 683.002f;
 
 		lc.light->data.diffuse = color * intensity;
 
 		if (t == "point" || t == "spot") {
+			// 0.25 is default radius of point lights in Blender. (exporter does not convert this)
+			lc.light->data.diffuse /= 4 * glm::pi<float>() * 0.25;
+
 			// TODO: maybe add in factory and adapt on change
 			auto l = dynamic_cast<PointLight*>(lc.light.get()); // TODO: kinda dangerous
 			auto radius = l->calculateLightVolumeRadius();

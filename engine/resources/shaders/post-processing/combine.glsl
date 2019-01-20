@@ -17,6 +17,8 @@ void main() {
     float threshold = log(lum.w)*1.5;
     float value = lum.x;
     if (threshold < value) {
-        imageStore(combined, ivec2(gl_GlobalInvocationID.xy), current + color * (value - threshold)/value);
+        float colorMultiplier = (value - threshold)/max(value, 0.0001);
+        colorMultiplier = clamp(colorMultiplier, 0, 1);
+        imageStore(combined, ivec2(gl_GlobalInvocationID.xy), color * colorMultiplier + current);
     }
 }

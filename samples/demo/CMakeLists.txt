@@ -18,7 +18,7 @@ add_executable(sample-demo
         src/SceneLoaderAdapter.hpp
         src/SceneLoaderAdapter.cpp
         src/CameraSelectionSystem/CameraSelectionInputMapper.hpp
-        src/CameraSelectionSystem/CameraSelectionInputMapper.cpp)
+        src/CameraSelectionSystem/CameraSelectionInputMapper.cpp src/CameraSelectionSystem/CameraSelectionSystem.cpp src/CameraSelectionSystem/CameraSelectionSystem.hpp)
 
 add_dependencies(sample-demo engine)
 

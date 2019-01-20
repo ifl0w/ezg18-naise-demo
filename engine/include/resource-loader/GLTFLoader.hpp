@@ -37,7 +37,16 @@ public:
 	 * @param path
 	 * @return
 	 */
-	static vector<shared_ptr<Entity>> loadModel(const ModelLoaderAdapter* adapter, const std::string& path);
+	static vector<shared_ptr<Entity>> loadModel(ModelLoaderAdapter* adapter, const std::string& path);
+
+	/**
+	 * Load a model from a gltf source with a given adapter in a sepearate thread and call the callback provided in the
+	 * model adapter when finished.
+	 *
+	 * @param adapter
+	 * @param path
+	 */
+	void loadModelAsync(ModelLoaderAdapter* adapter, const std::string& path);
 
 	template<typename T>
 	static std::vector<T> dataFromBuffer(int accessorIdx, const tinygltf::Model& model);
@@ -53,7 +62,7 @@ private:
 	 * @param model
 	 * @return
 	 */
-	static std::vector<std::shared_ptr<Entity>> entityFromGLTFNode(const ModelLoaderAdapter* adapter,
+	static std::vector<std::shared_ptr<Entity>> entityFromGLTFNode(ModelLoaderAdapter* adapter,
 																   const std::string& idPrefix,
 																   int nodeIdx,
 																   const tinygltf::Node& node,

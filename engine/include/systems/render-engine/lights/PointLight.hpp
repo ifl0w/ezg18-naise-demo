@@ -19,7 +19,7 @@ public:
 	*/
 	void setAttenuation(float constant, float linear, float quadratic);
 
-	float calculateLightVolumeRadius();
+	float calculateLightVolumeRadius(glm::vec3 ambientIntensity = glm::vec3(100));
 
 protected:
 	bool cull() override;
