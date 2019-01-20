@@ -30,8 +30,6 @@ uniform sampler2D gLinearDepth;
 uniform sampler2D gHiZ; //TODO last mipmaplevel isnt correct
 uniform int maxMipmapLevel; //starts to count by 0
 
-
-vec2 globalOffset;
 /*
 min-max tracing:
 What this gives you is a better estimation of the depth of the object at the pixel you're currently processing. You can use this in the ray-tracing pass to walk behind an object - if the current ray depth (from O + D * t) is outside the range of [min, max] at that pixel, you know it's not intersecting and can continue marching along that ray without further processing at the current position.
@@ -49,10 +47,9 @@ vec2 HIZ_CROSS_EPSILON; //TODO divide by the resolution?
 #define HIZ_MAX_ITERATIONS 200
 #define HIZ_ITERATION_STEP 2 //was fix at 2.0 in paper
 
-vec2 hiZSize; // = resolution;
+// HI-Z Fading
+#define _ScreenEdgeFadeStart 0.1
 
-// jitter: between 0 and 1 for how far to bump the ray in stride units to conceal banding artifacts
-float jitter = 0.0;
 float near = 0.01;
 
 float maxIterations;
@@ -60,7 +57,6 @@ float maxBinarySearchIterations;
 
 float maxRayDistance = 200; // view or worldspace
 float stepsize; // in screenspace
-
 
 // VARIABLES
 vec2 resolution;
@@ -83,91 +79,50 @@ vec4 screen_reflection;
 vec3 view_endPoint;
 vec3 world_normal;
 
-// HELPER FUNCTIONS
+/** FUNCTIONS **/
+
+// Hi-Z
+vec3 hiZTrace(vec3 p, vec3 v);
+vec2 lookUpHiZ(vec2 coords, int level, vec2 mipmapresolution);
+vec2 getHiZMipmapResolution(int level); // currently just a wrapper
+vec2 getCell(vec2 ray, vec2 mipmap_resolution);
+vec3 intersectPlane(vec3 O, vec3 D, float t);
+bool crossedCellBoundary(vec2 x, vec2 y);
+vec3 intersectCellBoundary(vec3 O, vec3 D, vec2 oldCellIndex, vec2 mipmap_resolution, vec2 crossStep, vec2 crossOffset);
+vec4 runHiZTracing();
+
+// Ray-Casting
+vec4 BinarySearch(vec4 rayDir, vec4 hitCoord);
+vec4 RayMarching();
+
+// Space transformations
 vec3 world2viewSpace(vec3 position);
 vec3 world2viewSpaceDirectionVector(vec3 dir);
 vec4 view2screenSpace(vec3 position);
 vec4 view2clipSpace(vec3 position);
 vec4 NDC2screenSpace(vec4 position);
-void calculateScreenReflection(vec3 view_pos, vec3 view_refl);
-float rand(vec2 co);
-vec4 blending(vec4 fetchedColor, vec4 coords);
-vec4 BinarySearch(vec4 rayDir, vec4 hitCoord);
+vec3 screenBack2View(vec3 screenPoint);
 vec4 screenSpace2view(vec4 position);
-vec3 hiZTrace(vec3 p, vec3 v);
 
-vec2 getMinAndMaxDepthPlanes(vec2 coords, int level, vec2 mipmapresolution)
-{
-        //TODO garantieren dass coordinaten in der mitte liegt und man darf nicht interpolieren
-        //WRONG
-     //    return texelFetch(gHiZ, ivec2(coords * (resolution-vec2(1))), level).rg;
-    // return texelFetch(gHiZ, ivec2(coords * (resolution-vec2(1))), 0).rg;
-    return texelFetch(gHiZ, ivec2(coords * (mipmapresolution-vec2(1))), level).rg;
-	//return textureLod(gHiZ, coords, level).rg;
-}
+// Helper functions
+void calculateScreenReflection(vec3 view_pos, vec3 view_refl);
+vec4 blending(vec4 fetchedColor, vec4 coords);
 
-/*
-Transform the point from screen-space into view-space.
-Inverse-projection matrix must be in left-handed coordinate system.
-*/
-vec3 UnprojectPoint(vec3 screenPoint)
-{
-	screenPoint.xy = (screenPoint.xy - vec2(0.5)) * vec2(2.0, 2.0);
-
-  //  screenPoint /= gl_FragCoord.w;
-/// gl_FragCoord.w;
-
-	vec4 projPos = inverse(projectionMatrix) * vec4(screenPoint, 1.0);
-    return projPos.xyz/projPos.w;
-   // return projPos.xyz;
-}
-
-// HIZ
-// getResolutionOfMipmap
-vec2 getCellCountOfMipmapLevel(int level){
-
-    return vec2(textureSize(gHiZ,level));
-    // getTexture size from glsl TODO
-    // for each mipmapLevel the resolution gets divide in two
-    // TODO optimize -> no if / else
-    if(level == 0.0){
-        return resolution;
-    } else {
-        //return floor(resolution / exp2(level)); // round .xy to int
-       return (resolution / exp2(level));
-    }
-}
-
-vec2 getCell(vec2 ray, vec2 mipmap_resolution){
-    // xy coordinates of intersected cell in the mipmap
-    // for example ray = (0.5, 0.25) and mipmap_resolution = (1000, 500)
-    // -> cell = (500, 125)
-    //TODO floor ok? test both
-    return floor(ray * mipmap_resolution); // round .xy to int
-}
-
-/**
-Intersects the closest plane, returns = O + D * t only
-Interpolation between O and O + D
-
-O: Origin of the ray at the near plane -> Pss + D * -Pssz
-D: Reflection Direction
-t: interpolationfactor between 0 and 1
-**/
-//IntersectDepthPlane
-vec3 intersectPlane(vec3 O, vec3 D, float t)
-{
-	return O + D * t;
-}
 
 /*
 This function computes the new ray position where
 the ray intersects with the specified cell's boundary.
 */
-// cell index refers to the bottom-left corner of a cell
-//Line Rasterization!!!!
+
+/*  Line Rasterization
+    Calculates the neighbor cell within a Hi-Z mipmap and computes the associated ray position in screen space
+    by interpolationg between O and O + D
+*/
+
 vec3 intersectCellBoundary(vec3 O, vec3 D, vec2 oldCellIndex, vec2 mipmap_resolution, vec2 crossStep, vec2 crossOffset)
 {
+
+    //TODO
    /* "delta" is a vector pointing from the origin of the ray to "index" which is a point along the ray between "o" and "d" (where z = 0 at o and z = 1 at d).
     Dividing delta by d.xy gives you a percentage of how far along the ray each component is.  You take the minimum of the two to decide how far to move between
     "o" and "d".*/
@@ -183,7 +138,6 @@ vec3 intersectCellBoundary(vec3 O, vec3 D, vec2 oldCellIndex, vec2 mipmap_resolu
    // HIZ_CROSS_EPSILON = (vec2(0.5)/mipmap_resolution);
 
     crossOffset = crossStep * HIZ_CROSS_EPSILON;
-    globalOffset = crossOffset;
     crossStep = clamp(crossStep, 0.0, 1.0);
 
 	// transform cell coordinates from pixelspace (defined by resolution) to screenspace (0,1)
@@ -197,15 +151,8 @@ vec3 intersectCellBoundary(vec3 O, vec3 D, vec2 oldCellIndex, vec2 mipmap_resolu
 	return intersectPlane(O, D, t);
 }
 
-
-bool crossedCellBoundary(vec2 x, vec2 y){
-   // return (x.x != y.x) || (x.y != y.y);
-    return !(all(equal(x,y)));
-}
-
 void init_HiZRayTracing(){
     resolution = vec2(viewportWidth, viewportHeight);
-    hiZSize = resolution;
 
     vec2 texelSize;
     texelSize.x = 1.0 / resolution.x;
@@ -215,90 +162,21 @@ void init_HiZRayTracing(){
 
 	P_ss = vec3(TexCoords, fragment_depth); // screen space
 
-	vec3 P_vs = UnprojectPoint(P_ss);
+	vec3 P_vs = screenBack2View(P_ss);
 
 	// V>VS - since calculations are in view-space, we can just normalize the position to point at it
 	vec3 V_vs = normalize(P_vs);
 
     vec3 iii = vec3( normalize(world2viewSpace(normalize(world_position - cameraPosition))));
-    V_vs = (world2viewSpaceDirectionVector(normalize(reflect(normalize(world_position - cameraPosition), normalize(world_normal))))).xyz;
-    calculateScreenReflection(view_position, V_vs);
+    view_reflection = (world2viewSpaceDirectionVector(normalize(reflect(normalize(world_position - cameraPosition), normalize(world_normal))))).xyz;
+    calculateScreenReflection(view_position, view_reflection);
 
     vec4 P2_cs = projectionMatrix * vec4(P_vs + V_vs, 1.0);
 	vec3 P2_ss = P2_cs.xyz / P2_cs.w;
     P2_ss.xy = P2_ss.xy * 0.5 + 0.5;
 
-    vec3 P2_vs = UnprojectPoint(P2_ss);
+    vec3 P2_vs = screenBack2View(P2_ss);
 	V_ss = P2_ss - P_ss;
-
-
-     float rDotV = clamp(dot(V_vs, normalize(P_vs)), 0.0, 1.0);
-     vec3 rayyyyyyy = vec3(0);
-      reflections = vec4(0,0,TexCoords);
-     if(fragment_depth < 1.0 && fragment_depth > 0.0 && fragment_roughness < 1 ){ //&& rDotV >= 0.1f //&& dot(view_normal.xyz, vec3(1.0f, 1.0f, 1.0f)) != 0.0f
-        // rayyyyyyy = hiZTrace(screen_point.xyz, (screen_reflection.xyz));
-     }
- rayyyyyyy = hiZTrace(screen_point.xyz, (screen_reflection.xyz));
-     if(true){
-
-        // reflections = vec4(rayyyyyyy, 1);
-     }
-
-    float reflectedDepth = getMinAndMaxDepthPlanes(rayyyyyyy.xy, 0, resolution).r;
-    reflections = vec4(rayyyyyyy.xy,0,1);
-
-    vec4 reflectionColor = vec4(0);
-    vec4 imageColor = texture(imageInput, TexCoords);
-
-    if(rayyyyyyy.x < 0 || rayyyyyyy.x > 1 || rayyyyyyy.y < 0 || rayyyyyyy.x > 1 || reflectedDepth >= 1 || reflectedDepth <= 0 || overmaxIterations){
-        //reflections = vec4(1);
-         reflections = texture(imageInput, TexCoords);
-          reflections = vec4(0);
-    }else if(rayyyyyyy.z  + 0.0001> reflectedDepth && reflectedDepth != 1){// - 0.000001
-         //Hitted jey :) Todo between min and max?
-       reflectionColor = texelFetch(imageInput, ivec2(rayyyyyyy.xy * resolution), 0);//.xyz;
-
-        // source for fading: http://www.kode80.com/blog/2015/03/11/screen-space-reflections-in-unity-5/index.html
-        float alpha = 1.0;
-       float _ScreenEdgeFadeStart = 0.1;
-       float screenFade = _ScreenEdgeFadeStart;
-       vec2 hitPixelNDC = (rayyyyyyy.xy * 2.0 - 1.0);
-       //float maxDimension = min( 1.0, max( abs( hitPixelNDC.x), abs( hitPixelNDC.y)));
-        float maxDimension =max( abs( hitPixelNDC.x), abs( hitPixelNDC.y));
-       alpha *= min(0.7,(1.0 - (max( 0, maxDimension - screenFade) / (1.0 - screenFade))));
-
-        // Fade ray hits based on distance from ray origin
-        alpha *= 1.0 - clamp( distance( screen_point.xy, rayyyyyyy.xy) , 0.0, 1.0); //0.6 /// 0.8
-
-        if(rDotV < 0.1f){
-         alpha *= clamp(rDotV,0,0.1);
-        }
-
-        // TODO
-     //  reflectionColor = reflectionColor * (alpha) + imageColor * (1-alpha);
-       reflectionColor.a = alpha;
-
-       // Fade ray hits that approach the screen edge
-  /*     //between 0 and 1
-
-
-
-    float alpha = 1.0 - (max( 0.0, maxDimension - screenFade) / (1.0 - screenFade));
-    reflectionColor = reflectionColor;//vec3(alpha);// + imageColor * vec3(1-alpha);
-    reflections = vec4(reflectionColor,1);
-
-      // reflections = (reflections + texture(imageInput, TexCoords)) * 0.5;*/
-      reflections = vec4(alpha, 1, 1, 1);
-      reflections = reflectionColor;
-
-     } else {
-       reflections = texture(imageInput, TexCoords);
-
-       reflections = vec4(0);
-     }
-
-     //reflections = vec4(rDotV);
-
 }
 
 int countMinus = 0;
@@ -324,7 +202,6 @@ vec3 hiZTrace(vec3 p, vec3 v){
 
     //float2 crossStep = float2(v.x >= 0.0f ? 1.0f : -1.0f, v.y >= 0.0f ? 1.0f : -1.0f);
     vec2 crossOffset = crossStep * HIZ_CROSS_EPSILON;
-    globalOffset = crossOffset;
    // crossStep = clamp(crossStep, 0.0, 1.0);
 
     // set current ray_Position to the original screen coordinate and depth
@@ -355,7 +232,7 @@ vec3 hiZTrace(vec3 p, vec3 v){
 
     // cross to next cell so that we don't get a self-intersection immediately
     //TODO rename to something with mimap resolution or currentHiZSize
-    vec2 firstCellCount = getCellCountOfMipmapLevel(currentLevel); // passt
+    vec2 firstCellCount = getHiZMipmapResolution(currentLevel); // passt
     vec2 rayCell = getCell(ray.xy, firstCellCount); // passt // pixelspace
 
     //hier richtig spater nicht mehr
@@ -372,11 +249,11 @@ vec3 hiZTrace(vec3 p, vec3 v){
 
 
         // get the cell number of the current ray
-        const vec2 cellCount = getCellCountOfMipmapLevel(currentLevel);
+        const vec2 cellCount = getHiZMipmapResolution(currentLevel);
         const vec2 oldCellIdx = getCell(ray.xy, cellCount);
 
         // get the minimum & maximum depth plane in which the current ray resides
-    	hiZ_minmax = getMinAndMaxDepthPlanes(ray.xy, currentLevel, cellCount);
+    	hiZ_minmax = lookUpHiZ(ray.xy, currentLevel, cellCount);
 
         // intersect only if ray depth is [below the minimum depth plane] between minimum and maximum depth planes
         // MIN of paper: vec3 tmpRay = intersectPlane(o.xy, d.xy, max(ray.z, hiZ_minmax.r));
@@ -409,7 +286,7 @@ vec3 hiZTrace(vec3 p, vec3 v){
         ++currentIterations;
 
 	}
-  //  vec2 cellC = getCellCountOfMipmapLevel(currentLevel);
+  //  vec2 cellC = getHiZMipmapResolution(currentLevel);
   //  vec2 oldCellI = getCell(ray.xy, cellC);
     // TODO Reject ray intersections from hidden geometry
    // reflections = vec4(1,1, 0,1);
@@ -438,13 +315,6 @@ void init(){
     linearDepth = texture(gPosition, TexCoords).a;
     world_normal = texture(gNormal, TexCoords).rgb;
 
-   /* step_bias = (zzzz.z-maxDistance)/(maxmaxDistance-maxDistance);
-    if(step_bias < 0){
-        step_bias = 0;
-    }
-     stepsize = step_bias *(1.0 - 0.1) + 0.1;
-    }*/
-
     view_position = world2viewSpace(world_position);
     view_normal =  world2viewSpaceDirectionVector(normalize(texture(gNormal, TexCoords).rgb));
     view_reflection = normalize(reflect(normalize(view_position.xyz), normalize(view_normal)));
@@ -452,8 +322,6 @@ void init(){
   //   view_reflection = normalize(reflect(normalize(world_position-cameraPosition), normalize(world_normal)));
    //  view_reflection = normalize(world2viewSpaceDirectionVector(view_reflection));
 
-     vec2 c = world_position.xy * 0.25;
-    jitter = rand(c);
     //angle = degrees(acos(dot(normalize(view_reflection), normalize(view_normal))));
 
     calculateScreenReflection(view_position, view_reflection);
@@ -462,44 +330,143 @@ void init(){
 
 
 
-// TODO: should the linear or non linear depth be used?
+
+
+
+
+
+
+void main(){
+    init();
+    init_HiZRayTracing();
+    reflections = runHiZTracing();
+
+    //reflections = RayMarching();
+
+    // TODO: angle wider then 90 degree -> set reflection fully transparent
+    // TODO: ViewAngleThreshold-> only count reflection if they are over the treshhold (angle between the normal and the camera direction)
+
+}
+
+
+
+void calculateScreenReflection(vec3 view_pos, vec3 view_refl){
+    view_endPoint = (view_refl * 1) + view_pos;//normalize
+    screen_point = view2screenSpace(view_pos);
+    screen_endPoint = view2screenSpace(view_endPoint);
+    // tip minus base (spitze minus schaft)
+    screen_reflection = (screen_endPoint - screen_point);
+}
+
+
+vec4 blending(vec4 fetchedColor, vec4 coords){
+    return ( texture(imageInput, TexCoords) + fetchedColor) * 0.5;
+}
+
+/** HI-Z Functions **/
+
+vec2 lookUpHiZ(vec2 coords, int level, vec2 mipmapresolution)
+{
+    // return textureLod(gHiZ, coords, level).rg;
+    // return texelFetch(gHiZ, ivec2(coords * (resolution-vec2(1))), level).rg;
+    // return texelFetch(gHiZ, ivec2(coords * (resolution-vec2(1))), 0).rg;
+    return texelFetch(gHiZ, ivec2(coords * (mipmapresolution-vec2(1))), level).rg;
+}
+
+vec2 getHiZMipmapResolution(int level){
+    return vec2(textureSize(gHiZ,level));
+}
+
+/* pixel coordinates of intersected cell in the mipmap */
+vec2 getCell(vec2 ray, vec2 mipmap_resolution){
+    // example: ray = (0.5, 0.25); mipmap_resolution = (1000, 500) -> cell = (500, 125)
+    return floor(ray * mipmap_resolution); // round .xy to int
+}
+
+/**
+Intersects the closest plane, returns = O + D * t only
+Interpolation between O and O + D where O is the origin of the ray at the near plane (Pss + D * -Pss.z),
+D the reflectiondirecton and t the interpolation factor between 0 and 1
+**/
+vec3 intersectPlane(vec3 O, vec3 D, float t)
+{
+	return O + D * t;
+}
+
+bool crossedCellBoundary(vec2 x, vec2 y){
+    // returns true if x and y are different and false if they are exactly the same
+    return !(all(equal(x,y)));
+}
+
+vec4 runHiZTracing(){
+    vec4 result = vec4(0); // result.a -> alpha (if reflection alpha > = else alpha == 0)
+    vec3 ray_pos = vec3(0);
+
+    // TODO add if reflection or not
+    if(fragment_depth < 1.0 && fragment_depth > 0.0 && fragment_roughness < 1 ){ //&& rDotV >= 0.1f //&& dot(view_normal.xyz, vec3(1.0f, 1.0f, 1.0f)) != 0.0f
+        ray_pos = hiZTrace(screen_point.xyz, (screen_reflection.xyz));
+
+        float reflectedDepth = lookUpHiZ(ray_pos.xy, 0, resolution).r;
+
+        if(ray_pos.x < 0 || ray_pos.x > 1 || ray_pos.y < 0 || ray_pos.x > 1 || ray_pos.z <= 0 || ray_pos.z >= 1 || reflectedDepth >= 1 || reflectedDepth <= 0 || overmaxIterations){
+            // swallow
+        }else if(ray_pos.z  + 0.0001> reflectedDepth && reflectedDepth != 1){// - 0.000001
+            //Hitted
+            result = texelFetch(imageInput, ivec2(ray_pos.xy * resolution), 0);//.xyz;
+
+            // Fading inspired by: http://www.kode80.com/blog/2015/03/11/screen-space-reflections-in-unity-5/index.html
+            float alpha = 1.0;
+            vec2 ray_posNDC = (ray_pos.xy * 2.0 - 1.0);
+            float maxDimension =max( abs(ray_posNDC.x), abs(ray_posNDC.y));
+            alpha *= min(0.7, (1.0 - (max( 0, maxDimension - _ScreenEdgeFadeStart) / (1.0 - _ScreenEdgeFadeStart))));
+
+            // Fade ray hits based on distance from ray origin
+            alpha *= 1.0 - clamp( distance( screen_point.xy, ray_pos.xy) , 0.0, 1.0); //0.6 /// 0.8
+
+            // Fade if normals of surface show to the camera
+            float rDotV = clamp(dot(view_reflection, normalize(view_position)), 0.0, 1.0);
+            if(rDotV < 0.1f){
+                alpha *= clamp(rDotV,0,0.1);
+            }
+
+            result.a = alpha;
+        }
+    }
+    return result;
+}
+
+/** RayCasting Functions **/
+
+// TODO: should the linear or non linear depth be used? -> linear depth is better
 // TODO: stepsize must get greater while stepping through the ray?
-// TODO: ray im lipspace steppen? Transform the View Space Reflection to clip-space
 vec4 RayMarching(){
     vec4 screen_rayPosition = screen_point;
-  // screen_reflection.xyz *= jitter * 1;
-
     float rayDepth = 0; // accumulated depth value on rayPosition
     float texDepth = 0; // corresponding depth at the view_positionOnRay in the depth texture
+    screen_rayPosition += screen_reflection * stepsize; // TODO jitter
 
-screen_rayPosition += screen_reflection * stepsize;
     for(int i = 0; i < maxIterations; i++){
 
         ivec2 denormalizedTexCoords = ivec2(screen_rayPosition.xy * resolution);
-        //in rayDepth & texDepth exakt der selbe wert wie fragment_depth wenn view_positionOnRay = view2screenSpace(view_position);
+        //depth in rayDepth & texDepth & fragment_depth must be exactly the same if view_positionOnRay = view2screenSpace(view_position);
         texDepth = texelFetch(gPosition, denormalizedTexCoords, 0).a;
 
-        if(texDepth == 1.0 || texDepth <= 0.0 ){ //skybox//hit on skybox; TODO is early termination ok? probably not when the scene has flying/ hovering elements
-        // can 1.0 occure in another case? if yes then set clearcolor to -1
-           // out-of-boundsdepth-buffersample -> will terminate iteration
-            //Stop ray marching when the ray goes outside screen space
+        if(texDepth == 1.0 || texDepth <= 0.0 ){
+            // if 1.0: hit on skybox; TODO is early termination ok? probably not when the scene has flying/ hovering elements
+            // Stop ray marching when the ray goes outside screen space
             return vec4(0);
         }
 
-        vec4 world = screenSpace2view(screen_rayPosition); //correct
-        rayDepth = world.z;
-       // rayDepth = (screen_rayPosition.z);
-       float pixelthickness = 0.001;
+        vec4 world = screenSpace2view(screen_rayPosition);
+        rayDepth = world.z; // rayDepth = (screen_rayPosition.z);
+
+        float pixelthickness = 0.001;
         if(rayDepth >= texDepth + 0.0001 ){// + 0.0000001 // && rayDepth < texDepth + 0.2
             isHit = true;
-
-           // return BinarySearch(screen_reflection, screen_rayPosition);
-            return vec4(screen_rayPosition.xy, rayDepth, 1.0);
-            //  return vec4(screen_rayPosition.xy, 0.0, 1.0);
+            return BinarySearch(screen_reflection, screen_rayPosition); // return vec4(screen_rayPosition.xy, rayDepth, 1.0);
         }
-
         //stepsize = (stepsize/screen_rayPosition.z);
-        screen_rayPosition += screen_reflection * stepsize;// * stepsize;
+        screen_rayPosition += screen_reflection * stepsize;
         if(screen_rayPosition.z > screen_endPoint.z){
             return vec4(0); //ray missed
         }
@@ -507,40 +474,16 @@ screen_rayPosition += screen_reflection * stepsize;
     return vec4(0); //ray missed
 }
 
-
-
-vec3 ProjectPoint(vec3 viewPoint)
-{
-	vec4 projPoint = projectionMatrix * vec4(viewPoint, 1.0);
-	projPoint.xyz /= projPoint.w;
-	projPoint.xy = projPoint.xy * vec2(0.5, -0.5) + vec2(0.5);
-	return projPoint.xyz;
-}
-
-
-void main(){
-    init();
-    init_HiZRayTracing();
-    vec4 result = vec4(0,0,0,0);
-
-    // TODO: angle wider then 90 degree -> set reflection fully transparent
-    // TODO: ViewAngleThreshold-> only count reflection if they are over the treshhold (angle between the normal and the camera direction)
-
-}
-
 vec4 BinarySearch(vec4 rayDir, vec4 hitCoord)
 {
     float texDepth;
     float rayDepth;
-
     float numBinarySearchSteps = 3;
     vec4 screen_rayPosition = hitCoord;
 
     for(int i = 0; i < numBinarySearchSteps; i++)
     {
-         ivec2 denormalizedTexCoords = ivec2(screen_rayPosition.xy * resolution);
-        //in rayDepth & texDepth exakt der selbe wert wie fragment_depth wenn view_positionOnRay = view2screenSpace(view_position);
-
+        ivec2 denormalizedTexCoords = ivec2(screen_rayPosition.xy * resolution);
         texDepth = texelFetch(gPosition, denormalizedTexCoords, 0).a;
 
          vec4 world = screenSpace2view(screen_rayPosition); //correct
@@ -558,37 +501,21 @@ vec4 BinarySearch(vec4 rayDir, vec4 hitCoord)
     return vec4(screen_rayPosition.xy, rayDepth, 1.0);
 }
 
-void calculateScreenReflection(vec3 view_pos, vec3 view_refl){
-    view_endPoint = (view_refl * 1) + view_pos;//normalize
-    screen_point = view2screenSpace(view_pos);
-    screen_endPoint = view2screenSpace(view_endPoint);
-    // tip minus base (spitze minus schaft)
-    screen_reflection = (screen_endPoint - screen_point);
-}
-
-
-vec4 blending(vec4 fetchedColor, vec4 coords){
-    return ( texture(imageInput, TexCoords) + fetchedColor) * 0.5;
-}
-
+// Space Transformations
 
 vec3 world2viewSpace(vec3 position){
-    vec3 result = (viewMatrix * vec4(position, 1)).xyz;
-    return result;
+    return (viewMatrix * vec4(position, 1)).xyz;
 }
 
 vec3 world2viewSpaceDirectionVector(vec3 dir){
-    vec3 result = (transpose(inverse(viewMatrix)) * vec4(dir, 1)).xyz;
-    return result;
+    return (transpose(inverse(viewMatrix)) * vec4(dir, 1)).xyz;
 }
 
 vec4 view2screenSpace(vec3 position){
     vec4 result = projectionMatrix * vec4(position, 1.0);
     result.xyz /= result.w;
-    // NDC -> (0,1) so it can be used as TexCoords
-  //  result.xyz = result.xyz * 0.5 + 0.5;
-     result.xyz = result.xyz * 0.5 + 0.5;
-    //result.w = 1.0;
+    result.xyz = result.xyz * 0.5 + 0.5; // NDC -> (0,1) so it can be used as TexCoords
+    result.w = 1.0;
     return result;
 }
 
@@ -609,10 +536,14 @@ vec4 screenSpace2view(vec4 position){
     result.xyz = result.xyz * 2 - 1;
     result.xyz *= result.w;
     result = inverse(projectionMatrix) * result * -1;
-     //result = inverse(viewMatrix) *result;
     return result;
 }
-
-float rand(vec2 co){
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+// TODO which is correct? screenSpace2view or screenBack2View
+vec3 screenBack2View(vec3 screenPoint)
+{
+	screenPoint.xy = (screenPoint.xy - vec2(0.5)) * vec2(2.0, 2.0);
+	vec4 projPos = inverse(projectionMatrix) * vec4(screenPoint, 1.0);
+    return projPos.xyz/projPos.w;
 }
+
+// Other herlper functions
