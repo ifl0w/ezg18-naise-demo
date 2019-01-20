@@ -9,8 +9,9 @@ void main() {
     vec4 color = imageLoad(inputImage, ivec2(gl_GlobalInvocationID.xy));
     vec3 factors = vec3(0.2126, 0.7152, 0.0722);
 
-    float lum =  max(0, log(factors.r * color.r + factors.g * color.g + factors.b * color.b));
+    float lum = factors.r * color.r + factors.g * color.g + factors.b * color.b;
+    float logLum =  clamp(log(lum), 0, 100); // clamp to prevent INF values
 
     vec4 prevLum = imageLoad(outputImage, ivec2(gl_GlobalInvocationID.xy));
-    imageStore(outputImage, ivec2(gl_GlobalInvocationID.xy), vec4(lum, lum, lum, prevLum.w));
+    imageStore(outputImage, ivec2(gl_GlobalInvocationID.xy), vec4(logLum, logLum, logLum, prevLum.w));
 }
