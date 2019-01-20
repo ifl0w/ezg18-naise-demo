@@ -46,7 +46,7 @@ bool overmaxIterations = false;
 #define HIZ_STOP_LEVEL 0 //0.0 //shouldn't be too height because of artefacts
 #define HIZ_MAX_LEVEL maxMipmapLevel
 vec2 HIZ_CROSS_EPSILON; //TODO divide by the resolution?
-#define HIZ_MAX_ITERATIONS 400
+#define HIZ_MAX_ITERATIONS 200
 #define HIZ_ITERATION_STEP 2 //was fix at 2.0 in paper
 
 vec2 hiZSize; // = resolution;
@@ -95,6 +95,16 @@ vec4 blending(vec4 fetchedColor, vec4 coords);
 vec4 BinarySearch(vec4 rayDir, vec4 hitCoord);
 vec4 screenSpace2view(vec4 position);
 vec3 hiZTrace(vec3 p, vec3 v);
+
+vec2 getMinAndMaxDepthPlanes(vec2 coords, int level, vec2 mipmapresolution)
+{
+        //TODO garantieren dass coordinaten in der mitte liegt und man darf nicht interpolieren
+        //WRONG
+     //    return texelFetch(gHiZ, ivec2(coords * (resolution-vec2(1))), level).rg;
+    // return texelFetch(gHiZ, ivec2(coords * (resolution-vec2(1))), 0).rg;
+    return texelFetch(gHiZ, ivec2(coords * (mipmapresolution-vec2(1))), level).rg;
+	//return textureLod(gHiZ, coords, level).rg;
+}
 
 /*
 Transform the point from screen-space into view-space.
@@ -187,13 +197,6 @@ vec3 intersectCellBoundary(vec3 O, vec3 D, vec2 oldCellIndex, vec2 mipmap_resolu
 	return intersectPlane(O, D, t);
 }
 
-vec2 getMinAndMaxDepthPlanes(vec2 coords, int level, vec2 mipmapresolution)
-{
-        //TODO garantieren dass coordinaten in der mitte liegt und man darf nicht interpolieren
-        // return texelFetch(gHiZ, ivec2(coords * (resolution-vec2(1))), level).rg;
-    return texelFetch(gHiZ, ivec2(coords * (mipmapresolution-vec2(1))), level).rg;
-	//return textureLod(gHiZ, coords, level).rg;
-}
 
 bool crossedCellBoundary(vec2 x, vec2 y){
    // return (x.x != y.x) || (x.y != y.y);
@@ -233,9 +236,9 @@ void init_HiZRayTracing(){
      vec3 rayyyyyyy = vec3(0);
       reflections = vec4(0,0,TexCoords);
      if(fragment_depth < 1.0 && fragment_depth > 0.0 && fragment_roughness < 1 ){ //&& rDotV >= 0.1f //&& dot(view_normal.xyz, vec3(1.0f, 1.0f, 1.0f)) != 0.0f
-         rayyyyyyy = hiZTrace(screen_point.xyz, (screen_reflection.xyz));
+        // rayyyyyyy = hiZTrace(screen_point.xyz, (screen_reflection.xyz));
      }
-
+ rayyyyyyy = hiZTrace(screen_point.xyz, (screen_reflection.xyz));
      if(true){
 
         // reflections = vec4(rayyyyyyy, 1);
@@ -244,19 +247,57 @@ void init_HiZRayTracing(){
     float reflectedDepth = getMinAndMaxDepthPlanes(rayyyyyyy.xy, 0, resolution).r;
     reflections = vec4(rayyyyyyy.xy,0,1);
 
-
+    vec4 reflectionColor = vec4(0);
+    vec4 imageColor = texture(imageInput, TexCoords);
 
     if(rayyyyyyy.x < 0 || rayyyyyyy.x > 1 || rayyyyyyy.y < 0 || rayyyyyyy.x > 1 || reflectedDepth >= 1 || reflectedDepth <= 0 || overmaxIterations){
         //reflections = vec4(1);
          reflections = texture(imageInput, TexCoords);
+          reflections = vec4(0);
     }else if(rayyyyyyy.z  + 0.0001> reflectedDepth && reflectedDepth != 1){// - 0.000001
          //Hitted jey :) Todo between min and max?
-       reflections = texelFetch(imageInput, ivec2(rayyyyyyy.xy * resolution), 0);
-      // reflections = (reflections + texture(imageInput, TexCoords)) * 0.5;
+       reflectionColor = texelFetch(imageInput, ivec2(rayyyyyyy.xy * resolution), 0);//.xyz;
+
+        // source for fading: http://www.kode80.com/blog/2015/03/11/screen-space-reflections-in-unity-5/index.html
+        float alpha = 1.0;
+       float _ScreenEdgeFadeStart = 0.1;
+       float screenFade = _ScreenEdgeFadeStart;
+       vec2 hitPixelNDC = (rayyyyyyy.xy * 2.0 - 1.0);
+       //float maxDimension = min( 1.0, max( abs( hitPixelNDC.x), abs( hitPixelNDC.y)));
+        float maxDimension =max( abs( hitPixelNDC.x), abs( hitPixelNDC.y));
+       alpha *= min(0.7,(1.0 - (max( 0, maxDimension - screenFade) / (1.0 - screenFade))));
+
+        // Fade ray hits based on distance from ray origin
+        alpha *= 1.0 - clamp( distance( screen_point.xy, rayyyyyyy.xy) , 0.0, 1.0); //0.6 /// 0.8
+
+        if(rDotV < 0.1f){
+         alpha *= clamp(rDotV,0,0.1);
+        }
+
+        // TODO
+     //  reflectionColor = reflectionColor * (alpha) + imageColor * (1-alpha);
+       reflectionColor.a = alpha;
+
+       // Fade ray hits that approach the screen edge
+  /*     //between 0 and 1
+
+
+
+    float alpha = 1.0 - (max( 0.0, maxDimension - screenFade) / (1.0 - screenFade));
+    reflectionColor = reflectionColor;//vec3(alpha);// + imageColor * vec3(1-alpha);
+    reflections = vec4(reflectionColor,1);
+
+      // reflections = (reflections + texture(imageInput, TexCoords)) * 0.5;*/
+      reflections = vec4(alpha, 1, 1, 1);
+      reflections = reflectionColor;
 
      } else {
        reflections = texture(imageInput, TexCoords);
+
+       reflections = vec4(0);
      }
+
+     //reflections = vec4(rDotV);
 
 }
 
@@ -341,8 +382,8 @@ vec3 hiZTrace(vec3 p, vec3 v){
         // MIN of paper: vec3 tmpRay = intersectPlane(o.xy, d.xy, max(ray.z, hiZ_minmax.r));
         // MINMAX
         //vec3 tmpRay = intersectPlane(o, d, clamp(ray.z, hiZ_minmax.r, hiZ_minmax.g)); // TODO understand and maybe switch to only min
-        //vec3 tmpRay = intersectPlane(o, d, min(max(ray.z, hiZ_minmax.r), hiZ_minmax.g));
-        vec3 tmpRay = intersectPlane(o, d, max(ray.z, hiZ_minmax.r));
+        vec3 tmpRay = intersectPlane(o, d, min(max(ray.z, hiZ_minmax.r), hiZ_minmax.g+ (0.0001 - 0.00001 * currentLevel)));
+        // tmpRay = intersectPlane(o, d, max(ray.z, hiZ_minmax.r));
 
         if(ray.z >= hiZ_minmax.r && ray.z <= hiZ_minmax.g){
            // return ray;

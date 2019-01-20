@@ -4,7 +4,7 @@ layout (location = 0) out vec4 gPosition;
 layout (location = 1) out vec3 gNormal;
 layout (location = 2) out vec4 gAlbedoRoughness;
 layout (location = 3) out vec4 gEmissionMetallic;
-layout (location = 4) out float gLinearDepth;
+layout (location = 4) out vec2 gLinearDepth;
 
 in vec3 vNorm;
 in vec3 vPos;
@@ -45,6 +45,7 @@ uniform struct Material {
 	float roughness;
 	float metallic;
 	vec3 emission; // (vec3(0) = no glow)
+	float reflection;
 } material;
 
 //uniform vec3 cameraPosition;
@@ -59,7 +60,7 @@ void main() {
     gPosition = vec4(vPos, gl_FragCoord.z);
     gPosition.a = LinearDepth;
   //  gLinearDepth = LinearDepth;
-    gLinearDepth = gl_FragCoord.z;
+    gLinearDepth.r = gl_FragCoord.z;
 
     // per-fragment normals
     gNormal = normalize(vNorm);
@@ -105,7 +106,7 @@ void main() {
     else
         gGlow = vec4(0.0, 0.0, 0.0, 0.0);*/
 
-
+    gLinearDepth.g = material.reflection;
     //Cubemap Reflections (only glossy)
     if (useSkyboxTexture) { //false &&
         float roughnessFactor = gAlbedoRoughness.a;

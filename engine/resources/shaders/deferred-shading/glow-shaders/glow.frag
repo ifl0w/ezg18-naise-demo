@@ -42,8 +42,8 @@ vec4 gaussianBlur() {
             result += texture(emissionInput, normalizedTexCoords).rgb * weight[i];
         }
     }
-
-    return vec4(result, 0.0);
+    //TODO blur alpha too
+    return vec4(result, texture(emissionInput, normalizedTexCoords).a);
 }
 
 void main()

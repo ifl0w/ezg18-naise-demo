@@ -31,6 +31,8 @@
 #include "shaders/GlowShader.hpp"
 #include "shaders/ScreenSpaceReflectionsShader.hpp"
 #include "shaders/HiZShader.hpp"
+#include "shaders/BilateralBlurShader.hpp"
+#include "shaders/BlendingShader.hpp"
 
 #include "text/TextRenderer.hpp"
 #include "text/Glyph.hpp"
@@ -120,6 +122,11 @@ private:
 	std::unique_ptr<PostProcessingTarget> bloomTarget;
 	glm::vec2 bloomTextureSize;
 
+	std::unique_ptr<PostProcessingTarget> blurTarget;
+	glm::vec2 blurTextureSize;
+
+    std::unique_ptr<PostProcessingTarget> blendingTarget;
+
 	std::unique_ptr<PostProcessingTarget> combineTarget;
 	std::unique_ptr<PostProcessingTarget> lightTarget;
 	std::unique_ptr<PostProcessingTarget> motionBlurTarget;
@@ -145,6 +152,8 @@ private:
 	SolidColorShader solidColorShader; // used for debugging
 	GlowShader glowShader;
 	HiZShader hiZShader;
+	BilateralBlurShader bilateralBlurShader;
+    BlendingShader blendingShader;
 	Shader hdrShader = Shader("engine/resources/shaders/post-processing/quad.vert", "engine/resources/shaders/post-processing/hdr.frag");
 
 

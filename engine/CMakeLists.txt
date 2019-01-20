@@ -231,7 +231,7 @@ add_library(engine STATIC ${SRC_FILES} ${IMGUI_FILES}
         include/systems/render-engine/shadow-map/Cascade.hpp
         include/systems/render-engine/post-processing/HDRPass.cpp include/systems/render-engine/post-processing/HDRPass.hpp
         src/systems/debugging/DebugInputMapper.cpp include/systems/debugging/DebugInputMapper.hpp
-        src/systems/debugging/DebugSystem.cpp include/systems/debugging/DebugSystem.hpp)
+        src/systems/debugging/DebugSystem.cpp include/systems/debugging/DebugSystem.hpp src/systems/render-engine/shaders/BilateralBlurShader.cpp include/systems/render-engine/shaders/BilateralBlurShader.hpp include/systems/render-engine/shaders/BlendingShader.hpp src/systems/render-engine/shaders/BlendingShader.cpp)
 
 target_include_directories(engine PUBLIC
         external/spdlog/include

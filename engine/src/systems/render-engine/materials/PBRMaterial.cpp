@@ -1,6 +1,7 @@
 #include <systems/render-engine/materials/PBRMaterial.hpp>
 #include <systems/render-engine/materials/shaders/PBRShader.hpp>
 #include <Resources.hpp>
+#include <Engine.hpp>
 
 using namespace NAISE::RenderCore;
 
@@ -17,6 +18,7 @@ PBRMaterial::PBRMaterial(vec3 albedo, float metallic, float roughness)
 	this->materialRoughnessLocation = uniformLocation(shader->shaderID, "material.roughness");
 	this->materialMetallicLocation = uniformLocation(shader->shaderID, "material.metallic");
 	this->materialEmissionLocation = uniformLocation(shader->shaderID, "material.emission");
+	this->materialReflectionLocation = uniformLocation(shader->shaderID, "material.reflection");
 
 	this->albedoTextureLocation = uniformLocation(shader->shaderID, "albedoTexture");
 	this->useAlbedoTextureLocation = uniformLocation(shader->shaderID, "useAlbedoTexture");
@@ -38,6 +40,7 @@ void PBRMaterial::useMaterial() const {
 	glUniform1f(this->materialRoughnessLocation, roughness);
 	glUniform1f(this->materialMetallicLocation, metallic);
 	glUniform3fv(this->materialEmissionLocation, 1, glm::value_ptr(glow));
+	glUniform1f(this->materialReflectionLocation, reflection);
 	glUniform1i(this->useWatermeshAnimationLocation, false);
 
 	if (albedoTexture) {
@@ -116,6 +119,18 @@ PBRMaterial::PBRMaterial(const tinygltf::Material& material, const tinygltf::Mod
 		roughness = 1.0;
 		// swollow
 	}
+
+    try {
+        if(material.extras.IsObject() && material.extras.Has("screenspacereflections")){
+            auto factor = material.extras.Get("screenspacereflections").Get<int>();
+            reflection = (float)factor;
+        } else {
+            reflection = 0.0;
+        }
+    } catch (...) {
+        reflection = 0.0;
+        // swollow
+    }
 
 	try {
 		auto gltfTexture = material.values.at("metallicRoughnessTexture");

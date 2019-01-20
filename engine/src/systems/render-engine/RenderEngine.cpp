@@ -21,14 +21,20 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	deferredTarget = make_unique<DeferredRenderTarget>(viewportWidth, viewportHeight, multiSampling);
 
 	hiZTarget = make_unique<HiZRenderTarget>(viewportWidth, viewportHeight, multiSampling);
+    blendingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 
 	hdrpass = make_unique<HDRPass>(viewportWidth, viewportHeight);
 
 	glowTextureSize = ivec2(viewportWidth, viewportHeight) / 2;
 	postProcessingTarget = make_unique<PostProcessingTarget>(glowTextureSize.x, glowTextureSize.y, multiSampling);
 
+    blurTextureSize = ivec2(viewportWidth, viewportHeight) / 4;
+    blurTarget = make_unique<PostProcessingTarget>(blurTextureSize.x, blurTextureSize.y, multiSampling);
+
 	bloomTextureSize = ivec2(viewportWidth, viewportHeight) / 4;
 	bloomTarget = make_unique<PostProcessingTarget>(bloomTextureSize.x, bloomTextureSize.y, multiSampling);
+
+    blendingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 	hdrTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
@@ -127,8 +133,10 @@ void RenderEngine::setViewportSize(int width, int height) {
 
 	postProcessingTarget = make_unique<PostProcessingTarget>(glowTextureSize.x, glowTextureSize.y, multiSampling);
 	bloomTarget = make_unique<PostProcessingTarget>(bloomTextureSize.x, bloomTextureSize.y, multiSampling);
+	blurTarget = make_unique<PostProcessingTarget>(blurTextureSize.x, blurTextureSize.y, multiSampling);
+    blendingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 
-	hiZTarget = make_unique<HiZRenderTarget>(viewportWidth, viewportHeight, multiSampling);
+    hiZTarget = make_unique<HiZRenderTarget>(viewportWidth, viewportHeight, multiSampling);
 	screenSpaceReflectionTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 
 	lightTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
@@ -147,6 +155,8 @@ void RenderEngine::setMultiSampling(int sampling) {
 
 	postProcessingTarget = make_unique<PostProcessingTarget>(glowTextureSize.x, glowTextureSize.y, multiSampling);
 	bloomTarget = make_unique<PostProcessingTarget>(bloomTextureSize.x, bloomTextureSize.y, multiSampling);
+    blurTarget = make_unique<PostProcessingTarget>(blurTextureSize.x, blurTextureSize.y, multiSampling);
+    blendingTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 
 	hiZTarget = make_unique<HiZRenderTarget>(viewportWidth, viewportHeight, multiSampling);
 	screenSpaceReflectionTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
@@ -283,12 +293,13 @@ void RenderEngine::screenSpaceReflectionPass(){
     for (int i = 1; i < levels; i++) {
         //viewport must always be greater than 0 NPOT
 		vec2 offset;
-		offset.x = (currentWidth  % 2 == 0 ? 1 : 2);
-		offset.y = (currentHeight % 2 == 0 ? 1 : 2);
+
         currentWidth = (int)(currentWidth*0.5) > 0 ? (int)(currentWidth*0.5) : 1;
         currentHeight = (int)(currentHeight*0.5) > 0 ? (int)(currentHeight*0.5) : 1;
         glUniform2i(glGetUniformLocation(hiZShader.shaderID, "lastSize"), currentWidth, currentHeight);
         glViewport(0, 0, currentWidth, currentHeight);
+		offset.x = (currentWidth  % 2 == 0 ? 1 : 2);
+		offset.y = (currentHeight % 2 == 0 ? 1 : 2);
 
 
         glUniform2i(glGetUniformLocation(hiZShader.shaderID, "offset"), offset.x, offset.y);
@@ -344,8 +355,135 @@ void RenderEngine::screenSpaceReflectionPass(){
 
 	drawMeshDirect(quad);
 
+
+
+
+
+
+
+
+	//TODO don't write into depth buffer
+	glDisable(GL_DEPTH_TEST);
+	glViewport(0, 0, blurTarget->width, blurTarget->height);
+	//TODO set uniformbuffer opject for glowTexture-size in glowShader instead of setting it by overwriting the viewport
+	int tmpViewportWidth = viewportWidth;
+	int tmpViewportHeight = viewportHeight;
+	viewportWidth = blurTarget->width;
+	viewportHeight = blurTarget->height;
+	setScreenData();
+
+	/** BLUR STEPS **/
+	blurTarget->use();
+	GLenum attachmentpoints[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+
+	//first blur step (horizontal)
+	//reading from gEmissionMetallic and writing to input (GL_COLOR_ATTACHMENT0)
+	glDrawBuffer(attachmentpoints[0]);
+	glowShader.useShader();
+	glowShader.setHorizontalUnit(true);
+	glowShader.setTextureUnit(hiZTarget->output);
+	glowShader.setModelMatrix(mat4(1.0));
+	drawMeshDirect(quad);
+
+	//second blur step (vertical)
+	//reading from input and writing to output (GL_COLOR_ATTACHMENT1)
+	glDrawBuffer(attachmentpoints[1]);
+	glowShader.useShader();
+	glowShader.setHorizontalUnit(false);
+	glowShader.setTextureUnit(blurTarget->input);
+	glowShader.setModelMatrix(mat4(1.0));
+	drawMeshDirect(quad);
+
+	//bind input
+	glDrawBuffer(attachmentpoints[0]);
+
+	//TODO: use a blend shader instead of misusing the old debug shader
+	viewportWidth = tmpViewportWidth;
+	viewportHeight = tmpViewportHeight;
+	setScreenData();
+	glViewport(0, 0, viewportWidth, viewportHeight);
+//	textureDebugShader.useShader();
+//	textureDebugShader.setTextureUnit(hdrTarget->output);
+//	textureDebugShader.setModelMatrix(mat4(1));
+
+
+
+
+
+	blendingTarget->use();
+	blendingShader.useShader();
+	glDisable(GL_DEPTH_TEST);
+
+	blendingShader.setModelMatrix(mat4(1.0));
+
+	glUniform1i(glGetUniformLocation(blendingShader.shaderID, "image"), 15);
+	glActiveTexture(GL_TEXTURE0 + 15);
+	glBindTexture(GL_TEXTURE_2D,  hdrTarget->output);
+
+	glUniform1i(glGetUniformLocation(blendingShader.shaderID, "reflection"), 14);
+	glActiveTexture(GL_TEXTURE0 + 14);
+	glBindTexture(GL_TEXTURE_2D, blurTarget->output);
+
+	drawMeshDirect(quad);
+	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);
+
+
+
+
+
+
+
+
+
+  /*  glViewport(0, 0, postProcessingTarget->width, postProcessingTarget->height);
+    //TODO set uniformbuffer opject for glowTexture-size in glowShader instead of setting it by overwriting the viewport
+    int tmpViewportWidth = viewportWidth;
+    int tmpViewportHeight = viewportHeight;
+    viewportWidth = postProcessingTarget->width;
+    viewportHeight = postProcessingTarget->height;
+    setScreenData();
+
+	postProcessingTarget->use();
+    GLenum attachments[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+    glDrawBuffers(2, attachments);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
+
+    bilateralBlurShader.useShader();
+  //  glDrawBuffer(attachments[0]);
+
+	glUniform1i(glGetUniformLocation(bilateralBlurShader.shaderID, "texture"), 13);
+	glActiveTexture(GL_TEXTURE0 + 13);
+	glBindTexture(GL_TEXTURE_2D, hiZTarget->output);
+
+	//vec2 viewSize = vec2(viewportWidth, viewportHeight);
+	//glUniform2i(glGetUniformLocation(bilateralBlurShader.shaderID, "sketchSize"), viewSize.x, viewSize.y);
+
+    glDepthMask(GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
+
+    bilateralBlurShader.setModelMatrix(mat4(1.0));
+
+
+    drawMeshDirect(quad);
+
+   // bilateralBlurShader.useShader();
+   // glDrawBuffer(attachments[1]);
+   // bilateralBlurShader.setModelMatrix(mat4(1.0));
+    glUniform1i(glGetUniformLocation(bilateralBlurShader.shaderID, "texture"), 13);
+    glActiveTexture(GL_TEXTURE0 + 13);
+    glBindTexture(GL_TEXTURE_2D, postProcessingTarget->input);
+    drawMeshDirect(quad);
+    viewportWidth = tmpViewportWidth;
+    viewportHeight = tmpViewportHeight;
+    setScreenData();
+    glViewport(0, 0, viewportWidth, viewportHeight);
+    //glDrawBuffer(attachments[0]);
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);*/
 }
 
 void RenderEngine::drawMeshDirect(const Mesh& mesh) {
@@ -488,7 +626,7 @@ void RenderEngine::hdrPass(float deltaTime) {
 
 void RenderEngine::resolveFrameBufferObject() {
 	//auto lastFrameBuffer = motionBlurTarget.get();
-	auto lastFrameBuffer = hiZTarget.get();//screenSpaceReflectionTarget.get();
+	auto lastFrameBuffer = blendingTarget.get();//blurTarget.get();//hiZTarget //screenSpaceReflectionTarget.get();
 
 
 	deferredTarget->retrieveDepthBuffer((GLuint) 0);

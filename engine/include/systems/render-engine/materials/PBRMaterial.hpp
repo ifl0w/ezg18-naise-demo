@@ -25,6 +25,7 @@ public:
 	vec3 albedo;
 	float roughness = 0.3;
 	float metallic = 0.0;
+	float reflection = 0.0;
 	vec3 glow = vec3(0); // color (vec3(0) = now glow)
 
 	std::shared_ptr<Texture> albedoTexture;
@@ -41,6 +42,7 @@ private:
 	GLint materialRoughnessLocation = -1;
 	GLint materialMetallicLocation = -1;
 	GLint materialEmissionLocation = -1;
+	GLint materialReflectionLocation = -1;
 
 	GLint useWatermeshAnimationLocation = -1;
 
