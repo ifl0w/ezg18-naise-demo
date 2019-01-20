@@ -31,7 +31,6 @@
 #include "shaders/GlowShader.hpp"
 #include "shaders/ScreenSpaceReflectionsShader.hpp"
 #include "shaders/HiZShader.hpp"
-#include "shaders/BilateralBlurShader.hpp"
 #include "shaders/BlendingShader.hpp"
 
 #include "text/TextRenderer.hpp"
@@ -152,7 +151,6 @@ private:
 	SolidColorShader solidColorShader; // used for debugging
 	GlowShader glowShader;
 	HiZShader hiZShader;
-	BilateralBlurShader bilateralBlurShader;
     BlendingShader blendingShader;
 	Shader hdrShader = Shader("engine/resources/shaders/post-processing/quad.vert", "engine/resources/shaders/post-processing/hdr.frag");
 
