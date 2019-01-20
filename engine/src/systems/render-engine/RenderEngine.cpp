@@ -28,7 +28,7 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	glowTextureSize = ivec2(viewportWidth, viewportHeight) / 2;
 	postProcessingTarget = make_unique<PostProcessingTarget>(glowTextureSize.x, glowTextureSize.y, multiSampling);
 
-    blurTextureSize = ivec2(viewportWidth, viewportHeight) / 4;
+    blurTextureSize = ivec2(viewportWidth, viewportHeight) / 2;
     blurTarget = make_unique<PostProcessingTarget>(blurTextureSize.x, blurTextureSize.y, multiSampling);
 
 	bloomTextureSize = ivec2(viewportWidth, viewportHeight) / 4;
@@ -355,13 +355,6 @@ void RenderEngine::screenSpaceReflectionPass(){
 
 	drawMeshDirect(quad);
 
-
-
-
-
-
-
-
 	//TODO don't write into depth buffer
 	glDisable(GL_DEPTH_TEST);
 	glViewport(0, 0, blurTarget->width, blurTarget->height);
@@ -402,13 +395,6 @@ void RenderEngine::screenSpaceReflectionPass(){
 	viewportHeight = tmpViewportHeight;
 	setScreenData();
 	glViewport(0, 0, viewportWidth, viewportHeight);
-//	textureDebugShader.useShader();
-//	textureDebugShader.setTextureUnit(hdrTarget->output);
-//	textureDebugShader.setModelMatrix(mat4(1));
-
-
-
-
 
 	blendingTarget->use();
 	blendingShader.useShader();
@@ -428,62 +414,6 @@ void RenderEngine::screenSpaceReflectionPass(){
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 
-
-
-
-
-
-
-
-
-  /*  glViewport(0, 0, postProcessingTarget->width, postProcessingTarget->height);
-    //TODO set uniformbuffer opject for glowTexture-size in glowShader instead of setting it by overwriting the viewport
-    int tmpViewportWidth = viewportWidth;
-    int tmpViewportHeight = viewportHeight;
-    viewportWidth = postProcessingTarget->width;
-    viewportHeight = postProcessingTarget->height;
-    setScreenData();
-
-	postProcessingTarget->use();
-    GLenum attachments[2] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-    glDrawBuffers(2, attachments);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glDepthMask(GL_FALSE);
-	glDisable(GL_DEPTH_TEST);
-
-    bilateralBlurShader.useShader();
-  //  glDrawBuffer(attachments[0]);
-
-	glUniform1i(glGetUniformLocation(bilateralBlurShader.shaderID, "texture"), 13);
-	glActiveTexture(GL_TEXTURE0 + 13);
-	glBindTexture(GL_TEXTURE_2D, hiZTarget->output);
-
-	//vec2 viewSize = vec2(viewportWidth, viewportHeight);
-	//glUniform2i(glGetUniformLocation(bilateralBlurShader.shaderID, "sketchSize"), viewSize.x, viewSize.y);
-
-    glDepthMask(GL_FALSE);
-    glDisable(GL_DEPTH_TEST);
-
-    bilateralBlurShader.setModelMatrix(mat4(1.0));
-
-
-    drawMeshDirect(quad);
-
-   // bilateralBlurShader.useShader();
-   // glDrawBuffer(attachments[1]);
-   // bilateralBlurShader.setModelMatrix(mat4(1.0));
-    glUniform1i(glGetUniformLocation(bilateralBlurShader.shaderID, "texture"), 13);
-    glActiveTexture(GL_TEXTURE0 + 13);
-    glBindTexture(GL_TEXTURE_2D, postProcessingTarget->input);
-    drawMeshDirect(quad);
-    viewportWidth = tmpViewportWidth;
-    viewportHeight = tmpViewportHeight;
-    setScreenData();
-    glViewport(0, 0, viewportWidth, viewportHeight);
-    //glDrawBuffer(attachments[0]);
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);*/
 }
 
 void RenderEngine::drawMeshDirect(const Mesh& mesh) {

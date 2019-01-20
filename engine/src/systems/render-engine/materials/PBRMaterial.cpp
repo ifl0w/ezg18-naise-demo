@@ -121,8 +121,8 @@ PBRMaterial::PBRMaterial(const tinygltf::Material& material, const tinygltf::Mod
 	}
 
     try {
-        if(material.extras.IsObject() && material.extras.Has("screenspacereflections")){
-            auto factor = material.extras.Get("screenspacereflections").Get<int>();
+        if(material.extras.IsObject() && material.extras.Has("prop")){
+            auto factor = material.extras.Get("prop").Get<int>();
             reflection = (float)factor;
         } else {
             reflection = 0.0;
