@@ -543,9 +543,7 @@ void RenderEngine::hdrPass(float deltaTime) {
 }
 
 void RenderEngine::resolveFrameBufferObject() {
-	//auto lastFrameBuffer = motionBlurTarget.get();
-	auto lastFrameBuffer = blendingTarget.get();//blurTarget.get();//hiZTarget //screenSpaceReflectionTarget.get();
-
+	auto lastFrameBuffer = motionBlurTarget.get();
 
 	deferredTarget->retrieveDepthBuffer((GLuint) 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -554,7 +552,7 @@ void RenderEngine::resolveFrameBufferObject() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// enable gamma correction
-	//glEnable(GL_FRAMEBUFFER_SRGB);
+	glEnable(GL_FRAMEBUFFER_SRGB);
 
 	textureDebugShader.useShader();
 	textureDebugShader.setTextureUnit(lastFrameBuffer->output);
@@ -908,7 +906,7 @@ void RenderEngine::motionBlurPass(float deltaTime, glm::mat4 previousViewMatrix,
 					   value_ptr(previousProjectionMatrix));
 
 	glActiveTexture(GL_TEXTURE0 + 0);
-	glBindTexture(GL_TEXTURE_2D, screenSpaceReflectionTarget->output);
+	glBindTexture(GL_TEXTURE_2D, blendingTarget->output);
 
 	glBindImageTexture(0, deferredTarget->gPosition, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F); // current position
 
