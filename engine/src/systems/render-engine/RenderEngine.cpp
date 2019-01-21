@@ -291,18 +291,10 @@ void RenderEngine::screenSpaceReflectionPass(){
 
 
     for (int i = 1; i < levels; i++) {
-        //viewport must always be greater than 0 NPOT
-		vec2 offset;
-
         currentWidth = (int)(currentWidth*0.5) > 0 ? (int)(currentWidth*0.5) : 1;
         currentHeight = (int)(currentHeight*0.5) > 0 ? (int)(currentHeight*0.5) : 1;
         glUniform2i(glGetUniformLocation(hiZShader.shaderID, "lastSize"), currentWidth, currentHeight);
         glViewport(0, 0, currentWidth, currentHeight);
-		offset.x = (currentWidth  % 2 == 0 ? 1 : 2);
-		offset.y = (currentHeight % 2 == 0 ? 1 : 2);
-
-
-        glUniform2i(glGetUniformLocation(hiZShader.shaderID, "offset"), offset.x, offset.y);
         // lookup in shader on level i-1
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, i-1);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i-1);
@@ -316,10 +308,6 @@ void RenderEngine::screenSpaceReflectionPass(){
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, hiZTarget->gLinearDepth, 0);
     glViewport(0, 0, viewportWidth, viewportHeight);
 
-
-/*	hiZTarget->use();
-	glDepthMask(GL_FALSE);
-	glDisable(GL_DEPTH_TEST);*/
 	screenSpaceReflectionsShader.useShader();
 	screenSpaceReflectionsShader.setModelMatrix(mat4(1.0));
 
