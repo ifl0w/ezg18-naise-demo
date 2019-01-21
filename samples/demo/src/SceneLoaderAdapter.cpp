@@ -6,6 +6,7 @@
 #include <components/RigidBodyComponent.hpp>
 #include <components/TransformComponent.hpp>
 #include <components/CameraComponent.hpp>
+#include <components/AnimationComponent.hpp>
 
 #include <LinearMath/btDefaultMotionState.h>
 #include <BulletCollision/CollisionShapes/btConvexHullShape.h>
@@ -84,15 +85,19 @@ bool SceneLoaderAdapter::handleTrigger(shared_ptr<Entity> entity, shared_ptr<Ent
 
 bool SceneLoaderAdapter::handleCamera(shared_ptr<Entity> entity, const tinygltf::Node& node,
 									  const tinygltf::Model& model) {
-	if (node.extras.IsObject() && node.extras.Has("next")) {
-		auto sceneEntities = GLTFLoader::loadModel(node.extras.Get("path").Get<std::string>());
-	} else {
-		NAISE_WARN_CONSOL("CAMERA tag without property 'next' will be ignored.")
-		return false;
+
+	std::string positionStr = node.name.substr(CAMERA_ID.size());
+	int position = std::stoi(positionStr);
+	auto camera = entity->get<CameraComponent>();
+	auto animation = entity->get<TransformAnimationComponent>();
+
+	if (camera != nullptr) {
+		cameraSequence[position].first = entity->id;
 	}
 
-	double switchTime = node.extras.Get("next").Get<double>();
-	cameraMap[switchTime] = entity->id;
+	if (animation != nullptr) {
+		cameraSequence[position].second = entity->id;
+	}
 
 	return false;
 }

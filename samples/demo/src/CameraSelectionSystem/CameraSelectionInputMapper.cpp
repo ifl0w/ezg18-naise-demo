@@ -1,4 +1,5 @@
 #include "CameraSelectionInputMapper.hpp"
+#include "DemoEvents.hpp"
 
 #include <Engine.hpp>
 #include <systems/PhysicsSystem.hpp>
@@ -12,27 +13,15 @@ void CameraSelectionInputMapper::handleEvent(const SDL_Event& event) {
 	case SDL_KEYUP: {
 		switch (event.key.keysym.sym) {
 		case SDLK_SPACE: {
-			auto entities = Engine::getEntityManager().getEntities<CameraSignature>();
-			int activeIdx = 0;
-
-			for (int i = 0; i < entities.size(); ++i) {
-				auto& camComp = entities[i]->component<CameraComponent>();
-
-				if (camComp.active) {
-					activeIdx = i;
-				}
-
-				camComp.active = false;
-			}
-
-			if (activeIdx == entities.size() - 1) {
-				activeIdx = 0;
-			} else {
-				activeIdx++;
-			}
-
-			entities[activeIdx]->component<CameraComponent>().active = true;
-
+			Engine::getEventManager().event<CameraEvents::ToggleDebugCamera>().emit();
+			break;
+		}
+		case SDLK_BACKSPACE: {
+			Engine::getEventManager().event<CameraEvents::RestartDemo>().emit();
+			break;
+		}
+		case SDLK_F1: {
+			Engine::getEventManager().event<CameraEvents::PauseDemo>().emit();
 			break;
 		}
 		default:

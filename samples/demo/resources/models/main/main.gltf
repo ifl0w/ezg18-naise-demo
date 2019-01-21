@@ -79,9 +79,9 @@
         {
             "bufferView" : 9,
             "componentType" : 5126,
-            "count" : 62581,
+            "count" : 149820,
             "max" : [
-                17.383333333323
+                41.6163888889586
             ],
             "min" : [
                 0
@@ -91,15 +91,15 @@
         {
             "bufferView" : 10,
             "componentType" : 5126,
-            "count" : 62581,
+            "count" : 149820,
             "type" : "VEC3"
         },
         {
             "bufferView" : 11,
             "componentType" : 5126,
-            "count" : 35161,
+            "count" : 149820,
             "max" : [
-                9.766666666663262
+                41.6163888889586
             ],
             "min" : [
                 0
@@ -109,7 +109,79 @@
         {
             "bufferView" : 12,
             "componentType" : 5126,
-            "count" : 35161,
+            "count" : 149820,
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 13,
+            "componentType" : 5126,
+            "count" : 2,
+            "max" : [
+                11.616666666666667
+            ],
+            "min" : [
+                0
+            ],
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 14,
+            "componentType" : 5126,
+            "count" : 2,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 15,
+            "componentType" : 5126,
+            "count" : 2,
+            "max" : [
+                11.616666666666667
+            ],
+            "min" : [
+                0
+            ],
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 16,
+            "componentType" : 5126,
+            "count" : 2,
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 17,
+            "componentType" : 5126,
+            "count" : 2,
+            "max" : [
+                56.61666666666667
+            ],
+            "min" : [
+                41.733333333333334
+            ],
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 18,
+            "componentType" : 5126,
+            "count" : 2,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 19,
+            "componentType" : 5126,
+            "count" : 2,
+            "max" : [
+                56.61666666666667
+            ],
+            "min" : [
+                41.733333333333334
+            ],
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 20,
+            "componentType" : 5126,
+            "count" : 2,
             "type" : "VEC4"
         }
     ],
@@ -131,7 +203,7 @@
                     }
                 }
             ],
-            "name" : "EmptyAction",
+            "name" : "LuminarisMovement",
             "samplers" : [
                 {
                     "input" : 5,
@@ -162,7 +234,7 @@
                     }
                 }
             ],
-            "name" : "CameraAction",
+            "name" : "Camera1_track",
             "samplers" : [
                 {
                     "input" : 9,
@@ -173,6 +245,68 @@
                     "input" : 11,
                     "interpolation" : "STEP",
                     "output" : 12
+                }
+            ]
+        },
+        {
+            "channels" : [
+                {
+                    "sampler" : 0,
+                    "target" : {
+                        "node" : 11,
+                        "path" : "translation"
+                    }
+                },
+                {
+                    "sampler" : 1,
+                    "target" : {
+                        "node" : 11,
+                        "path" : "rotation"
+                    }
+                }
+            ],
+            "name" : "camera_0_track",
+            "samplers" : [
+                {
+                    "input" : 13,
+                    "interpolation" : "LINEAR",
+                    "output" : 14
+                },
+                {
+                    "input" : 15,
+                    "interpolation" : "LINEAR",
+                    "output" : 16
+                }
+            ]
+        },
+        {
+            "channels" : [
+                {
+                    "sampler" : 0,
+                    "target" : {
+                        "node" : 13,
+                        "path" : "translation"
+                    }
+                },
+                {
+                    "sampler" : 1,
+                    "target" : {
+                        "node" : 13,
+                        "path" : "rotation"
+                    }
+                }
+            ],
+            "name" : "CAMERA::2Action",
+            "samplers" : [
+                {
+                    "input" : 17,
+                    "interpolation" : "LINEAR",
+                    "output" : 18
+                },
+                {
+                    "input" : 19,
+                    "interpolation" : "LINEAR",
+                    "output" : 20
                 }
             ]
         }
@@ -229,34 +363,92 @@
         },
         {
             "buffer" : 0,
-            "byteLength" : 250324,
+            "byteLength" : 599280,
             "byteOffset" : 203708
         },
         {
             "buffer" : 0,
-            "byteLength" : 750972,
-            "byteOffset" : 454032
+            "byteLength" : 1797840,
+            "byteOffset" : 802988
         },
         {
             "buffer" : 0,
-            "byteLength" : 140644,
-            "byteOffset" : 1205004
+            "byteLength" : 599280,
+            "byteOffset" : 2600828
         },
         {
             "buffer" : 0,
-            "byteLength" : 562576,
-            "byteOffset" : 1345648
+            "byteLength" : 2397120,
+            "byteOffset" : 3200108
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 8,
+            "byteOffset" : 5597228
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 24,
+            "byteOffset" : 5597236
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 8,
+            "byteOffset" : 5597260
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 32,
+            "byteOffset" : 5597268
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 8,
+            "byteOffset" : 5597300
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 24,
+            "byteOffset" : 5597308
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 8,
+            "byteOffset" : 5597332
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 32,
+            "byteOffset" : 5597340
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 1908224,
+            "byteLength" : 5597372,
             "uri" : "main.bin"
         }
     ],
     "cameras" : [
         {
             "name" : "Camera",
+            "perspective" : {
+                "yfov" : 0.39959652046304894,
+                "zfar" : 1000,
+                "znear" : 0.10000000149011612
+            },
+            "type" : "perspective"
+        },
+        {
+            "name" : "Camera.002",
+            "perspective" : {
+                "yfov" : 0.39959652046304894,
+                "zfar" : 1000,
+                "znear" : 0.10000000149011612
+            },
+            "type" : "perspective"
+        },
+        {
+            "name" : "Camera.001",
             "perspective" : {
                 "yfov" : 0.39959652046304894,
                 "zfar" : 1000,
@@ -391,17 +583,77 @@
             "children" : [
                 8
             ],
+            "extras" : {
+                "next" : 20
+            },
             "name" : "CAMERA::1",
             "rotation" : [
                 0.0009789016330614686,
                 0.7144913077354431,
-                -0.6996428966522217,
+                -0.6996429562568665,
                 0.0009994705906137824
             ],
             "translation" : [
                 -6.172378063201904,
                 20.839067459106445,
                 -60.21263885498047
+            ]
+        },
+        {
+            "camera" : 1,
+            "name" : "CAMERA::0_Orientation",
+            "rotation" : [
+                -0.7071067690849304,
+                0,
+                0,
+                0.7071067690849304
+            ]
+        },
+        {
+            "children" : [
+                10
+            ],
+            "extras" : {
+                "next" : 10
+            },
+            "name" : "CAMERA::0",
+            "rotation" : [
+                0.20757056772708893,
+                -0.6562186479568481,
+                0.6987809538841248,
+                0.19492776691913605
+            ],
+            "translation" : [
+                2.6360888481140137,
+                20.04730224609375,
+                -124.33929443359375
+            ]
+        },
+        {
+            "camera" : 2,
+            "name" : "CAMERA::2_Orientation",
+            "rotation" : [
+                -0.7071067690849304,
+                0,
+                0,
+                0.7071067690849304
+            ]
+        },
+        {
+            "children" : [
+                12
+            ],
+            "name" : "CAMERA::2",
+            "rotation" : [
+                0.4087188243865967,
+                -0.572893500328064,
+                0.5910762548446655,
+                0.39417120814323425
+            ],
+            "translation" : [
+                -52.29840087890625,
+                9.255657196044922,
+                -19.120025634765625
             ]
         }
     ],
@@ -418,7 +670,9 @@
                 5,
                 6,
                 7,
-                9
+                9,
+                11,
+                13
             ]
         }
     ]

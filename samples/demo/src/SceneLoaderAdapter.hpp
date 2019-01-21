@@ -7,12 +7,15 @@
 
 using namespace NAISE::Engine;
 
+using CameraController = std::pair<EntityID, EntityID>;
+using CameraSequence = std::map<int, CameraController>;
+
 class SceneLoaderAdapter: public ModelLoaderAdapter {
 public:
 	bool adapt(shared_ptr<Entity> entity, shared_ptr<Entity> parent, const tinygltf::Node& node,
 			   const tinygltf::Model& model) override;
 
-	std::map<double, EntityID> cameraMap;
+	CameraSequence cameraSequence;
 private:
 	std::string LIGHT_ID = "LIGHT::";
 	std::string CAMERA_ID = "CAMERA::";

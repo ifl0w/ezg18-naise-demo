@@ -35,6 +35,7 @@
 #include "Demo.hpp"
 #include "SceneLoaderAdapter.hpp"
 #include "CameraSelectionSystem/CameraSelectionInputMapper.hpp"
+#include "CameraSelectionSystem/CameraSelectionSystem.hpp"
 
 #include "../../common/VisualDebugging/VisualDebuggingInputMapper.hpp"
 #include "../../common/FPSCameraSystem/FPSCameraInputMapper.hpp"
@@ -77,7 +78,7 @@ int main(int argc, char **argv) {
 
 	std::vector<std::string> paths = {posX, negX, posY, negY, posZ, negZ};
 	auto skybox = NAISE::Engine::Skybox(identifier, paths);
-	skybox.brightness = 6000;
+	skybox.brightness = 5000;
 	//skybox.setBackgroundColor(glm::vec3(1,0.95,0.9));
 	Engine::getSystemsManager().getSystem<RenderSystem>().setSkybox(skybox);
 
@@ -108,21 +109,6 @@ int main(int argc, char **argv) {
 	wall->add(MeshFactory::createBox(50, 10, 1));
 	wall->add(MaterialFactory::createMaterial<PBRMaterial>(vec3(0.2, 0.2, 0.2), 0, 0.6));
 	wall->add<ParentComponent>(box->id);
-
-	auto camera = make_shared<NAISE::Engine::Entity>();
-	camera->add<TransformComponent>();
-	camera->component<TransformComponent>().position = vec3(10, 10, 50);
-	camera->component<TransformComponent>().rotation = quat(vec3(radians<float>(5), radians<float>(30), radians<float>(0)));
-	camera->add<CameraComponent>();
-	camera->add<InputComponent>();
-	camera->add(RigidBodyFactory::createSphere(1, 0, vec3(0, 0, 0), true));
-	camera->component<InputComponent>().add<Actions::MoveForward>();
-	camera->component<InputComponent>().add<Actions::MoveBackward>();
-	camera->component<InputComponent>().add<Actions::MoveLeft>();
-	camera->component<InputComponent>().add<Actions::MoveRight>();
-	camera->component<InputComponent>().add<Actions::Sprint>();
-	camera->component<InputComponent>().add<Actions::MouseMotion>();
-	camera->component<InputComponent>().add<Actions::MouseGrab>();
 
 	auto sun = make_shared<NAISE::Engine::Entity>();
 	sun->add<TransformComponent>();
@@ -169,12 +155,10 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	Engine::getSystemsManager().registerSystem<CameraSelectionSystem>(loaderAdapter.cameraSequence);
+
 	Engine::getEntityManager().addEntity(platformParticles);
 	Engine::getEntityManager().addEntity(sun);
-	Engine::getEntityManager().addEntity(camera);
-	Engine::getEntityManager().addEntity(sphere);
-	Engine::getEntityManager().addEntity(box);
-	Engine::getEntityManager().addEntity(wall);
 
 	// setup video settings
 	initVideoSettings(config);
