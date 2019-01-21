@@ -5751,8 +5751,8 @@
         },
         {
             "mimeType" : "image/png",
-            "name" : "Walkway_BC - Kopie.png",
-            "uri" : "Walkway_BC - Kopie.png"
+            "name" : "Walkway_BC-Kopie.png",
+            "uri" : "Walkway_BC-Kopie.png"
         },
         {
             "mimeType" : "image/png",
@@ -5816,13 +5816,13 @@
         },
         {
             "mimeType" : "image/png",
-            "name" : "monitor Base Color.002",
-            "uri" : "monitor Base Color.png"
+            "name" : "monitorBaseColor.002",
+            "uri" : "monitorBaseColor.png"
         },
         {
             "mimeType" : "image/png",
-            "name" : "monitor Base Color.002",
-            "uri" : "monitor Base Color.png"
+            "name" : "monitorBaseColor.002",
+            "uri" : "monitorBaseColor.png"
         }
     ],
     "materials" : [
