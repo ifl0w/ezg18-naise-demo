@@ -71,8 +71,7 @@ void main() {
 //    float key = max(0, 1.5 - (1.5/(l_av * 0.1 + 1))) + 1;
 //    float l_scaled = key * l_col / l_av;
 
-//    float shutterSpeed = 0.01 / (l_av * 0.5);
-    float shutterSpeed = 0.001;
+    float shutterSpeed = 0.15 / (l_col);
     float exposure = shutterSpeed * l_col / l_av;
     vec3 col = ACESFilm(exposure * color);
     fragColor = vec4(min(col, vec3(1)), 1);
