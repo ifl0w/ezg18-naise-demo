@@ -345,49 +345,49 @@
     ],
     "images" : [
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "box_normal",
-            "uri" : "box_normal.png"
+            "uri" : "box_normal.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "box_diff",
-            "uri" : "box_diff.png"
+            "uri" : "box_diff.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "box_mr",
-            "uri" : "box_mr.png"
+            "uri" : "box_mr.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "belt_norm",
-            "uri" : "belt_norm.png"
+            "uri" : "belt_norm.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "belt_diff",
-            "uri" : "belt_diff.png"
+            "uri" : "belt_diff.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "belt_mr",
-            "uri" : "belt_mr.png"
+            "uri" : "belt_mr.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "base_norm",
-            "uri" : "base_norm.png"
+            "uri" : "base_norm.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "base_diff",
-            "uri" : "base_diff.png"
+            "uri" : "base_diff.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "base_mr",
-            "uri" : "base_mr.png"
+            "uri" : "base_mr.jpg"
         }
     ],
     "materials" : [

@@ -1157,64 +1157,64 @@
     ],
     "images" : [
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Image_11",
-            "uri" : "Image_11.png"
+            "uri" : "Image_11.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Image_9",
-            "uri" : "Image_9.png"
+            "uri" : "Image_9.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Image_10",
-            "uri" : "Image_10.png"
+            "uri" : "Image_10.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Image_2",
-            "uri" : "Image_2.png"
+            "uri" : "Image_2.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Image_0",
-            "uri" : "Image_0.png"
+            "uri" : "Image_0.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Image_1",
-            "uri" : "Image_1.png"
+            "uri" : "Image_1.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Image_5",
-            "uri" : "Image_5.png"
+            "uri" : "Image_5.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Image_3",
-            "uri" : "Image_3.png"
+            "uri" : "Image_3.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Image_4",
-            "uri" : "Image_4.png"
+            "uri" : "Image_4.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Image_8",
-            "uri" : "Image_8.png"
+            "uri" : "Image_8.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Image_6",
-            "uri" : "Image_6.png"
+            "uri" : "Image_6.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Image_7",
-            "uri" : "Image_7.png"
+            "uri" : "Image_7.jpg"
         }
     ],
     "materials" : [

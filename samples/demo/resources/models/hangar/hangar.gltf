@@ -5665,9 +5665,9 @@
             "uri" : "StationGround4k_BCAMdark.png"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Material.017 Normal.001",
-            "uri" : "Material.017 Normal.png"
+            "uri" : "Material.017 Normal.jpg"
         },
         {
             "mimeType" : "image/png",
@@ -5675,54 +5675,54 @@
             "uri" : "StationGround4k_BCAMdark.png"
         },
         {
-            "mimeType" : "image/png",
-            "name" : "Station_MR.png.001",
-            "uri" : "Station_MR.png.png"
+            "mimeType" : "image/jpg",
+            "name" : "Station_MR.jpg.001",
+            "uri" : "Station_MR.jpg.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "FloorendNormal",
-            "uri" : "FloorendNormal.png"
+            "uri" : "FloorendNormal.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "FloorendMetallic",
-            "uri" : "FloorendMetallic.png"
+            "uri" : "FloorendMetallic.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "FloorendBaseColor",
-            "uri" : "FloorendBaseColor.png"
+            "uri" : "FloorendBaseColor.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Base.001",
-            "uri" : "Base.png"
+            "uri" : "Base.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "MainWall4k",
-            "uri" : "MainWall4k.png"
+            "uri" : "MainWall4k.jpg"
         },
         {
-            "mimeType" : "image/png",
-            "name" : "VentBaseColor.png.002",
-            "uri" : "VentBaseColor.png.png"
+            "mimeType" : "image/jpg",
+            "name" : "VentBaseColor.jpg.002",
+            "uri" : "VentBaseColor.jpg.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Wall2",
-            "uri" : "Wall2.png"
+            "uri" : "Wall2.jpg"
         },
         {
-            "mimeType" : "image/png",
-            "name" : "StairwayBaseColor.png.002",
-            "uri" : "StairwayBaseColor.png.png"
+            "mimeType" : "image/jpg",
+            "name" : "StairwayBaseColor.jpg.002",
+            "uri" : "StairwayBaseColor.jpg.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Floor_Basis_Normal",
-            "uri" : "Floor_Basis_Normal.png"
+            "uri" : "Floor_Basis_Normal.jpg"
         },
         {
             "mimeType" : "image/png",
@@ -5731,98 +5731,98 @@
         },
         {
             "mimeType" : "image/png",
-            "name" : "Floor_Wet_RG.png",
-            "uri" : "Floor_Wet_RG.png"
+            "name" : "Floor_BCAMdark1.png",
+            "uri" : "Floor_BCAMdark1.png"
         },
         {
-            "mimeType" : "image/png",
-            "name" : "Port.001BaseColor.png",
-            "uri" : "Port.001BaseColor.png"
+            "mimeType" : "image/jpg",
+            "name" : "Port.001BaseColor.jpg",
+            "uri" : "Port.001BaseColor.jpg"
         },
         {
-            "mimeType" : "image/png",
-            "name" : "StairwayBaseColor.png",
-            "uri" : "StairwayBaseColor.png"
+            "mimeType" : "image/jpg",
+            "name" : "StairwayBaseColor.jpg",
+            "uri" : "StairwayBaseColor.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "WalkwayN",
-            "uri" : "WalkwayN.png"
+            "uri" : "WalkwayN.jpg"
         },
         {
-            "mimeType" : "image/png",
-            "name" : "Walkway_BC-Kopie.png",
-            "uri" : "Walkway_BC-Kopie.png"
+            "mimeType" : "image/jpg",
+            "name" : "Walkway_BC-Kopie.jpg",
+            "uri" : "Walkway_BC-Kopie.jpg"
         },
         {
-            "mimeType" : "image/png",
-            "name" : "Walkway_MR.png",
-            "uri" : "Walkway_MR.png"
+            "mimeType" : "image/jpg",
+            "name" : "Walkway_MR.jpg",
+            "uri" : "Walkway_MR.jpg"
         },
         {
-            "mimeType" : "image/png",
-            "name" : "railing_BC.png",
-            "uri" : "railing_BC.png"
+            "mimeType" : "image/jpg",
+            "name" : "railing_BC.jpg",
+            "uri" : "railing_BC.jpg"
         },
         {
-            "mimeType" : "image/png",
-            "name" : "StairwayBaseColor.png",
-            "uri" : "StairwayBaseColor.png"
+            "mimeType" : "image/jpg",
+            "name" : "StairwayBaseColor.jpg",
+            "uri" : "StairwayBaseColor.jpg"
         },
         {
-            "mimeType" : "image/png",
-            "name" : "Material.002BaseColor.png",
-            "uri" : "Material.002BaseColor.png"
+            "mimeType" : "image/jpg",
+            "name" : "Material.002BaseColor.jpg",
+            "uri" : "Material.002BaseColor.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "PlatformNormal",
-            "uri" : "PlatformNormal.png"
+            "uri" : "PlatformNormal.jpg"
         },
         {
-            "mimeType" : "image/png",
-            "name" : "PlatformBaseColor.png",
-            "uri" : "PlatformBaseColor.png"
+            "mimeType" : "image/jpg",
+            "name" : "PlatformBaseColor.jpg",
+            "uri" : "PlatformBaseColor.jpg"
         },
         {
-            "mimeType" : "image/png",
-            "name" : "PlatformRoughness.png",
-            "uri" : "PlatformRoughness.png"
+            "mimeType" : "image/jpg",
+            "name" : "PlatformRoughness.jpg",
+            "uri" : "PlatformRoughness.jpg"
         },
         {
-            "mimeType" : "image/png",
-            "name" : "PlatformBaseColor.png",
-            "uri" : "PlatformBaseColor.png"
+            "mimeType" : "image/jpg",
+            "name" : "PlatformBaseColor.jpg",
+            "uri" : "PlatformBaseColor.jpg"
         },
         {
-            "mimeType" : "image/png",
-            "name" : "StairwayBaseColor.png",
-            "uri" : "StairwayBaseColor.png"
+            "mimeType" : "image/jpg",
+            "name" : "StairwayBaseColor.jpg",
+            "uri" : "StairwayBaseColor.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Untitled",
-            "uri" : "Untitled.png"
+            "uri" : "Untitled.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Untitled",
-            "uri" : "Untitled.png"
+            "uri" : "Untitled.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "Stairway.003Roughness",
-            "uri" : "Stairway.png"
+            "uri" : "Stairway.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "monitorBaseColor.002",
-            "uri" : "monitorBaseColor.png"
+            "uri" : "monitorBaseColor.jpg"
         },
         {
-            "mimeType" : "image/png",
+            "mimeType" : "image/jpg",
             "name" : "monitorBaseColor.002",
-            "uri" : "monitorBaseColor.png"
+            "uri" : "monitorBaseColor.jpg"
         }
     ],
     "materials" : [
