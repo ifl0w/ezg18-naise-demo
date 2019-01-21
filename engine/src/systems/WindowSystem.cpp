@@ -30,7 +30,7 @@ WindowSystem::WindowSystem() {
 
 	// Create an application window with the following settings:
 	window = SDL_CreateWindow(
-			"An SDL2 window",                  // window title
+			"NAISE Engine",                  // window title
 			SDL_WINDOWPOS_UNDEFINED,           // initial x position
 			SDL_WINDOWPOS_UNDEFINED,           // initial y position
 			1024,                              // width, in pixels

@@ -752,7 +752,7 @@
                         1,
                         1
                     ],
-                    "intensity" : 250,
+                    "intensity" : 150,
                     "name" : "Point",
                     "type" : "point"
                 },
@@ -763,7 +763,7 @@
                         1,
                         1
                     ],
-                    "intensity" : 250,
+                    "intensity" : 150,
                     "name" : "Point.001",
                     "type" : "point"
                 }
