@@ -5666,8 +5666,8 @@
         },
         {
             "mimeType" : "image/jpg",
-            "name" : "Material.017 Normal.001",
-            "uri" : "Material.017 Normal.jpg"
+            "name" : "Material.017_Normal.001",
+            "uri" : "Material.017_Normal.jpg"
         },
         {
             "mimeType" : "image/png",
@@ -5676,8 +5676,8 @@
         },
         {
             "mimeType" : "image/jpg",
-            "name" : "Station_MR.jpg.001",
-            "uri" : "Station_MR.jpg.jpg"
+            "name" : "Station_MR.001",
+            "uri" : "Station_MR.jpg"
         },
         {
             "mimeType" : "image/jpg",
@@ -5706,8 +5706,8 @@
         },
         {
             "mimeType" : "image/jpg",
-            "name" : "VentBaseColor.jpg.002",
-            "uri" : "VentBaseColor.jpg.jpg"
+            "name" : "VentBaseColor.002",
+            "uri" : "VentBaseColor.jpg"
         },
         {
             "mimeType" : "image/jpg",
@@ -5717,7 +5717,7 @@
         {
             "mimeType" : "image/jpg",
             "name" : "StairwayBaseColor.jpg.002",
-            "uri" : "StairwayBaseColor.jpg.jpg"
+            "uri" : "StairwayBaseColor.jpg"
         },
         {
             "mimeType" : "image/jpg",
