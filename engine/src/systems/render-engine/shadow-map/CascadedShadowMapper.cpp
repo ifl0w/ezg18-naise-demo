@@ -6,10 +6,10 @@ using namespace NAISE::RenderCore;
 
 CascadedShadowMapper::CascadedShadowMapper() {
 	cascades = {
-			Cascade(vec2(1024 * 2,1024 * 2), vec2(0, 20)),
-			Cascade(vec2(1024 * 2,1024 * 2), vec2(20, 40)),
-			Cascade(vec2(1024 * 2,1024 * 2), vec2(40, 80)),
-			Cascade(vec2(1024 * 2,1024 * 2), vec2(80, 200))
+			Cascade(vec2(1024 * 2,1024 * 2), vec2(0, 40)),
+			Cascade(vec2(1024 * 2,1024 * 2), vec2(40, 100)),
+			Cascade(vec2(1024 * 2,1024 * 2), vec2(100, 250)),
+			Cascade(vec2(1024 * 2,1024 * 2), vec2(250, 1000))
 	};
 
 	for (int i = 0; i < cascades.size(); ++i) {
