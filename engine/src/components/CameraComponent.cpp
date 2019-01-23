@@ -68,7 +68,6 @@ AABB CameraComponent::calculateViewFrustrum() {
 
 void CameraComponent::setAspectRatio(int viewportWidth, int viewportHeight) {
 	this->aspectRatio = (double) viewportWidth / (double) viewportHeight;
-	this->fovY = fovY;
 	this->fovX = getFovX(fovY, aspectRatio);
 
 	projectionMatrix = perspectiveFov<double>(fovY, viewportWidth, viewportHeight, near, far);
