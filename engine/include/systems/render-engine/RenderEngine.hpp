@@ -71,6 +71,7 @@ public:
 	void motionBlurPass(float deltaTime, glm::mat4 previousViewMatrix, glm::mat4 previousProjectionMatrix);
 	void glowPass();
 	void gammaCorrection();
+	int fogPass(int inputTexture, const Light& light);
 	void screenSpaceReflectionPass();
 
 	void resolveFrameBufferObject();
@@ -130,6 +131,7 @@ private:
 	std::unique_ptr<PostProcessingTarget> lightTarget;
 	std::unique_ptr<PostProcessingTarget> motionBlurTarget;
 	std::unique_ptr<PostProcessingTarget> gammaTarget;
+	std::unique_ptr<PostProcessingTarget> fogTarget;
 
 	std::unique_ptr<HDRPass> hdrpass;
 
@@ -153,7 +155,7 @@ private:
 	HiZShader hiZShader;
     BlendingShader blendingShader;
 	Shader hdrShader = Shader("engine/resources/shaders/post-processing/quad.vert", "engine/resources/shaders/post-processing/hdr.frag");
-
+	ComputeShader fogShader = ComputeShader("engine/resources/shaders/post-processing/fog.comp");
 
 	Sphere sphereLightVolume = Sphere(1.0f, 16, 8);
 

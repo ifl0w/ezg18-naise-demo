@@ -78,7 +78,7 @@ CameraSelectionSystem::CameraSelectionSystem(CameraSequence cameraSequence) {
 	debugCamera->add<TransformComponent>();
 	debugCamera->component<TransformComponent>().position = vec3(10, 10, 50);
 	debugCamera->component<TransformComponent>().rotation = quat(vec3(radians<float>(5), radians<float>(30), radians<float>(0)));
-	debugCamera->add<CameraComponent>();
+	debugCamera->add<CameraComponent>(glm::radians<float>(60), 0.1, 10000, 1024, 768);
 	debugCamera->add<InputComponent>();
 	debugCamera->component<InputComponent>().add<Actions::MoveForward>();
 	debugCamera->component<InputComponent>().add<Actions::MoveBackward>();

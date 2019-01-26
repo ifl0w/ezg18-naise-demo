@@ -42,6 +42,7 @@ RenderEngine::RenderEngine(int viewportWidth, int viewportHeight)
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	motionBlurTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	fogTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 
 	// enable back face culling
 	glEnable(GL_CULL_FACE);
@@ -145,6 +146,7 @@ void RenderEngine::setViewportSize(int width, int height) {
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	motionBlurTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	fogTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 }
 
 void RenderEngine::setMultiSampling(int sampling) {
@@ -167,6 +169,7 @@ void RenderEngine::setMultiSampling(int sampling) {
 	luminanceTexture = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	luminanceTexture2 = make_unique<Texture>(ivec2(viewportWidth, viewportHeight));
 	motionBlurTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
+	fogTarget = make_unique<PostProcessingTarget>(viewportWidth, viewportHeight, multiSampling);
 }
 
 void RenderEngine::setResolution(int width, int height, int sampling) {
@@ -402,6 +405,23 @@ void RenderEngine::screenSpaceReflectionPass(){
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 
+}
+
+int RenderEngine::fogPass(int inputTexture, const Light& light) {
+	auto groups = ivec3((viewportWidth / 16) + 1, (viewportHeight / 16) + 1, 1);
+
+	// combine glow and bright areas
+	fogShader.useShader();
+
+	glBindImageTexture(0, inputTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA16F);
+	glBindImageTexture(1, deferredTarget->gPosition, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F); // current position
+	glBindImageTexture(2, fogTarget->output, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
+
+	glUniform3fv(glGetUniformLocation(fogShader.shaderID, "lightDirection"), 1, value_ptr(light.data.direction));
+
+	fogShader.compute(groups);
+
+	return fogTarget->output;
 }
 
 void RenderEngine::drawMeshDirect(const Mesh& mesh) {
@@ -906,7 +926,7 @@ void RenderEngine::motionBlurPass(float deltaTime, glm::mat4 previousViewMatrix,
 					   value_ptr(previousProjectionMatrix));
 
 	glActiveTexture(GL_TEXTURE0 + 0);
-	glBindTexture(GL_TEXTURE_2D, blendingTarget->output);
+	glBindTexture(GL_TEXTURE_2D, fogTarget->output);
 
 	glBindImageTexture(0, deferredTarget->gPosition, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F); // current position
 

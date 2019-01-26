@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
 	auto sun = make_shared<NAISE::Engine::Entity>();
 	sun->add<TransformComponent>();
 	sun->add(LightFactory::createLight<DirectionalLight>());
-	sun->component<LightComponent>().light->data.direction = vec4(-1, -2, -1, 1);
+	sun->component<LightComponent>().light->data.direction = vec4(1, -2, -1, 1);
 	sun->component<LightComponent>().light->data.diffuse = vec4(6000, 6000, 6000, 1);
 	sun->component<LightComponent>().light->data.ambient = vec4(200); // TODO: adapt GLTF Loader default parameter for radius calculation
 

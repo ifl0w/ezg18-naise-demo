@@ -101,6 +101,8 @@ void RenderSystem::_postProcessing(std::chrono::microseconds deltaTime) {
 	// SCREEN SPACE REFLECTIONS
 	_renderEngine->screenSpaceReflectionPass();
 
+	_renderEngine->fogPass(_renderEngine->blendingTarget->output, *_activeSun->component<LightComponent>().light.get());
+
 	_renderEngine->motionBlurPass(sec.count(), previousViewMatrix, previousProjectionMatrix);
 }
 

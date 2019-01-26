@@ -311,83 +311,52 @@
             "uri" : "conveyor_belt.bin"
         }
     ],
-    "extensions" : {
-        "KHR_lights_punctual" : {
-            "lights" : [
-                {
-                    "color" : [
-                        1,
-                        1,
-                        1
-                    ],
-                    "intensity" : 10,
-                    "name" : "Point",
-                    "type" : "point"
-                },
-                {
-                    "color" : [
-                        1,
-                        1,
-                        1
-                    ],
-                    "intensity" : 100,
-                    "name" : "Point",
-                    "type" : "point"
-                }
-            ]
-        }
-    },
-    "extensionsRequired" : [
-        "KHR_lights_punctual"
-    ],
-    "extensionsUsed" : [
-        "KHR_lights_punctual"
-    ],
+    "extensions" : {},
     "images" : [
         {
-            "mimeType" : "image/jpg",
+            "mimeType" : "image/png",
             "name" : "box_normal",
-            "uri" : "box_normal.jpg"
+            "uri" : "box_normal.png"
         },
         {
-            "mimeType" : "image/jpg",
+            "mimeType" : "image/png",
             "name" : "box_diff",
-            "uri" : "box_diff.jpg"
+            "uri" : "box_diff.png"
         },
         {
-            "mimeType" : "image/jpg",
+            "mimeType" : "image/png",
             "name" : "box_mr",
-            "uri" : "box_mr.jpg"
+            "uri" : "box_mr.png"
         },
         {
-            "mimeType" : "image/jpg",
+            "mimeType" : "image/png",
             "name" : "belt_norm",
-            "uri" : "belt_norm.jpg"
+            "uri" : "belt_norm.png"
         },
         {
-            "mimeType" : "image/jpg",
+            "mimeType" : "image/png",
             "name" : "belt_diff",
-            "uri" : "belt_diff.jpg"
+            "uri" : "belt_diff.png"
         },
         {
-            "mimeType" : "image/jpg",
+            "mimeType" : "image/png",
             "name" : "belt_mr",
-            "uri" : "belt_mr.jpg"
+            "uri" : "belt_mr.png"
         },
         {
-            "mimeType" : "image/jpg",
+            "mimeType" : "image/png",
             "name" : "base_norm",
-            "uri" : "base_norm.jpg"
+            "uri" : "base_norm.png"
         },
         {
-            "mimeType" : "image/jpg",
+            "mimeType" : "image/png",
             "name" : "base_diff",
-            "uri" : "base_diff.jpg"
+            "uri" : "base_diff.png"
         },
         {
-            "mimeType" : "image/jpg",
+            "mimeType" : "image/png",
             "name" : "base_mr",
-            "uri" : "base_mr.jpg"
+            "uri" : "base_mr.png"
         }
     ],
     "materials" : [
@@ -543,7 +512,7 @@
             ],
             "translation" : [
                 -0.03718741238117218,
-                1.1398096084594727,
+                1.1398100852966309,
                 -0.7599908113479614
             ]
         },
@@ -567,7 +536,7 @@
             "translation" : [
                 0,
                 0.4947558045387268,
-                -13.184000015258789
+                -12.15999984741211
             ]
         },
         {
@@ -584,32 +553,6 @@
                 9.999483108520508,
                 9.999483108520508
             ]
-        },
-        {
-            "extensions" : {
-                "KHR_lights_punctual" : {
-                    "light" : 1
-                }
-            },
-            "name" : "light_Orientation",
-            "rotation" : [
-                -0.7071067690849304,
-                0,
-                0,
-                0.7071067690849304
-            ]
-        },
-        {
-            "children" : [
-                4
-            ],
-            "extensions" : {},
-            "name" : "light",
-            "translation" : [
-                0,
-                4.890732765197754,
-                0
-            ]
         }
     ],
     "scene" : 0,
@@ -622,8 +565,7 @@
             "nodes" : [
                 0,
                 2,
-                3,
-                5
+                3
             ]
         }
     ],
