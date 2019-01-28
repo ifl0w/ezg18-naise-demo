@@ -68,13 +68,13 @@ public:
 
 	void skyboxPass();
 	void hdrPass(float deltaTime);
-	void motionBlurPass(float deltaTime, glm::mat4 previousViewMatrix, glm::mat4 previousProjectionMatrix);
+	int motionBlurPass(int inputTexture, float deltaTime, glm::mat4 previousViewMatrix, glm::mat4 previousProjectionMatrix);
 	void glowPass();
 	void gammaCorrection();
 	int fogPass(int inputTexture, const Light& light);
 	void screenSpaceReflectionPass();
 
-	void resolveFrameBufferObject();
+	void resolveFrameBufferObject(int inputTexture);
 
     ScreenSpaceReflectionsShader screenSpaceReflectionsShader;
 
@@ -114,7 +114,7 @@ public:
 	uint32_t drawCallCount = 0;
 private:
 	std::unique_ptr<DeferredRenderTarget> deferredTarget;
-	std::unique_ptr<PostProcessingTarget> postProcessingTarget;
+	std::unique_ptr<PostProcessingTarget> glowTarget;
 	glm::ivec2 glowTextureSize;
 
 	std::unique_ptr<HiZRenderTarget> hiZTarget;

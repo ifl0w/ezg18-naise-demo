@@ -56,6 +56,10 @@ public:
 		this->skybox = skybox;
 	}
 
+	bool motionBlur = true;
+	bool screenSpaceReflections = true;
+	bool fog = true;
+
 private:
 	std::shared_ptr<RenderEngine> _renderEngine;
 	std::unique_ptr<CascadedShadowMapper> _cascadedShadowMapper = std::make_unique<CascadedShadowMapper>();
@@ -103,7 +107,7 @@ private:
 	 */
 	RenderCore::RenderCommandBuffer _debugCommandBuffer();
 
-	void _postProcessing(std::chrono::microseconds deltaTime);
+	int _postProcessing(std::chrono::microseconds deltaTime);
 
 	/**
 	 * Iterates over all renderable objects and tests if they are

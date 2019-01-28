@@ -74,10 +74,10 @@ void RenderSystem::process(microseconds deltaTime) {
 
 	_renderEngine->executeCommandBuffer(_lightsCommandBuffer());
 
-	_postProcessing(deltaTime);
+	int postProcessResult = _postProcessing(deltaTime);
 
 //	NAISE_DEBUG_CONSOL("Draw calls: {}", _renderEngine->drawCallCount)
-	_renderEngine->resolveFrameBufferObject();
+	_renderEngine->resolveFrameBufferObject(postProcessResult);
 
 	if (_visualDebugging) {
 		_renderEngine->executeCommandBuffer(_debugCommandBuffer());
@@ -87,7 +87,7 @@ void RenderSystem::process(microseconds deltaTime) {
 	previousProjectionMatrix = _activeCamera->component<CameraComponent>().getProjectionMatrix();
 }
 
-void RenderSystem::_postProcessing(std::chrono::microseconds deltaTime) {
+int RenderSystem::_postProcessing(std::chrono::microseconds deltaTime) {
 	//SKYBOX
 	_renderEngine->skyboxPass();
 
@@ -98,12 +98,23 @@ void RenderSystem::_postProcessing(std::chrono::microseconds deltaTime) {
 	//GLOW
 	_renderEngine->glowPass();
 
+	int chain = _renderEngine->hdrTarget->output;
+
 	// SCREEN SPACE REFLECTIONS
-	_renderEngine->screenSpaceReflectionPass();
+	if (screenSpaceReflections) {
+		_renderEngine->screenSpaceReflectionPass();
+		chain = _renderEngine->blendingTarget->output;
+	}
 
-	_renderEngine->fogPass(_renderEngine->blendingTarget->output, *_activeSun->component<LightComponent>().light.get());
+	if (fog) {
+		chain = _renderEngine->fogPass(chain, *_activeSun->component<LightComponent>().light.get());
+	}
 
-	_renderEngine->motionBlurPass(sec.count(), previousViewMatrix, previousProjectionMatrix);
+	if (motionBlur) {
+		chain = _renderEngine->motionBlurPass(chain, sec.count(), previousViewMatrix, previousProjectionMatrix);
+	}
+
+	return chain;
 }
 
 bool RenderSystem::_cullEntity(Entity& camera, Entity& entity) {
