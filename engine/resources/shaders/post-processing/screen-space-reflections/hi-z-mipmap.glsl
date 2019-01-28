@@ -20,7 +20,7 @@ void main()
         vec4 minDepth;
         vec4 maxDepth;
 
-        int offset = 1;
+        const int offset = 1;
 
         minDepth.r = texture( lastImage, TexCoords ).r; // current depth
         minDepth.g = textureOffset( lastImage, TexCoords, ivec2(0, offset) ).r;
