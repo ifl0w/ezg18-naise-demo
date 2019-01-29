@@ -16,5 +16,5 @@ layout(std140, binding = 0) uniform screenData
 
 void main() {
     // fragment position vector
-    shadowmap = gl_FragDepth;
+    shadowmap = gl_FragCoord.z;
 }
