@@ -14,7 +14,7 @@ void main() {
 
     vec4 current = imageLoad(combined, ivec2(gl_GlobalInvocationID.xy));
 
-    float threshold = log(lum.w)*1.5;
+    float threshold = log(lum.w) * 2 + 2.5;
     float value = lum.x;
     if (threshold < value) {
         float colorMultiplier = (value - threshold)/max(value, 0.0001);
